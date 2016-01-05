@@ -1,0 +1,12 @@
+bin/
+build/
+run/
+.gradle/
+.settings/
+
+# Eclipse
+*.launch
+.classpath
+.project
+
+# Idea
