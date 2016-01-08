@@ -1,0 +1,24 @@
+{
+    "components": [
+		{
+			"name":"cart",
+			"identifier":"traincraft:component/train/cart",
+			"origin": 0,
+			"attachPointUp": 0,
+			"components": [
+			    {
+			        "name":"wheel_1",
+			        "identifier":"traincraft:component/wheel_small",
+			        "origin":0,
+			        "attachPointUp": -0.25
+			    },
+			    {
+			        "name":"wheel_2",
+			        "identifier":"traincraft:component/wheel_small",
+			        "origin":0,
+			        "attachPointUp": 0.25
+			    }
+			]
+		}
+    ]
+}

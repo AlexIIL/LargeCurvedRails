@@ -1,0 +1,16 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "textures": { }
+    },
+    "variants": {
+        "facing": {
+            "north_south": { "model":"minecraft:normal_rail_flat" },
+            "east_west":   { "model":"minecraft:normal_rail_flat", "y": 90 },
+            "south_east":  { "model":"minecraft:normal_rail_curved" },
+            "south_west":  { "model":"minecraft:normal_rail_curved", "y": 90 },
+            "north_west":  { "model":"minecraft:normal_rail_curved", "y": 180 },
+            "north_east":  { "model":"minecraft:normal_rail_curved", "y": 270 }
+        }
+    }    
+}

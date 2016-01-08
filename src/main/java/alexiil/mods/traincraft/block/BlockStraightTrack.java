@@ -4,16 +4,45 @@ import java.util.Locale;
 
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.*;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathStraight;
+import alexiil.mods.traincraft.entity.EntityRollingStockBase;
+import alexiil.mods.traincraft.entity.EntityRollingStockPulled;
 
 public class BlockStraightTrack extends BlockAbstractTrack {
     public enum EnumDirection implements IStringSerializable {
+        // AXIS ALIGNED SECTIONS
         NORTH_SOUTH,
-        EAST_WEST;
+        EAST_WEST,
+        // DIAGONAL DIRECTIONS
+        NORTH_EAST,
+        NORTH_WEST,
+        SOUTH_EAST,
+        SOUTH_WEST;
+
+        private TrackPathStraight path;
+
+        static {
+            BlockPos creator = new BlockPos(0, 0, 0);
+
+            Vec3 north = new Vec3(0.5, 0, 0);
+            Vec3 south = new Vec3(0.5, 0, 1);
+            Vec3 west = new Vec3(0, 0, 0.5);
+            Vec3 east = new Vec3(1, 0, 0.5);
+
+            NORTH_SOUTH.path = new TrackPathStraight(north, south, creator);
+            EAST_WEST.path = new TrackPathStraight(east, west, creator);
+
+            NORTH_EAST.path = new TrackPathStraight(north, east, creator);
+            NORTH_WEST.path = new TrackPathStraight(north, west, creator);
+            SOUTH_EAST.path = new TrackPathStraight(south, east, creator);
+            SOUTH_WEST.path = new TrackPathStraight(south, west, creator);
+        }
 
         @Override
         public String getName() {
@@ -23,39 +52,43 @@ public class BlockStraightTrack extends BlockAbstractTrack {
 
     public static final PropertyEnum<EnumDirection> TRACK_DIRECTION = PropertyEnum.create("facing", EnumDirection.class);
 
+    private static final float HEIGHT = 0.125f;
+    private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, HEIGHT, 1);
+
     public BlockStraightTrack() {
         super(TRACK_DIRECTION);
     }
 
     @Override
-    public ITrackPath path(IBlockAccess access, BlockPos pos, EnumFacing approximateDirection) {
-        IBlockState state = access.getBlockState(pos);
-        if (state.getBlock() != this) return null;
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY,
+            float hitZ) {
+        // Temp
+        if (world.isRemote) return true;
+        EntityRollingStockBase entity = new EntityRollingStockPulled(world);
+        entity.setPosition(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+        world.spawnEntityInWorld(entity);
+        return true;
+    }
+
+    @Override
+    public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
+        return BOUNDING_BOX.offset(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    @Override
+    public AxisAlignedBB getSelectedBoundingBox(World worldIn, BlockPos pos) {
+        return BOUNDING_BOX.offset(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess worldIn, BlockPos pos) {
+        setBlockBounds(0, 0, 0, 1, HEIGHT, 1);
+    }
+
+    @Override
+    public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
         EnumDirection dir = state.getValue(TRACK_DIRECTION);
-        if (dir == EnumDirection.NORTH_SOUTH) {
-            if (approximateDirection == EnumFacing.NORTH) {
-                Vec3 start = new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ() + 1);
-                Vec3 end = start.addVector(0, 0, -1);
-                return new TrackPathStraight(start, end);
-            } else {
-                /* Assume its north. If its not north then the tracks haven't been connected properly and the train
-                 * manager will derail the train because of the fast change in direction. */
-                Vec3 start = new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ());
-                Vec3 end = start.addVector(0, 0, 1);
-                return new TrackPathStraight(start, end);
-            }
-        } else {
-            if (approximateDirection == EnumFacing.WEST) {
-                Vec3 start = new Vec3(pos.getX() + 1, pos.getY(), pos.getZ() + 0.5);
-                Vec3 end = start.addVector(-1, 0, 0);
-                return new TrackPathStraight(start, end);
-            } else {
-                /* Assume its east. If its not east then the tracks haven't been connected properly and the train
-                 * manager will derail the train because of the fast change in direction. */
-                Vec3 start = new Vec3(pos.getX(), pos.getY(), pos.getZ() + 0.5);
-                Vec3 end = start.addVector(1, 0, 0);
-                return new TrackPathStraight(start, end);
-            }
-        }
+        ITrackPath path = dir.path.offset(pos);
+        return new ITrackPath[] { path };
     }
 }

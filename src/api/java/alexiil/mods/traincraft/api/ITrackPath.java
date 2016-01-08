@@ -1,12 +1,12 @@
 package alexiil.mods.traincraft.api;
 
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 
 public interface ITrackPath {
     /** Gets a Vec3 position that has been interpolated between
      * 
-     * @param position A position between (and including) 0 and 1. Other values will throw an
-     *            {@link IllegalArgumentException} */
+     * @param position A position between (and including) 0 and 1. Other values */
     Vec3 interpolate(double position);
 
     /** Get the direction of the track path at a particular interpolated point. */
@@ -22,7 +22,7 @@ public interface ITrackPath {
 
     /** Reverses the track path. Useful if the start is the opposite end of what you need. Should just invert the result
      * of {@link #interpolate(double)}. */
-    default ITrackPath reverse() {
+    default ITrackPath reverse() {// DIRECTIONS ARE INCORRRECT IN SOME WAY
         return new TrackPathReversed(this);
     }
 
@@ -30,13 +30,9 @@ public interface ITrackPath {
      *         {@link #end()}. Curved sections will be longer. */
     double length();
 
-    /** Offsets this track path by the given amount. Useful for aligning the start to what the end should be. */
-    ITrackPath offset(Vec3 by);
-
-    public static void checkInterp(double position) {
-        if (position < 0) throw new IllegalArgumentException("Position (" + position + ") was less than 0!");
-        if (position > 1) throw new IllegalArgumentException("Position (" + position + ") was greater than 1!");
-    }
+    /** Offsets this track path by the given amount. Useful for caching a single path object (that works out the length)
+     * and offsetting it for every block position that exists. */
+    ITrackPath offset(BlockPos pos);
 
     public static Vec3 interpolate(Vec3 start, Vec3 end, double position) {
         double x = start.xCoord * position + end.xCoord * (1 - position);
@@ -44,4 +40,7 @@ public interface ITrackPath {
         double z = start.zCoord * position + end.zCoord * (1 - position);
         return new Vec3(x, y, z);
     }
+
+    /** @return The block position that created this path */
+    BlockPos creatingBlock();
 }

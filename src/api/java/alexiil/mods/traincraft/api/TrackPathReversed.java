@@ -1,5 +1,6 @@
 package alexiil.mods.traincraft.api;
 
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 
 public class TrackPathReversed implements ITrackPath {
@@ -28,11 +29,16 @@ public class TrackPathReversed implements ITrackPath {
 
     @Override
     public Vec3 direction(double position) {
-        return ORIGIN.subtract(original.direction(position));
+        return ORIGIN.subtract(original.direction(1 - position));
     }
 
     @Override
-    public ITrackPath offset(Vec3 by) {
+    public ITrackPath offset(BlockPos by) {
         return new TrackPathReversed(original.offset(by));
+    }
+
+    @Override
+    public BlockPos creatingBlock() {
+        return original.creatingBlock();
     }
 }
