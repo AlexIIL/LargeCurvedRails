@@ -21,7 +21,7 @@ public class MessageCreateTrain implements IMessage, IMessageHandler<MessageCrea
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        train = Train.readFromByteBuf(buf);
+        train = Train.createFromByteBuf(buf);
     }
 
     @Override

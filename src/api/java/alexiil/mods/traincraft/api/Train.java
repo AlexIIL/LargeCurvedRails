@@ -122,7 +122,7 @@ public class Train {
     }
 
     @SideOnly(Side.CLIENT)
-    public static Train readFromByteBuf(ByteBuf buffer) {
+    public static Train createFromByteBuf(ByteBuf buffer) {
         World world = Minecraft.getMinecraft().theWorld;
         if (world == null) return null;
 
@@ -147,6 +147,13 @@ public class Train {
             }
         }
         Train t = new Train(trainId, stockList);
+        t.readFromByteBuf(buffer);
+        return t;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void readFromByteBuf(ByteBuf buffer) {
+        World world = Minecraft.getMinecraft().theWorld;
 
         List<BlockPos> positions = new ArrayList<>();
         List<ITrackPath> paths = new ArrayList<>();
@@ -162,9 +169,10 @@ public class Train {
             positions.add(pos);
             paths.add(reversed ? potential[index].reverse() : potential[index]);
         }
-        t.trackPositions.addAll(positions);
-        t.trackPaths.addAll(paths);
-        return t;
+        trackPositions.clear();
+        trackPaths.clear();
+        trackPositions.addAll(positions);
+        trackPaths.addAll(paths);
     }
 
     public void writeToByteBuf(ByteBuf buffer) {
@@ -381,6 +389,10 @@ public class Train {
     /** Computes the next path along from the given path in the given direction. For simplicities sake you can call this
      * from either the server or the client to get a path. */
     public ITrackPath requestNextTrackPath(IRollingStock caller, ITrackPath currentPath, Face direction) {
+        if (trackPaths.isEmpty()) {
+            if (currentPath == null) trackPaths.add(TrainCraftAPI.MOVEMENT_MANAGER.closest(caller, direction));
+            else trackPaths.add(currentPath);
+        }
         if (trackPaths.contains(currentPath)) {
             int index = trackPaths.indexOf(currentPath) + (direction == Face.BACK ? 1 : -1);
             if (index == trackPaths.size() || index == -1) {

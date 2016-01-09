@@ -1,6 +1,5 @@
 package alexiil.mods.traincraft.entity;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
@@ -11,7 +10,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.*;
+import alexiil.mods.traincraft.api.IRollingStock;
+import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.TrackPathProvider;
+import alexiil.mods.traincraft.api.Train;
 
 public abstract class EntityRollingStockBase extends Entity implements IRollingStock {
     private static final int DATA_WATCHER_FLAGS = 5;
@@ -28,7 +30,6 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     private static final int FLAG_HAS_PATH = 1;
     private static final int FLAG_PATH_REVERSED = 2;
 
-    private BlockPos currentTrack;
     private ITrackPath currentPath;
     private double progress = 0;
     private double lastRecievedProgress = 0;
@@ -118,7 +119,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
                     int x = dataWatcher.getWatchableObjectInt(DATA_WATCHER_LAST_TRACK_X);
                     int y = dataWatcher.getWatchableObjectInt(DATA_WATCHER_LAST_TRACK_Y);
                     int z = dataWatcher.getWatchableObjectInt(DATA_WATCHER_LAST_TRACK_Z);
-                    currentTrack = new BlockPos(x, y, z);
+                    BlockPos currentTrack = new BlockPos(x, y, z);
 
                     int index = dataWatcher.getWatchableObjectInt(DATA_WATCHER_PATH_INDEX);
 
@@ -134,7 +135,6 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
                         }
                     }
                 } else {
-                    currentTrack = null;
                     currentPath = null;
                 }
             }
@@ -149,60 +149,23 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
 
         } else {
             // Find the best track path
-            if (currentTrack == null || currentPath == null) {
-                currentTrack = new BlockPos(this);
-                IBlockState state = getEntityWorld().getBlockState(currentTrack);
-                ITrackBlock track = TrackPathProvider.getBlockFor(getEntityWorld(), currentTrack, state);
-                if (track == null) {
-                    // try the block below?
-                    currentTrack = currentTrack.down();
-                    state = getEntityWorld().getBlockState(currentTrack);
-                    track = TrackPathProvider.getBlockFor(getEntityWorld(), currentTrack, state);
-                }
-                if (track == null) {
-                    // try the block above?
-                    currentTrack = currentTrack.up(2);
-                    state = getEntityWorld().getBlockState(currentTrack);
-                    track = TrackPathProvider.getBlockFor(getEntityWorld(), currentTrack, state);
-                }
+            if (currentPath == null) {
+                currentPath = getTrain().requestNextTrackPath(this, null, Face.FRONT);
 
-                if (track == null) {
-                    currentTrack = null;
+                if (currentPath == null) {
                     dataWatcher.updateObject(DATA_WATCHER_FLAGS, 0);
                 } else {
-                    ITrackPath bestPath = null;
-                    double smallestDist = Double.POSITIVE_INFINITY;
                     int bestIndex = -1;
-                    int i = 0;
                     boolean reversed = false;
-                    for (ITrackPath path : track.paths(getEntityWorld(), currentTrack, state)) {
-                        boolean rev = false;
-                        double dist = vec3().squareDistanceTo(path.start());
-                        double endDist = vec3().squareDistanceTo(path.end());
-                        if (dist > endDist) {
-                            rev = true;
-                            path = path.reverse();
-                            dist = endDist;
-                        }
-
-                        if (dist < smallestDist) {
-                            bestPath = path;
-                            bestIndex = i;
-                            reversed = rev;
-                        }
-                        i++;
-                    }
-                    if (bestPath != null) {
-                        currentPath = bestPath;
-                        dataWatcher.updateObject(DATA_WATCHER_LAST_TRACK_X, currentTrack.getX());
-                        dataWatcher.updateObject(DATA_WATCHER_LAST_TRACK_Y, currentTrack.getY());
-                        dataWatcher.updateObject(DATA_WATCHER_LAST_TRACK_Z, currentTrack.getZ());
+                    if (currentPath != null) {
+                        dataWatcher.updateObject(DATA_WATCHER_LAST_TRACK_X, currentPath.creatingBlock().getX());
+                        dataWatcher.updateObject(DATA_WATCHER_LAST_TRACK_Y, currentPath.creatingBlock().getY());
+                        dataWatcher.updateObject(DATA_WATCHER_LAST_TRACK_Z, currentPath.creatingBlock().getZ());
                         dataWatcher.updateObject(DATA_WATCHER_FLAGS, FLAG_HAS_PATH + (reversed ? FLAG_PATH_REVERSED : 0));
                         dataWatcher.updateObject(DATA_WATCHER_PATH_INDEX, bestIndex);
                         dataWatcher.updateObject(DATA_WATCHER_PROGRESS, 0f);
                     } else {
                         dataWatcher.updateObject(DATA_WATCHER_FLAGS, 0);
-                        currentTrack = null;
                     }
                 }
             }
@@ -216,8 +179,10 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
                     setPosition(newPos.xCoord, newPos.yCoord, newPos.zCoord);
                     // Because we are off the path, lets just reset it to 0 and pretend nothing happened
                     // TODO: Past paths! And future paths!
-                    currentPath = null;
                     progress = progress - 1;
+                    ITrackPath path = currentPath;
+                    currentPath = getTrain().requestNextTrackPath(this, currentPath, Face.FRONT);
+                    getTrain().disposePath(path, this, Face.FRONT);
                 } else {
                     Vec3 newPos = currentPath.interpolate(progress);
                     setPosition(newPos.xCoord, newPos.yCoord, newPos.zCoord);

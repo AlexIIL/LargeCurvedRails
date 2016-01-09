@@ -17,7 +17,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.ITrainWorldCache;
 import alexiil.mods.traincraft.api.Train;
+import alexiil.mods.traincraft.network.MessageCreateTrain;
 import alexiil.mods.traincraft.network.MessageDeleteTrain;
+import alexiil.mods.traincraft.network.MessageHandler;
+import alexiil.mods.traincraft.network.MessageUpdateTrain;
+
+import io.netty.buffer.ByteBuf;
 
 public enum TrainWorldCache implements ITrainWorldCache {
     INSTANCE;
@@ -62,12 +67,21 @@ public enum TrainWorldCache implements ITrainWorldCache {
         if (tsd == null) throw new IllegalStateException("Tried to load a train from dimension id " + dimId
             + " but there was not a loaded world for it!");
         tsd.trains.put(train.id, train);
+        if (side == Side.CLIENT) return;
+        MessageCreateTrain create = new MessageCreateTrain(train);
+        MessageHandler.INSTANCE.getWrapper().sendToDimension(create, dimId);
     }
 
     @Override
     public void deleteTrainIfUnused(Train train) {
-
         MessageDeleteTrain delete = new MessageDeleteTrain(0, train.id);
+
+        Entity ent = (Entity) train.parts().get(0);
+        World world = ent.getEntityWorld();
+        if (world == null) throw new NullPointerException("train.randomStock.world was null!");
+        int dimId = world.provider.getDimensionId();
+
+        MessageHandler.INSTANCE.getWrapper().sendToDimension(delete, dimId);
     }
 
     @SideOnly(Side.CLIENT)
@@ -88,6 +102,27 @@ public enum TrainWorldCache implements ITrainWorldCache {
         data.trains.put(trainId, train);
     }
 
+    @Override
+    public void updateTrain(Train train) {
+        MessageUpdateTrain update = new MessageUpdateTrain(train);
+
+        Entity ent = (Entity) train.parts().get(0);
+        World world = ent.getEntityWorld();
+        if (world == null) throw new NullPointerException("train.randomStock.world was null!");
+        int dimId = world.provider.getDimensionId();
+
+        MessageHandler.INSTANCE.getWrapper().sendToDimension(update, dimId);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void recieveUpdateMessage(int dimId, int trainId, ByteBuf data) {
+        TrainSavedData tsd = trainMap.get(Side.CLIENT).get(dimId);
+        if (tsd == null) throw new IllegalStateException("Tried to load a train from dimension id " + dimId
+            + " but there was not a loaded world for it!");
+        Train t = tsd.trains.get(trainId);
+        t.readFromByteBuf(data);
+    }
+
     public static class TrainSavedData extends WorldSavedData {
         private final Map<Integer, Train> trains = new HashMap<>();
 
@@ -104,11 +139,5 @@ public enum TrainWorldCache implements ITrainWorldCache {
         public void writeToNBT(NBTTagCompound nbt) {
 
         }
-    }
-
-    @Override
-    public void updateTrain(Train train) {
-        // TODO Auto-generated method stub
-
     }
 }

@@ -13,6 +13,10 @@ public enum MessageHandler {
         wrapper = NetworkRegistry.INSTANCE.newSimpleChannel("TrainCraft");
         wrapper.registerMessage(MessageDeleteTrain.class, MessageDeleteTrain.class, 0, Side.CLIENT);
         wrapper.registerMessage(MessageCreateTrain.class, MessageCreateTrain.class, 1, Side.CLIENT);
-//        wrapper.registerMessage(MessageUpdateTrain.class, MessageUpdateTrain.class, 2, Side.CLIENT);
+        wrapper.registerMessage(MessageUpdateTrain.class, MessageUpdateTrain.class, 2, Side.CLIENT);
+    }
+
+    public SimpleNetworkWrapper getWrapper() {
+        return wrapper;
     }
 }
