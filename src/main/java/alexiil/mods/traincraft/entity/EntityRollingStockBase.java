@@ -10,10 +10,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.IRollingStock;
-import alexiil.mods.traincraft.api.ITrackPath;
-import alexiil.mods.traincraft.api.TrackPathProvider;
-import alexiil.mods.traincraft.api.Train;
+import alexiil.mods.traincraft.api.*;
 
 public abstract class EntityRollingStockBase extends Entity implements IRollingStock {
     private static final int DATA_WATCHER_FLAGS = 5;
@@ -34,7 +31,8 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     private double progress = 0;
     private double lastRecievedProgress = 0;
 
-    private Train train = new Train(this);
+    // Init this in the tick
+    private Train train = null;
 
     private Vec3 lookVec = new Vec3(0, 0, 1);
 
@@ -43,6 +41,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
 
     public EntityRollingStockBase(World worldIn) {
         super(worldIn);
+        TrainCraftAPI.apiLog.info("EntityRollingStockBase::<init> | Created with an ID of " + getEntityId());
     }
 
     @Override
@@ -59,6 +58,12 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     public Vec3 getPathPosition() {
         if (currentPath == null) return super.getPositionVector();
         return currentPath.interpolate(progress);
+    }
+
+    @Override
+    public Vec3 getPathDirection(Face direction) {
+        if (currentPath == null) return lookVec;
+        return direction == Face.FRONT ? currentPath.direction(progress) : new Vec3(0, 0, 0).subtract(currentPath.direction(progress));
     }
 
     @SideOnly(Side.CLIENT)
@@ -101,6 +106,14 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     @Override
     public void onUpdate() {
         super.onUpdate();
+        // This sends the train before the client has the entity... somehow....
+        TrainCraftAPI.apiLog.info("EntityRollingStockBase::onUpdate | Ticked with an ID of " + getEntityId() + ", " + worldObj.isRemote);
+        if (train == null) {
+            if (getEntityWorld().isRemote) return;
+            train = new Train(this);
+            TrainCraftAPI.WORLD_CACHE.createTrain(train);
+            return;
+        }
         // getTrain().tick(this);
         if (getEntityWorld().isRemote) {
             // double speed = dataWatcher.getWatchableObjectFloat(DATA_WATCHER_SPEED);

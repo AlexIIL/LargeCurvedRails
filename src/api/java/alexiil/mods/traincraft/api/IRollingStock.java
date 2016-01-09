@@ -113,4 +113,6 @@ public interface IRollingStock {
      * {@link Train#requestNextTrackPath(IRollingStock, ITrackPath)} if the given path is null or is not contained by
      * the train in order to find a path to follow. */
     Vec3 getPathPosition();
+
+    Vec3 getPathDirection(Face direction);
 }

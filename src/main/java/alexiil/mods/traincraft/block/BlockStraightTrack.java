@@ -11,6 +11,8 @@ import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathStraight;
+import alexiil.mods.traincraft.api.Train;
+import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
 import alexiil.mods.traincraft.entity.EntityRollingStockPulled;
 
@@ -65,7 +67,8 @@ public class BlockStraightTrack extends BlockAbstractTrack {
         // Temp
         if (world.isRemote) return true;
         EntityRollingStockBase entity = new EntityRollingStockPulled(world);
-        entity.setPosition(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+        ITrackPath path = paths(world, pos, state)[0];
+        entity.setPosition(path.start().xCoord, path.start().yCoord, path.start().zCoord);
         world.spawnEntityInWorld(entity);
         return true;
     }

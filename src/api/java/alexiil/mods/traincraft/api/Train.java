@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.IRollingStock.Face;
 
 import io.netty.buffer.ByteBuf;
@@ -123,11 +124,25 @@ public class Train {
 
     @SideOnly(Side.CLIENT)
     public static Train createFromByteBuf(ByteBuf buffer) {
+        StringBuilder builder = new StringBuilder(buffer.readableBytes() + "= [");
+        for (int i = 0; i < buffer.readableBytes(); i++) {
+            int unsigned = buffer.getUnsignedByte(buffer.readerIndex() + i);
+            if (i > 0) builder.append(" ");
+            builder.append(Integer.toHexString(unsigned));
+        }
+        TrainCraft.trainCraftLog.info("Train::createFromByteBuf | Recieved packet " + builder + "]");
+
+        int header = buffer.readUnsignedByte();
+        if (header != 0xCE) throw new IllegalArgumentException("You called the wrong method!");
+
         World world = Minecraft.getMinecraft().theWorld;
+        TrainCraft.trainCraftLog.info("Using world " + world);
         if (world == null) return null;
 
         int trainId = buffer.readInt();
         int dimId = buffer.readInt();
+
+        TrainCraft.trainCraftLog.info("Creating in dim ID " + dimId + ", actual id = " + world.provider.getDimensionId());
 
         // Something probably went wrong- we no longer have the world the train was in.
         if (world.provider.getDimensionId() != dimId) return null;
@@ -141,9 +156,9 @@ public class Train {
                 IRollingStock stock = (IRollingStock) ent;
                 stockList.add(stock);
             } else if (ent == null) {
-                TrainCraftAPI.apiLog.warn("Train::readFromByteBuf | Tried to get the train entity for " + entId + " but found null");
+                TrainCraftAPI.apiLog.warn("Train::createFromByteBuf | Tried to get the train entity for " + entId + " but found null");
             } else {
-                TrainCraftAPI.apiLog.warn("Train::readFromByteBuf | Tried to get the train entity for " + entId + " but found " + ent.getClass());
+                TrainCraftAPI.apiLog.warn("Train::createFromByteBuf | Tried to get the train entity for " + entId + " but found " + ent.getClass());
             }
         }
         Train t = new Train(trainId, stockList);
@@ -153,6 +168,17 @@ public class Train {
 
     @SideOnly(Side.CLIENT)
     public void readFromByteBuf(ByteBuf buffer) {
+        StringBuilder builder = new StringBuilder(buffer.readableBytes() + "= [");
+        for (int i = 0; i < buffer.readableBytes(); i++) {
+            int unsigned = buffer.getUnsignedByte(buffer.readerIndex() + i);
+            if (i > 0) builder.append(" ");
+            builder.append(Integer.toHexString(unsigned));
+        }
+        TrainCraft.trainCraftLog.info("Train::readFromByteBuf | Recieved packet " + builder + "]");
+
+        int header = buffer.readUnsignedByte();
+        if (header != 0xAE) throw new IllegalArgumentException("You called the wrong method!");
+
         World world = Minecraft.getMinecraft().theWorld;
 
         List<BlockPos> positions = new ArrayList<>();
@@ -175,19 +201,36 @@ public class Train {
         trackPaths.addAll(paths);
     }
 
-    public void writeToByteBuf(ByteBuf buffer) {
-        buffer.writeInt(id);
+    public void writeCreateToByteBuf(ByteBuf buf) {
+        // Write a header. This makes sure that the correct method is called
+        // 0xCE means a create message
+        // 0xAE means an amending (updating) message
+        buf.writeByte(0xCE);
+
+        buf.writeInt(id);
 
         // Write out the approximate location (world dimension id)
         Entity ent = (Entity) parts.get(0);
         World world = ent.getEntityWorld();
-        buffer.writeInt(world.provider.getDimensionId());
+        buf.writeInt(world.provider.getDimensionId());
 
-        buffer.writeInt(parts.size());
+        buf.writeInt(parts.size());
         for (IRollingStock stock : parts) {
             Entity entity = (Entity) stock;
-            buffer.writeInt(entity.getEntityId());
+            buf.writeInt(entity.getEntityId());
+            TrainCraftAPI.apiLog.info("  - Writing Entity " + entity.getEntityId());
         }
+        writeToByteBuf(buf);
+    }
+
+    public void writeToByteBuf(ByteBuf buffer) {
+        // Write a header. This makes sure that the correct method is called
+        // 0xCE means a create message
+        // 0xAE means an amending (updating) message
+        buffer.writeByte(0xAE);
+
+        Entity ent = (Entity) parts.get(0);
+        World world = ent.getEntityWorld();
 
         List<BlockPos> positions;
         List<ITrackPath> paths;
@@ -390,8 +433,15 @@ public class Train {
      * from either the server or the client to get a path. */
     public ITrackPath requestNextTrackPath(IRollingStock caller, ITrackPath currentPath, Face direction) {
         if (trackPaths.isEmpty()) {
-            if (currentPath == null) trackPaths.add(TrainCraftAPI.MOVEMENT_MANAGER.closest(caller, direction));
-            else trackPaths.add(currentPath);
+            if (currentPath == null) {
+                ITrackPath closest = TrainCraftAPI.MOVEMENT_MANAGER.closest(caller, direction);
+                if (closest == null) return null;
+                trackPaths.add(closest);
+                trackPositions.add(closest.creatingBlock());
+            } else {
+                trackPaths.add(currentPath);
+                trackPositions.add(currentPath.creatingBlock());
+            }
         }
         if (trackPaths.contains(currentPath)) {
             int index = trackPaths.indexOf(currentPath) + (direction == Face.BACK ? 1 : -1);
@@ -419,5 +469,11 @@ public class Train {
             trackPaths.remove(index);
             trackPositions.remove(index);
         }
+    }
+
+    @Override
+    public String toString() {
+        final int maxLen = 10;
+        return id + ", " + uuid + ", " + (parts != null ? parts.subList(0, Math.min(parts.size(), maxLen)) : null) + ", " + lastTick;
     }
 }

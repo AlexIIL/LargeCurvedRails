@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
@@ -11,6 +12,7 @@ import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -37,15 +39,15 @@ public enum TrainWorldCache implements ITrainWorldCache {
 
     @SubscribeEvent
     public void loadWorld(WorldEvent.Load load) {
-        WorldSavedData savedData = load.world.loadItemData(TrainSavedData.class, "traincraft/train_data");
+        WorldSavedData savedData = load.world.loadItemData(TrainSavedData.class, "traincraft-cache");
         if (savedData instanceof TrainSavedData) {
             Side side = load.world.isRemote ? Side.CLIENT : Side.SERVER;
             trainMap.get(side).put(load.world.provider.getDimensionId(), (TrainSavedData) savedData);
         } else if (savedData == null) {
             Side side = load.world.isRemote ? Side.CLIENT : Side.SERVER;
-            TrainSavedData trains = new TrainSavedData("traincraft/train_data");
+            TrainSavedData trains = new TrainSavedData("traincraft-cache");
             trainMap.get(side).put(load.world.provider.getDimensionId(), trains);
-            load.world.setItemData("traincraft/train_data", trains);
+            load.world.setItemData("traincraft-cache", trains);
         } else throw new IllegalStateException(savedData.getClass() + " Was not the correct type! Should have been " + TrainSavedData.class);
     }
 
@@ -53,6 +55,18 @@ public enum TrainWorldCache implements ITrainWorldCache {
     public void unloadWorld(WorldEvent.Unload unload) {
         Side side = unload.world.isRemote ? Side.CLIENT : Side.SERVER;
         trainMap.get(side).remove(unload.world.provider.getDimensionId());
+    }
+
+    @SubscribeEvent
+    public void playerSwitchDim(PlayerEvent.PlayerChangedDimensionEvent event) {
+        EntityPlayerMP player = (EntityPlayerMP) event.player;
+        int dimId = event.toDim;
+        trainMap.get(Side.SERVER).get(dimId).sendAllTrains(player);
+    }
+    
+    @SubscribeEvent
+    public void playerJoinServer(PlayerEvent.PlayerLoggedInEvent event) {
+//        event.player
     }
 
     @Override
@@ -63,6 +77,7 @@ public enum TrainWorldCache implements ITrainWorldCache {
         if (world == null) throw new NullPointerException("train.randomStock.world was null!");
         int dimId = world.provider.getDimensionId();
         Side side = world.isRemote ? Side.CLIENT : Side.SERVER;
+        TrainCraft.trainCraftLog.info("created id " + train.id);
         TrainSavedData tsd = trainMap.get(side).get(dimId);
         if (tsd == null) throw new IllegalStateException("Tried to load a train from dimension id " + dimId
             + " but there was not a loaded world for it!");
@@ -120,6 +135,7 @@ public enum TrainWorldCache implements ITrainWorldCache {
         if (tsd == null) throw new IllegalStateException("Tried to load a train from dimension id " + dimId
             + " but there was not a loaded world for it!");
         Train t = tsd.trains.get(trainId);
+        if (t == null) throw new IllegalStateException("Found a null train for trainId " + trainId);
         t.readFromByteBuf(data);
     }
 
@@ -138,6 +154,21 @@ public enum TrainWorldCache implements ITrainWorldCache {
         @Override
         public void writeToNBT(NBTTagCompound nbt) {
 
+        }
+
+        @Override
+        public boolean isDirty() {
+            return true;
+        }
+
+        public void sendAllTrains(EntityPlayerMP player) {
+            TrainCraft.trainCraftLog.info("Sending all trains (" + trains.size() + ") to " + player);
+            int i = 0;
+            for (Train train : trains.values()) {
+                TrainCraft.trainCraftLog.info("  - Sending train " + i++ + ": " + train);
+                MessageCreateTrain create = new MessageCreateTrain(train);
+                MessageHandler.INSTANCE.getWrapper().sendTo(create, player);
+            }
         }
     }
 }

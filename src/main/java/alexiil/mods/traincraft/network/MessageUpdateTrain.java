@@ -46,7 +46,7 @@ public class MessageUpdateTrain implements IMessage, IMessageHandler<MessageUpda
 
     @Override
     public IMessage onMessage(MessageUpdateTrain message, MessageContext ctx) {
-        TrainWorldCache.INSTANCE.recieveUpdateMessage(dimId, trainId, data);
+        TrainWorldCache.INSTANCE.recieveUpdateMessage(message.dimId, message.trainId, message.data);
         return null;
     }
 }
