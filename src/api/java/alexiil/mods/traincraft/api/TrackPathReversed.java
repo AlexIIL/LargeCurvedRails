@@ -1,5 +1,7 @@
 package alexiil.mods.traincraft.api;
 
+import java.util.Objects;
+
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 
@@ -40,5 +42,19 @@ public class TrackPathReversed implements ITrackPath {
     @Override
     public BlockPos creatingBlock() {
         return original.creatingBlock();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(original);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        TrackPathReversed other = (TrackPathReversed) obj;
+        return Objects.equals(original, other.original);
     }
 }

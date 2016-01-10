@@ -151,7 +151,7 @@ public class Train {
         List<IRollingStock> stockList = new ArrayList<>(num);
         for (int i = 0; i < num; i++) {
             int entId = buffer.readInt();
-            Entity ent = world.getEntityByID(dimId);
+            Entity ent = world.getEntityByID(entId);
             if (ent instanceof IRollingStock) {
                 IRollingStock stock = (IRollingStock) ent;
                 stockList.add(stock);
@@ -409,6 +409,12 @@ public class Train {
         // We only apply one twentieth of the resistance as we are applying it per tick rather than per second.
         applyBrakes(totalResistance / 20.0);
     }
+
+    // ###########################
+    //
+    // Path changes
+    //
+    // ###########################
 
     private ITrackPath computeNextPath(World world, Face direction) {
         ITrackPath end = direction == Face.FRONT ? trackPaths.get(0) : trackPaths.get(trackPaths.size() - 1);

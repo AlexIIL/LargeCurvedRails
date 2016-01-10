@@ -1,5 +1,7 @@
 package alexiil.mods.traincraft.network;
 
+import net.minecraft.client.Minecraft;
+
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -33,7 +35,10 @@ public class MessageDeleteTrain implements IMessage, IMessageHandler<MessageDele
 
     @Override
     public IMessage onMessage(MessageDeleteTrain message, MessageContext ctx) {
-        TrainWorldCache.INSTANCE.deleteTrainIfUnused(message.worldDimId, message.trainId);
+        /* Run this on the main thread otherwise the world will not have synchronized with the netty thread */
+        Minecraft.getMinecraft().addScheduledTask(() -> {
+            TrainWorldCache.INSTANCE.deleteTrainIfUnused(message.worldDimId, message.trainId);
+        });
         return null;
     }
 }

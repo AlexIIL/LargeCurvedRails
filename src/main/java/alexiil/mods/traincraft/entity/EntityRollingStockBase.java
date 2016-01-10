@@ -2,7 +2,6 @@ package alexiil.mods.traincraft.entity;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -10,22 +9,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.*;
+import alexiil.mods.traincraft.api.IRollingStock;
+import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.Train;
+import alexiil.mods.traincraft.api.TrainCraftAPI;
 
 public abstract class EntityRollingStockBase extends Entity implements IRollingStock {
-    private static final int DATA_WATCHER_FLAGS = 5;
-
     private static final int DATA_WATCHER_PROGRESS = 6;
-
-    private static final int DATA_WATCHER_LAST_TRACK_X = 7;
-    private static final int DATA_WATCHER_LAST_TRACK_Y = 8;
-    private static final int DATA_WATCHER_LAST_TRACK_Z = 9;
-
-    private static final int DATA_WATCHER_PATH_INDEX = 10;
-    private static final int DATA_WATCHER_SPEED = 11;
-
-    private static final int FLAG_HAS_PATH = 1;
-    private static final int FLAG_PATH_REVERSED = 2;
+    private static final int DATA_WATCHER_SPEED = 7;
 
     private ITrackPath currentPath;
     private double progress = 0;
@@ -41,7 +32,8 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
 
     public EntityRollingStockBase(World worldIn) {
         super(worldIn);
-        TrainCraftAPI.apiLog.info("EntityRollingStockBase::<init> | Created with an ID of " + getEntityId());
+        if (worldObj != null) TrainCraftAPI.apiLog.info("EntityRollingStockBase::<init> | Created with an ID of " + getEntityId() + ", "
+            + worldObj.isRemote + ", found = " + (worldObj.getEntityByID(getEntityId()) != null));
     }
 
     @Override
@@ -106,8 +98,6 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     @Override
     public void onUpdate() {
         super.onUpdate();
-        // This sends the train before the client has the entity... somehow....
-        TrainCraftAPI.apiLog.info("EntityRollingStockBase::onUpdate | Ticked with an ID of " + getEntityId() + ", " + worldObj.isRemote);
         if (train == null) {
             if (getEntityWorld().isRemote) return;
             train = new Train(this);
@@ -121,35 +111,13 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
 
             // Update the server side progress seperatly from the client side progress
             double prog = dataWatcher.getWatchableObjectFloat(DATA_WATCHER_PROGRESS);
-            if (prog != lastRecievedProgress) {
+            if (prog > lastRecievedProgress) {
                 progress = prog;
                 lastRecievedProgress = prog;
-            }
-
-            if (hasChangedPaths()) {
-                int flags = dataWatcher.getWatchableObjectInt(DATA_WATCHER_FLAGS);
-                if ((flags & FLAG_HAS_PATH) == FLAG_HAS_PATH) {
-                    int x = dataWatcher.getWatchableObjectInt(DATA_WATCHER_LAST_TRACK_X);
-                    int y = dataWatcher.getWatchableObjectInt(DATA_WATCHER_LAST_TRACK_Y);
-                    int z = dataWatcher.getWatchableObjectInt(DATA_WATCHER_LAST_TRACK_Z);
-                    BlockPos currentTrack = new BlockPos(x, y, z);
-
-                    int index = dataWatcher.getWatchableObjectInt(DATA_WATCHER_PATH_INDEX);
-
-                    ITrackPath[] paths = TrackPathProvider.getPathsFor(worldObj, currentTrack, worldObj.getBlockState(currentTrack));
-                    if (index >= paths.length || index < 0) {
-                        // Something went wrong...
-                        currentPath = null;
-                        currentTrack = null;
-                    } else {
-                        currentPath = paths[index];
-                        if ((flags & FLAG_PATH_REVERSED) == FLAG_PATH_REVERSED) {
-                            currentPath = currentPath.reverse();
-                        }
-                    }
-                } else {
-                    currentPath = null;
-                }
+            } else {// We must have changed paths (THIS IS UGLY!)
+                progress = prog;
+                lastRecievedProgress = prog;
+                currentPath = getTrain().requestNextTrackPath(this, currentPath, Face.FRONT);
             }
 
             if (currentPath != null) {
@@ -165,22 +133,11 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
             if (currentPath == null) {
                 currentPath = getTrain().requestNextTrackPath(this, null, Face.FRONT);
 
-                if (currentPath == null) {
-                    dataWatcher.updateObject(DATA_WATCHER_FLAGS, 0);
-                } else {
-                    int bestIndex = -1;
-                    boolean reversed = false;
-                    if (currentPath != null) {
-                        dataWatcher.updateObject(DATA_WATCHER_LAST_TRACK_X, currentPath.creatingBlock().getX());
-                        dataWatcher.updateObject(DATA_WATCHER_LAST_TRACK_Y, currentPath.creatingBlock().getY());
-                        dataWatcher.updateObject(DATA_WATCHER_LAST_TRACK_Z, currentPath.creatingBlock().getZ());
-                        dataWatcher.updateObject(DATA_WATCHER_FLAGS, FLAG_HAS_PATH + (reversed ? FLAG_PATH_REVERSED : 0));
-                        dataWatcher.updateObject(DATA_WATCHER_PATH_INDEX, bestIndex);
-                        dataWatcher.updateObject(DATA_WATCHER_PROGRESS, 0f);
-                    } else {
-                        dataWatcher.updateObject(DATA_WATCHER_FLAGS, 0);
-                    }
-                }
+                // The client "lerps" between a place and another place on the track. Maybe the client shouldn't request
+                // things? Maybe the client needs the current track path at all times?
+                
+                // Maybe the component should save+send the blockpos of the path and future path to use? but why only a single one? should the train request more?
+
             }
 
             // Use the current track path
@@ -207,21 +164,6 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
         }
     }
 
-    private boolean hasChangedPaths() {
-        return true;
-        // List<WatchableObject> list = dataWatcher.getChanged();
-        // if (list == null) return false;
-        // for (WatchableObject watched : list) {
-        // int id = watched.getDataValueId();
-        // if (id == DATA_WATCHER_FLAGS) return true;
-        // if (id == DATA_WATCHER_LAST_TRACK_X) return true;
-        // if (id == DATA_WATCHER_LAST_TRACK_Y) return true;
-        // if (id == DATA_WATCHER_LAST_TRACK_Z) return true;
-        // if (id == DATA_WATCHER_PATH_INDEX) return true;
-        // }
-        // return false;
-    }
-
     public Vec3 vec3() {
         return new Vec3(posX, posY, posZ);
     }
@@ -229,14 +171,6 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     @Override
     protected void entityInit() {
         // Flags
-        dataWatcher.addObject(DATA_WATCHER_FLAGS, 0);
-
-        // Last Track Pos
-        dataWatcher.addObject(DATA_WATCHER_LAST_TRACK_X, 0);
-        dataWatcher.addObject(DATA_WATCHER_LAST_TRACK_Y, 0);
-        dataWatcher.addObject(DATA_WATCHER_LAST_TRACK_Z, 0);
-
-        dataWatcher.addObject(DATA_WATCHER_PATH_INDEX, 0);
         dataWatcher.addObject(DATA_WATCHER_PROGRESS, 0.0f);
         dataWatcher.addObject(DATA_WATCHER_SPEED, (float) speedMPT);
     }

@@ -1,5 +1,7 @@
 package alexiil.mods.traincraft.api;
 
+import java.util.Objects;
+
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 
@@ -68,5 +70,27 @@ public class TrackPathCurved implements ITrackPath {
     @Override
     public BlockPos creatingBlock() {
         return creator;
+    }
+
+    @Override
+    public int hashCode() {
+        // Vec3 does not define hashCode and equals so we must use our own.
+        return MCObjectUtils.hash(bezOffset, creator, end, length, start);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        TrackPathCurved other = (TrackPathCurved) obj;
+        // @formatter:off
+        return length == other.length &&
+                Objects.equals(creator, other.creator) &&
+                // Vec3 does not define hashCode and equals so we must use our own.
+                MCObjectUtils.equals(start, other.start) &&
+                MCObjectUtils.equals(bezOffset, other.bezOffset) &&
+                MCObjectUtils.equals(end, other.end);
+        // @formatter:on
     }
 }

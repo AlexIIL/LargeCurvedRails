@@ -1,5 +1,6 @@
 package alexiil.mods.traincraft.network;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
@@ -7,6 +8,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.TrainWorldCache;
 import alexiil.mods.traincraft.api.Train;
 
@@ -34,6 +36,7 @@ public class MessageUpdateTrain implements IMessage, IMessageHandler<MessageUpda
         trainId = buf.readInt();
         int length = buf.readInt();
         data = buf.readBytes(length);
+        TrainCraft.trainCraftLog.info("MessageUpdateTrain::fromBytes | Read train " + trainId + " and " + length + " bytes of payload");
     }
 
     @Override
@@ -42,11 +45,17 @@ public class MessageUpdateTrain implements IMessage, IMessageHandler<MessageUpda
         buf.writeInt(trainId);
         buf.writeInt(data.readableBytes());
         buf.writeBytes(data);
+        TrainCraft.trainCraftLog.info("MessageUpdateTrain::toBytes | Wrote train " + trainId + " and " + data.writerIndex() + " bytes of payload");
     }
 
     @Override
     public IMessage onMessage(MessageUpdateTrain message, MessageContext ctx) {
-        TrainWorldCache.INSTANCE.recieveUpdateMessage(message.dimId, message.trainId, message.data);
+        /* Run this on the main thread otherwise the world will not have synchronized with the netty thread */
+        Minecraft.getMinecraft().addScheduledTask(() -> {
+            TrainCraft.trainCraftLog.info("MessageUpdateTrain::onMessage | Recieved an update for train " + message.trainId + " in " + message.data
+                    .readableBytes() + " bytes");
+            TrainWorldCache.INSTANCE.recieveUpdateMessage(message.dimId, message.trainId, message.data);
+        });
         return null;
     }
 }

@@ -63,10 +63,10 @@ public enum TrainWorldCache implements ITrainWorldCache {
         int dimId = event.toDim;
         trainMap.get(Side.SERVER).get(dimId).sendAllTrains(player);
     }
-    
+
     @SubscribeEvent
     public void playerJoinServer(PlayerEvent.PlayerLoggedInEvent event) {
-//        event.player
+        // event.player
     }
 
     @Override
@@ -77,7 +77,7 @@ public enum TrainWorldCache implements ITrainWorldCache {
         if (world == null) throw new NullPointerException("train.randomStock.world was null!");
         int dimId = world.provider.getDimensionId();
         Side side = world.isRemote ? Side.CLIENT : Side.SERVER;
-        TrainCraft.trainCraftLog.info("created id " + train.id);
+        TrainCraft.trainCraftLog.info("TrainWorldCache::createTrain | Ccreated id " + train.id + " on side " + side);
         TrainSavedData tsd = trainMap.get(side).get(dimId);
         if (tsd == null) throw new IllegalStateException("Tried to load a train from dimension id " + dimId
             + " but there was not a loaded world for it!");
