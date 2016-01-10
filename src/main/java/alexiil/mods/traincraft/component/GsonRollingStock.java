@@ -1,11 +1,13 @@
 package alexiil.mods.traincraft.component;
 
 public class GsonRollingStock {
-    public GsonComponent[] components;
+    public GsonComponent component;
+    public double connectionOffsetFront, connectionOffsetBack;
 
     public static class GsonComponent {
         public String identifier;
-        public GsonComponent[] components;
+        public GsonComponent frontUnder;
+        public GsonComponent backUnder;
         public double origin, attachPointUp;
         public double[] boundingBoxMin, boundingBoxMax;
     }

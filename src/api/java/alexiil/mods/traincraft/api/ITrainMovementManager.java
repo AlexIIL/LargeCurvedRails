@@ -3,6 +3,7 @@ package alexiil.mods.traincraft.api;
 import net.minecraft.world.IBlockAccess;
 
 import alexiil.mods.traincraft.api.IRollingStock.Face;
+import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 
 /** Provides a way for trains to find the next path dependant on a previous path. */
 public interface ITrainMovementManager {
@@ -10,5 +11,5 @@ public interface ITrainMovementManager {
      * null or {@link ITrackPath#start()} will equal then given path's {@link ITrackPath#end()} */
     ITrackPath next(IBlockAccess access, ITrackPath from);
 
-    ITrackPath closest(IRollingStock caller, Face direction);
+    ITrackPath closest(ComponentTrackFollower comp, Face direction);
 }

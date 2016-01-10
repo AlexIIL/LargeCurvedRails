@@ -1,7 +1,7 @@
 package alexiil.mods.traincraft.api;
 
 public interface ITrainWorldCache {
-    /** Creates and sends this train to the client.
+    /** Creates a new train to be saved and loaded witb the world.
      * 
      * @param train The new train that has been created */
     void createTrain(Train newTrain);
@@ -14,6 +14,6 @@ public interface ITrainWorldCache {
      * @param train */
     void deleteTrainIfUnused(Train train);
 
-    /** Sends an update packet about the train to the client. */
-    void updateTrain(Train train);
+    // /** Sends an update packet about the train to the client. */
+    // void updateTrain(Train train);
 }

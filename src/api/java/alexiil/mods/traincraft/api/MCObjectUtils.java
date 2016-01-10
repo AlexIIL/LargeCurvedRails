@@ -2,6 +2,9 @@ package alexiil.mods.traincraft.api;
 
 import java.util.Objects;
 
+import net.minecraft.entity.DataWatcher;
+import net.minecraft.entity.DataWatcher.WatchableObject;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 
 public class MCObjectUtils {
@@ -36,5 +39,14 @@ public static int hash(Object... array) {
 
     public static boolean equals(Vec3 a, Vec3 b) {
         return a.xCoord == b.xCoord && a.yCoord == b.yCoord && a.zCoord == b.zCoord;
+    }
+
+    public static BlockPos getWatchableObjectBlockPos(DataWatcher watcher, int id) {
+        for (WatchableObject watchable : watcher.getAllWatched()) {
+            if (watchable.getDataValueId() == id) {
+                return (BlockPos) watchable.getObject();
+            }
+        }
+        throw new IllegalStateException("Did not find a block position!");
     }
 }

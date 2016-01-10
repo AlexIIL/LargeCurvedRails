@@ -11,8 +11,6 @@ import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathStraight;
-import alexiil.mods.traincraft.api.Train;
-import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
 import alexiil.mods.traincraft.entity.EntityRollingStockPulled;
 

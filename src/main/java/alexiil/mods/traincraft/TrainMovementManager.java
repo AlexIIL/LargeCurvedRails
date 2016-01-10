@@ -7,8 +7,12 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 
-import alexiil.mods.traincraft.api.*;
 import alexiil.mods.traincraft.api.IRollingStock.Face;
+import alexiil.mods.traincraft.api.ITrackBlock;
+import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.ITrainMovementManager;
+import alexiil.mods.traincraft.api.TrackPathProvider;
+import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 
 public enum TrainMovementManager implements ITrainMovementManager {
     INSTANCE;
@@ -23,7 +27,10 @@ public enum TrainMovementManager implements ITrainMovementManager {
         for (EnumFacing face : EnumFacing.VALUES) {
             BlockPos nextTry = toTry.offset(face);
             goodPath = next(access, nextTry, from);
-            if (goodPath != null) return goodPath;
+            if (goodPath != null) {
+                TrainCraft.trainCraftLog.info("TrainMovementManager::next | Returning the good path " + goodPath.start() + " -> " + goodPath.end());
+                return goodPath;
+            }
         }
         return null;
     }
@@ -34,31 +41,38 @@ public enum TrainMovementManager implements ITrainMovementManager {
         if (block == null) return null;
         ITrackPath[] paths = block.paths(access, toTry, state);
         if (paths.length == 0) return null;
+        TrainCraft.trainCraftLog.info("TrainMovementManager::next | Comparing " + paths.length + " possible paths");
         for (ITrackPath path : paths) {
-            /* If the end of the gotten path is the same as our end then try reversing it? */
-            if (path.end().distanceTo(from.end()) == 0) path = path.reverse();
-            /* If the ends and starts of our path and the gotten path are both the same then we have the reverse of our
-             * own path */
-            if (path.end().distanceTo(from.start()) == 0 && path.start().distanceTo(from.end()) == 0) return null;
-            Vec3 direction = from.direction(1);
-            Vec3 nextDirection = path.direction(0);
-            // If the directions of both paths are roughly equal then we have found a good path
-            if (direction.distanceTo(nextDirection) < 1e-3) return path;
+            for (ITrackPath p2 : new ITrackPath[] { path, path.reverse() }) {
+                /* If the ends and starts of our path and the gotten path are both the same then we have the reverse of
+                 * our own path */
+                if (p2.end().distanceTo(from.start()) == 0 && p2.start().distanceTo(from.end()) == 0) continue;
+                // If the new path is further away than it should be then try a different path
+                if (p2.start().distanceTo(from.end()) != 0) continue;
+                // Strange behaviour with corners?
+                Vec3 direction = from.direction(1);
+                Vec3 nextDirection = p2.direction(0);
+                TrainCraft.trainCraftLog.info("TrainMovementManager::next | Comparing two paths with directions of " + direction + " and "
+                    + nextDirection);
+                /* If the directions of both paths are roughly equal (and this is VERY rough) then we have found a good
+                 * path */
+                if (direction.distanceTo(nextDirection) <= 1.2) return p2;
+            }
         }
         return null;
     }
 
     @Override
-    public ITrackPath closest(IRollingStock caller, Face direction) {
-        Vec3 current = caller.getPathPosition();
+    public ITrackPath closest(ComponentTrackFollower caller, Face direction) {
+        Vec3 current = caller.getTrackPos();
         BlockPos toTry = new BlockPos(current);
-        Vec3 entDir = caller.getPathDirection(direction);
-        ITrackPath goodPath = closest(((Entity) caller).getEntityWorld(), toTry, current, entDir);
+        Vec3 entDir = caller.getTrackDirection();
+        ITrackPath goodPath = closest(((Entity) caller.stock()).getEntityWorld(), toTry, current, entDir);
         if (goodPath != null) return goodPath;
         // Next try all the blocks around the end...
         for (EnumFacing face : EnumFacing.VALUES) {
             BlockPos nextTry = toTry.offset(face);
-            goodPath = closest(((Entity) caller).getEntityWorld(), nextTry, current, entDir);
+            goodPath = closest(((Entity) caller.stock()).getEntityWorld(), nextTry, current, entDir);
             if (goodPath != null) return goodPath;
         }
         return null;

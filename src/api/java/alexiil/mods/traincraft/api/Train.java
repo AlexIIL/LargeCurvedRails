@@ -5,7 +5,6 @@ import java.util.*;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -13,25 +12,10 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
-import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.IRollingStock.Face;
-
-import io.netty.buffer.ByteBuf;
+import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 
 public class Train {
-    /* Ids are only used to communicate with clients- they are NOT used for saving and loading (We use a full UUID for
-     * that) */
-    private static volatile int nextId = 0;
-
-    // Synchronized so that 1.9 world synch works fully.
-    private static synchronized int nextId() {
-        return nextId++;
-    }
-
-    public final int id;
     public final UUID uuid;
     public final ImmutableList<IRollingStock> parts;
     private final List<BlockPos> trackPositions = Collections.synchronizedList(new LinkedList<>());
@@ -41,32 +25,19 @@ public class Train {
     public Train(IRollingStock stock) {
         if (stock == null) throw new NullPointerException("stock");
         if (!(stock instanceof Entity)) throw new IllegalArgumentException(stock.getClass() + " was not an instanceof Entity!");
-        id = nextId();
         uuid = UUID.randomUUID();
         parts = ImmutableList.of(stock);
         parts.forEach(p -> p.setTrain(this));
     }
 
     private Train(List<IRollingStock> stocks) {
-        id = nextId();
         uuid = UUID.randomUUID();
         parts = ImmutableList.copyOf(stocks);
         parts.forEach(p -> p.setTrain(this));
     }
 
-    /** Constructor used on the client for recieving train objects from the server. The UUID is never sent from the
-     * server so its fine */
-    @SideOnly(Side.CLIENT)
-    Train(int id, List<IRollingStock> stock) {
-        this.id = id;
-        this.uuid = UUID.randomUUID();
-        parts = ImmutableList.copyOf(stock);
-        parts.forEach(p -> p.setTrain(this));
-    }
-
     /** Constructor used on the server (or integrated server) for loading trains from a save file. */
     Train(UUID uuid, List<IRollingStock> stock) {
-        this.id = nextId();
         this.uuid = uuid;
         parts = ImmutableList.copyOf(stock);
         parts.forEach(p -> p.setTrain(this));
@@ -120,157 +91,6 @@ public class Train {
         tag.setTag("paths", paths);
 
         return tag;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static Train createFromByteBuf(ByteBuf buffer) {
-        StringBuilder builder = new StringBuilder(buffer.readableBytes() + "= [");
-        for (int i = 0; i < buffer.readableBytes(); i++) {
-            int unsigned = buffer.getUnsignedByte(buffer.readerIndex() + i);
-            if (i > 0) builder.append(" ");
-            builder.append(Integer.toHexString(unsigned));
-        }
-        TrainCraft.trainCraftLog.info("Train::createFromByteBuf | Recieved packet " + builder + "]");
-
-        int header = buffer.readUnsignedByte();
-        if (header != 0xCE) throw new IllegalArgumentException("You called the wrong method!");
-
-        World world = Minecraft.getMinecraft().theWorld;
-        TrainCraft.trainCraftLog.info("Using world " + world);
-        if (world == null) return null;
-
-        int trainId = buffer.readInt();
-        int dimId = buffer.readInt();
-
-        TrainCraft.trainCraftLog.info("Creating in dim ID " + dimId + ", actual id = " + world.provider.getDimensionId());
-
-        // Something probably went wrong- we no longer have the world the train was in.
-        if (world.provider.getDimensionId() != dimId) return null;
-
-        int num = buffer.readInt();
-        List<IRollingStock> stockList = new ArrayList<>(num);
-        for (int i = 0; i < num; i++) {
-            int entId = buffer.readInt();
-            Entity ent = world.getEntityByID(entId);
-            if (ent instanceof IRollingStock) {
-                IRollingStock stock = (IRollingStock) ent;
-                stockList.add(stock);
-            } else if (ent == null) {
-                TrainCraftAPI.apiLog.warn("Train::createFromByteBuf | Tried to get the train entity for " + entId + " but found null");
-            } else {
-                TrainCraftAPI.apiLog.warn("Train::createFromByteBuf | Tried to get the train entity for " + entId + " but found " + ent.getClass());
-            }
-        }
-        Train t = new Train(trainId, stockList);
-        t.readFromByteBuf(buffer);
-        return t;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void readFromByteBuf(ByteBuf buffer) {
-        StringBuilder builder = new StringBuilder(buffer.readableBytes() + "= [");
-        for (int i = 0; i < buffer.readableBytes(); i++) {
-            int unsigned = buffer.getUnsignedByte(buffer.readerIndex() + i);
-            if (i > 0) builder.append(" ");
-            builder.append(Integer.toHexString(unsigned));
-        }
-        TrainCraft.trainCraftLog.info("Train::readFromByteBuf | Recieved packet " + builder + "]");
-
-        int header = buffer.readUnsignedByte();
-        if (header != 0xAE) throw new IllegalArgumentException("You called the wrong method!");
-
-        World world = Minecraft.getMinecraft().theWorld;
-
-        List<BlockPos> positions = new ArrayList<>();
-        List<ITrackPath> paths = new ArrayList<>();
-        int pathSize = buffer.readInt();
-        for (int i = 0; i < pathSize; i++) {
-            BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
-            int index = buffer.readInt();
-            if (index == -1) continue;
-            boolean reversed = buffer.readBoolean();
-            ITrackPath[] potential = TrackPathProvider.getPathsFor(world, pos, world.getBlockState(pos));
-            if (potential.length <= index) continue;
-
-            positions.add(pos);
-            paths.add(reversed ? potential[index].reverse() : potential[index]);
-        }
-        trackPositions.clear();
-        trackPaths.clear();
-        trackPositions.addAll(positions);
-        trackPaths.addAll(paths);
-    }
-
-    public void writeCreateToByteBuf(ByteBuf buf) {
-        // Write a header. This makes sure that the correct method is called
-        // 0xCE means a create message
-        // 0xAE means an amending (updating) message
-        buf.writeByte(0xCE);
-
-        buf.writeInt(id);
-
-        // Write out the approximate location (world dimension id)
-        Entity ent = (Entity) parts.get(0);
-        World world = ent.getEntityWorld();
-        buf.writeInt(world.provider.getDimensionId());
-
-        buf.writeInt(parts.size());
-        for (IRollingStock stock : parts) {
-            Entity entity = (Entity) stock;
-            buf.writeInt(entity.getEntityId());
-            TrainCraftAPI.apiLog.info("  - Writing Entity " + entity.getEntityId());
-        }
-        writeToByteBuf(buf);
-    }
-
-    public void writeToByteBuf(ByteBuf buffer) {
-        // Write a header. This makes sure that the correct method is called
-        // 0xCE means a create message
-        // 0xAE means an amending (updating) message
-        buffer.writeByte(0xAE);
-
-        Entity ent = (Entity) parts.get(0);
-        World world = ent.getEntityWorld();
-
-        List<BlockPos> positions;
-        List<ITrackPath> paths;
-        synchronized (this) {
-            /* Copy it out so we know that both lists are the same size- we don't want either of them to change size
-             * after we copied one. */
-            positions = new ArrayList<>(this.trackPositions);
-            paths = new ArrayList<>(this.trackPaths);
-        }
-
-        buffer.writeInt(paths.size());
-        for (int i = 0; i < paths.size(); i++) {
-            BlockPos pos = positions.get(i);
-            buffer.writeInt(pos.getX());
-            buffer.writeInt(pos.getY());
-            buffer.writeInt(pos.getZ());
-            IBlockState state = world.getBlockState(pos);
-            ITrackBlock block = TrackPathProvider.getBlockFor(world, pos, state);
-            if (block == null) {
-                buffer.writeInt(-1);
-            } else {
-                ITrackPath[] blockPaths = block.paths(world, pos, state);
-                ITrackPath path = paths.get(i);
-                boolean reversed = false;
-                int index = -1;
-
-                for (int j = 0; j < blockPaths.length; j++) {
-                    if (blockPaths[j].equals(path)) {
-                        index = j;
-                        break;
-                    } else if (blockPaths[j].reverse().equals(path)) {
-                        index = j;
-                        reversed = true;
-                        break;
-                    }
-                }
-                buffer.writeInt(index);
-                if (index != -1) buffer.writeBoolean(reversed);
-            }
-        }
     }
 
     public List<IRollingStock> parts() {
@@ -423,21 +243,20 @@ public class Train {
         if (followOn != null) {
             synchronized (this) {
                 if (direction == Face.FRONT) {
-                    trackPaths.add(0, followOn);
-                    trackPositions.add(0, followOn.creatingBlock());
-                } else {
                     trackPaths.add(followOn);
                     trackPositions.add(followOn.creatingBlock());
+                } else {
+                    trackPaths.add(0, followOn);
+                    trackPositions.add(0, followOn.creatingBlock());
                 }
             }
-            if (!world.isRemote) TrainCraftAPI.WORLD_CACHE.updateTrain(this);
         }
         return followOn;
     }
 
     /** Computes the next path along from the given path in the given direction. For simplicities sake you can call this
      * from either the server or the client to get a path. */
-    public ITrackPath requestNextTrackPath(IRollingStock caller, ITrackPath currentPath, Face direction) {
+    public ITrackPath requestNextTrackPath(ComponentTrackFollower caller, ITrackPath currentPath, Face direction) {
         if (trackPaths.isEmpty()) {
             if (currentPath == null) {
                 ITrackPath closest = TrainCraftAPI.MOVEMENT_MANAGER.closest(caller, direction);
@@ -451,26 +270,32 @@ public class Train {
         }
         if (trackPaths.contains(currentPath)) {
             int index = trackPaths.indexOf(currentPath) + (direction == Face.BACK ? 1 : -1);
+            TrainCraftAPI.apiLog.info("Train::requestNextTrackPath | Finding a new path from index " + index + " for face " + direction);
             if (index == trackPaths.size() || index == -1) {
-                return computeNextPath(((Entity) caller).getEntityWorld(), direction);
-            } else return trackPaths.get(index);
+                return computeNextPath(((Entity) caller.stock()).getEntityWorld(), direction);
+            } else {
+                TrainCraftAPI.apiLog.info("Train::requestNextTrackPath | Returning the old path... ");
+                return trackPaths.get(index);
+            }
         } else {
-            Vec3 pos = caller.getPathPosition();
+            Vec3 pos = caller.getTrackPos();
             for (ITrackPath path : trackPaths) {
                 if (path.start().distanceTo(pos) < 0.1) return path;
                 else if (path.end().distanceTo(pos) < 0.1) return path.reverse();
             }
-            return direction == Face.FRONT ? trackPaths.get(0) : trackPaths.get(trackPaths.size() - 1);
+            return direction == Face.BACK ? trackPaths.get(0) : trackPaths.get(trackPaths.size() - 1);
         }
     }
 
     /** Disposes a path if the caller is the last train in the given direction.
      * 
      * @param face The current direction the train is headed. */
-    public void disposePath(ITrackPath path, IRollingStock caller, Face face) {
+    public void disposePath(ITrackPath path, ComponentTrackFollower caller, Face face) {
         int index = parts.indexOf(caller);
+        TrainCraftAPI.apiLog.info("Train::disposePath | Called with an index of " + index + " and face " + face);
         if (face == Face.FRONT && index != 0) return;
         if (face == Face.BACK && index != parts.size() - 1) return;
+        TrainCraftAPI.apiLog.info("Train::disposePath | Disposing the path...");
         synchronized (this) {
             trackPaths.remove(index);
             trackPositions.remove(index);
@@ -480,6 +305,6 @@ public class Train {
     @Override
     public String toString() {
         final int maxLen = 10;
-        return id + ", " + uuid + ", " + (parts != null ? parts.subList(0, Math.min(parts.size(), maxLen)) : null) + ", " + lastTick;
+        return uuid + ", " + (parts != null ? parts.subList(0, Math.min(parts.size(), maxLen)) : null) + ", " + lastTick;
     }
 }

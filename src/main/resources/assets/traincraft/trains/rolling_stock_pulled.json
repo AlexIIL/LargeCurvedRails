@@ -1,24 +1,22 @@
 {
-    "components": [
-		{
-			"name":"cart",
-			"identifier":"traincraft:component/train/cart",
-			"origin": 0,
-			"attachPointUp": 0,
-			"components": [
-			    {
-			        "name":"wheel_1",
-			        "identifier":"traincraft:component/wheel_small",
-			        "origin":0,
-			        "attachPointUp": -0.25
-			    },
-			    {
-			        "name":"wheel_2",
-			        "identifier":"traincraft:component/wheel_small",
-			        "origin":0,
-			        "attachPointUp": 0.25
-			    }
-			]
-		}
-    ]
+	"connectionOffsetFront": 0.3,
+	"connectionOffsetBack": -0.3,
+    "component":{
+        "name":"cart",
+        "identifier":"traincraft:component/train/cart",
+        "origin":0,
+        "attachPointUp":0,
+        "frontComponent":{
+            "name":"wheel_front",
+            "identifier":"traincraft:component/wheel_small",
+            "origin":0,
+            "attachPointUp":0.25
+        },
+        "backComponent":{
+            "name":"wheel_back",
+            "identifier":"traincraft:component/wheel_small",
+            "origin":0,
+            "attachPointUp":-0.25
+        }
+    }
 }
