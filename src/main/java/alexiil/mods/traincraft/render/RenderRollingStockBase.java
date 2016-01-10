@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -51,7 +49,7 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
         stockModelMap.clear();
     }
 
-    private static IBakedModel getModel(EntityRollingStockBase entity) {
+    public static IBakedModel getModel(EntityRollingStockBase entity) {
         ResourceLocation location = entity.getModelLocation();
         if (!stockModelMap.containsKey(location)) {
             IModel model;
@@ -71,38 +69,44 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
     public void doRender(EntityRollingStockBase entity, double x, double y, double z, float entityYaw, float partialTicks) {
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
         GlStateManager.pushMatrix();
+        GlStateManager.disableDepth();
 
         /* If we are on a track the ignore the actual position of the entity and use whatever rail we are currently
          * on */
-        if (entity.isOnTrack()) {
-            Vec3 interpPlayerPos = renderManager.livingPlayer.getPositionEyes(partialTicks);
-            interpPlayerPos = interpPlayerPos.subtract(0, renderManager.livingPlayer.getEyeHeight(), 0);
+        Vec3 interpPlayerPos = renderManager.livingPlayer.getPositionEyes(partialTicks);
+        interpPlayerPos = interpPlayerPos.subtract(0, renderManager.livingPlayer.getEyeHeight(), 0);
 
-            /* Bit hacky, but this basically ignores the position of this entity so we can ignore it entierly and just
-             * use our own positions */
-            x = -interpPlayerPos.xCoord;
-            y = -interpPlayerPos.yCoord;
-            z = -interpPlayerPos.zCoord;
-            GlStateManager.translate(x, y, z);
+        /* Bit hacky, but this basically ignores the position of this entity so we can ignore it entierly and just use
+         * our own positions */
+        x = -interpPlayerPos.xCoord;
+        y = -interpPlayerPos.yCoord;
+        z = -interpPlayerPos.zCoord;
 
-            Vec3 actualPos = entity.getInterpolatedPosition(partialTicks);
-            GlStateManager.translate(actualPos.xCoord, actualPos.yCoord, actualPos.zCoord);
-        } else {
-            GlStateManager.translate(x, y, z);
-        }
+        GlStateManager.disableTexture2D();
+        GlStateManager.color(1, 1, 1);
+        GL11.glBegin(GL11.GL_LINES);
+        GL11.glVertex3d(0, 0, 0);
+        GL11.glVertex3d(0, 1, 0);
+        GL11.glEnd();
+        GlStateManager.enableTexture2D();
 
-        Vec3 lookVec = entity.getInterpolatedDirection(partialTicks);
+        GlStateManager.translate(x, y, z);
 
-        double tan = Math.atan2(lookVec.xCoord, lookVec.zCoord);
-        // The tan is in radians but OpenGL uses degrees
-        GL11.glRotated(tan * (360 / Math.PI / 2), 0, 1, 0);
+        GlStateManager.disableTexture2D();
+        GlStateManager.color(1, 0, 0);
+        GL11.glBegin(GL11.GL_LINES);
+        GL11.glVertex3d(0, 0, 0);
+        GL11.glVertex3d(0, 1, 0);
+        GL11.glEnd();
+        GlStateManager.enableTexture2D();
 
-        IBakedModel model = getModel(entity);
+        GlStateManager.color(1, 1, 1);
+
         renderManager.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 
-        BlockModelRenderer renderer = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();
-        renderer.renderModelBrightnessColor(model, entity.getBrightness(partialTicks), 1, 1, 1);
+        entity.mainComponent.render(entity, partialTicks);
 
+        GlStateManager.enableDepth();
         GlStateManager.popMatrix();
     }
 

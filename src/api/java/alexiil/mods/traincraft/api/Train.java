@@ -1,15 +1,14 @@
 package alexiil.mods.traincraft.api;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.IRollingStock.Face;
@@ -18,8 +17,6 @@ import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 public class Train {
     public final UUID uuid;
     public final ImmutableList<IRollingStock> parts;
-    private final List<BlockPos> trackPositions = Collections.synchronizedList(new LinkedList<>());
-    private final List<ITrackPath> trackPaths = Collections.synchronizedList(new LinkedList<>());
     private long lastTick = -1;
 
     public Train(IRollingStock stock) {
@@ -70,25 +67,25 @@ public class Train {
         }
         tag.setTag("stock", list);
 
-        World world = ((Entity) parts.get(0)).getEntityWorld();
+        // World world = ((Entity) parts.get(0)).getEntityWorld();
 
-        NBTTagList paths = new NBTTagList();
-        for (int i = 0; i < this.trackPaths.size(); i++) {
-            BlockPos pos = trackPositions.get(i);
-            ITrackPath path = trackPaths.get(i);
-            IBlockState state = world.getBlockState(pos);
-            ITrackPath[] trackPaths = TrackPathProvider.getPathsFor(world, pos, state);
-            for (int j = 0; j < trackPaths.length; j++) {
-                if (trackPaths.equals(path)) {
-
-                    break;
-                }
-            }
-
-            NBTTagCompound comp = new NBTTagCompound();
-            comp.setIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-        }
-        tag.setTag("paths", paths);
+        // NBTTagList paths = new NBTTagList();
+        // for (int i = 0; i < this.trackPaths.size(); i++) {
+        // BlockPos pos = trackPositions.get(i);
+        // ITrackPath path = trackPaths.get(i);
+        // IBlockState state = world.getBlockState(pos);
+        // ITrackPath[] trackPaths = TrackPathProvider.getPathsFor(world, pos, state);
+        // for (int j = 0; j < trackPaths.length; j++) {
+        // if (trackPaths.equals(path)) {
+        //
+        // break;
+        // }
+        // }
+        //
+        // NBTTagCompound comp = new NBTTagCompound();
+        // comp.setIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+        // }
+        // tag.setTag("paths", paths);
 
         return tag;
     }
@@ -236,70 +233,11 @@ public class Train {
     //
     // ###########################
 
-    private ITrackPath computeNextPath(World world, Face direction) {
-        ITrackPath end = direction == Face.FRONT ? trackPaths.get(0) : trackPaths.get(trackPaths.size() - 1);
-        if (direction == Face.BACK) end = end.reverse();
-        ITrackPath followOn = TrainCraftAPI.MOVEMENT_MANAGER.next(world, end);
-        if (followOn != null) {
-            synchronized (this) {
-                if (direction == Face.FRONT) {
-                    trackPaths.add(followOn);
-                    trackPositions.add(followOn.creatingBlock());
-                } else {
-                    trackPaths.add(0, followOn);
-                    trackPositions.add(0, followOn.creatingBlock());
-                }
-            }
-        }
-        return followOn;
-    }
-
     /** Computes the next path along from the given path in the given direction. For simplicities sake you can call this
      * from either the server or the client to get a path. */
     public ITrackPath requestNextTrackPath(ComponentTrackFollower caller, ITrackPath currentPath, Face direction) {
-        if (trackPaths.isEmpty()) {
-            if (currentPath == null) {
-                ITrackPath closest = TrainCraftAPI.MOVEMENT_MANAGER.closest(caller, direction);
-                if (closest == null) return null;
-                trackPaths.add(closest);
-                trackPositions.add(closest.creatingBlock());
-            } else {
-                trackPaths.add(currentPath);
-                trackPositions.add(currentPath.creatingBlock());
-            }
-        }
-        if (trackPaths.contains(currentPath)) {
-            int index = trackPaths.indexOf(currentPath) + (direction == Face.BACK ? 1 : -1);
-            TrainCraftAPI.apiLog.info("Train::requestNextTrackPath | Finding a new path from index " + index + " for face " + direction);
-            if (index == trackPaths.size() || index == -1) {
-                return computeNextPath(((Entity) caller.stock()).getEntityWorld(), direction);
-            } else {
-                TrainCraftAPI.apiLog.info("Train::requestNextTrackPath | Returning the old path... ");
-                return trackPaths.get(index);
-            }
-        } else {
-            Vec3 pos = caller.getTrackPos();
-            for (ITrackPath path : trackPaths) {
-                if (path.start().distanceTo(pos) < 0.1) return path;
-                else if (path.end().distanceTo(pos) < 0.1) return path.reverse();
-            }
-            return direction == Face.BACK ? trackPaths.get(0) : trackPaths.get(trackPaths.size() - 1);
-        }
-    }
-
-    /** Disposes a path if the caller is the last train in the given direction.
-     * 
-     * @param face The current direction the train is headed. */
-    public void disposePath(ITrackPath path, ComponentTrackFollower caller, Face face) {
-        int index = parts.indexOf(caller);
-        TrainCraftAPI.apiLog.info("Train::disposePath | Called with an index of " + index + " and face " + face);
-        if (face == Face.FRONT && index != 0) return;
-        if (face == Face.BACK && index != parts.size() - 1) return;
-        TrainCraftAPI.apiLog.info("Train::disposePath | Disposing the path...");
-        synchronized (this) {
-            trackPaths.remove(index);
-            trackPositions.remove(index);
-        }
+        if (currentPath != null) TrainCraftAPI.MOVEMENT_MANAGER.next(((Entity) caller.stock()).getEntityWorld(), currentPath);
+        return TrainCraftAPI.MOVEMENT_MANAGER.closest(caller, direction);
     }
 
     @Override

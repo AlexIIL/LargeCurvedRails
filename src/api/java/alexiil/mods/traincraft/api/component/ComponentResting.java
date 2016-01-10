@@ -3,15 +3,15 @@ package alexiil.mods.traincraft.api.component;
 import net.minecraft.util.Vec3;
 
 import alexiil.mods.traincraft.api.IRollingStock;
+import alexiil.mods.traincraft.api.ITrackPath;
 
 /** A component that rests ontop of other components, ultimatly resting on {@link ComponentTrackFollower}. */
 public abstract class ComponentResting implements IComponent {
     private final IRollingStock stock;
-    private final IComponent childFront, childBack;
-    private final double frontBack;
+    protected final IComponent childFront, childBack;
+    protected final double frontBack;
 
     public ComponentResting(IRollingStock stock, IComponent childFront, IComponent childBack, double frontBack) {
-        if (stock == null) throw new NullPointerException("stock");
         this.stock = stock;
         if (childFront == null) throw new NullPointerException("childFront");
         this.childFront = childFront;
@@ -23,6 +23,17 @@ public abstract class ComponentResting implements IComponent {
     @Override
     public IRollingStock stock() {
         return stock;
+    }
+
+    @Override
+    public double originOffset() {
+        return 0;
+    }
+
+    @Override
+    public void alignTo(Vec3 position, Vec3 direction, ITrackPath path) {
+        childFront.alignTo(position.add(scale(direction, childFront.originOffset())), direction, path);
+        childBack.alignTo(position.add(scale(direction, childBack.originOffset())), direction, path);
     }
 
     @Override
@@ -44,8 +55,8 @@ public abstract class ComponentResting implements IComponent {
 
     @Override
     public Vec3 getTrackDirection(float partialTicks) {
-        Vec3 front = childFront.getTrackDirection(partialTicks);
-        Vec3 back = childBack.getTrackDirection(partialTicks);
-        return front.add(back).normalize();
+        Vec3 front = childFront.getTrackPos(partialTicks);
+        Vec3 back = childBack.getTrackPos(partialTicks);
+        return back.subtract(front).normalize();
     }
 }

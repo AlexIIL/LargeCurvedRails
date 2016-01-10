@@ -58,7 +58,8 @@ public enum TrainMovementManager implements ITrainMovementManager {
                  * path */
                 if (direction.distanceTo(nextDirection) <= 1.2) return p2;
             }
-        }
+        }// TODO: IS ITrackPath (And Train) a good abstraction? Its not working very well atm... :(
+        TrainCraft.trainCraftLog.info("TrainMovementManager::next | None of the paths were good!");
         return null;
     }
 

@@ -11,6 +11,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.IRollingStock;
+import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.TrackPathProvider;
 import alexiil.mods.traincraft.api.Train;
 import alexiil.mods.traincraft.api.component.IComponent;
 
@@ -18,29 +20,22 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     private static final int DATA_WATCHER_SPEED = 5;
 
     // Each component uses: [ int (flag), float (progress), blockpos (track), int (track index)]
-    private static final int DATA_WATCHER_COMPONENT_START = 6;
-    private static final int DATA_WATCHER_COMPONENT_STRIDE = 4;
-    private static final Object[] DATA_WATCHER_COMPONENT_VARS = { Integer.valueOf(0), Float.valueOf(0), new BlockPos(0, 0, 0), Integer.valueOf(0) };
+    public static final int DATA_WATCHER_COMPONENT_START = 6;
+    public static final int DATA_WATCHER_COMPONENT_STRIDE = 4;
+    private static final Object[] DATA_WATCHER_COMPONENT_VARS = { Integer.valueOf(0), new Integer(0), Float.valueOf(0), new BlockPos(0, 0, 0) };
 
-    private final IComponent mainComponent;
+    public final IComponent mainComponent;
 
-    // Init this in the tick
-    private Train train = null;
+    private Train train = new Train(this);
 
     private Vec3 lookVec = new Vec3(0, 0, 1);
 
     /** Speed (in meters per tick) */
     private double speedMPT = 2.0 / 20.0;
 
-    public EntityRollingStockBase(World world) {
-        super(world);
-        // TODO!
-        mainComponent = null;
-    }
-
     public EntityRollingStockBase(World worldIn, IComponent component) {
         super(worldIn);
-        this.mainComponent = component;
+        this.mainComponent = component.createNew(this);
     }
 
     @Override
@@ -92,7 +87,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
 
     @Override
     public double inclination(Face face) {
-        // We always go forwards atm TODO Change that :)
+        // TODO We always go forwards atm.
         return lookVec.yCoord;
     }
 
@@ -100,16 +95,14 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     public void onUpdate() {
         super.onUpdate();
         mainComponent.tick();
+        Vec3 pos = getPathPosition();
+        setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
     }
 
     @Override
     protected void entityInit() {
         dataWatcher.addObject(DATA_WATCHER_SPEED, (float) speedMPT);
         // Each track following component uses these flags
-
-        // FIXME: Use the number of trackFollowers to init this.
-        // But I might not ba able to...?
-
         for (int i = 0; i < 4; i++) {
             int start = DATA_WATCHER_COMPONENT_START + DATA_WATCHER_COMPONENT_STRIDE * i;
             for (int j = 0; j < DATA_WATCHER_COMPONENT_VARS.length; j++) {
@@ -123,4 +116,10 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound tagCompound) {}
+
+    public void alignToBlock(BlockPos pos) {
+        ITrackPath path = TrackPathProvider.getPathsFor(worldObj, pos, worldObj.getBlockState(pos))[0];
+        Vec3 direction = path.direction(0.5);
+        mainComponent.alignTo(new Vec3(pos).addVector(0.5, 0, 0.5), direction, path);
+    }
 }

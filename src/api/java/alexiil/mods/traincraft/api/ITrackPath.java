@@ -43,4 +43,18 @@ public interface ITrackPath {
 
     /** @return The block position that created this path */
     BlockPos creatingBlock();
+
+    /** Will attempt to find the best progress value that, when fed to {@link #interpolate(double)} returns the vector
+     * that is closest to lastPlace */
+    default double progress(Vec3 lastPlace) {
+        double pointP = 0.5;
+        for (int i = 3; i < 20; i++) {
+            double diff = 2 / (double) i;
+            double aboveDiff = interpolate(pointP + 1e-30).squareDistanceTo(lastPlace);
+            double belowDiff = interpolate(pointP - 1e-30).squareDistanceTo(lastPlace);
+            if (aboveDiff > belowDiff) pointP -= diff;
+            else pointP += diff;
+        }
+        return pointP;
+    }
 }

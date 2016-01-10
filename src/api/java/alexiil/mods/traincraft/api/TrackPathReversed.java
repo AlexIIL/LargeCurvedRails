@@ -57,4 +57,9 @@ public class TrackPathReversed implements ITrackPath {
         TrackPathReversed other = (TrackPathReversed) obj;
         return Objects.equals(original, other.original);
     }
+
+    @Override
+    public double progress(Vec3 lastPlace) {
+        return 1 - original.progress(lastPlace);
+    }
 }

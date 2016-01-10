@@ -6,9 +6,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.IRollingStock;
+import alexiil.mods.traincraft.api.ITrackPath;
 
 public interface IComponent {
     IRollingStock stock();
+
+    double originOffset();
 
     public abstract void tick();
 
@@ -25,5 +28,9 @@ public interface IComponent {
     Vec3 getTrackDirection(float partialTicks);
 
     @SideOnly(Side.CLIENT)
-    void render(IRollingStock stock);
+    void render(IRollingStock stock, float partialTicks);
+
+    IComponent createNew(IRollingStock stock);
+
+    void alignTo(Vec3 position, Vec3 direction, ITrackPath path);
 }

@@ -12,7 +12,7 @@ import net.minecraft.world.World;
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathStraight;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
-import alexiil.mods.traincraft.entity.EntityRollingStockPulled;
+import alexiil.mods.traincraft.entity.EntityRollingStockCart;
 
 public class BlockStraightTrack extends BlockAbstractTrack {
     public enum EnumDirection implements IStringSerializable {
@@ -64,10 +64,9 @@ public class BlockStraightTrack extends BlockAbstractTrack {
             float hitZ) {
         // Temp
         if (world.isRemote) return true;
-        EntityRollingStockBase entity = new EntityRollingStockPulled(world);
-        ITrackPath path = paths(world, pos, state)[0];
-        entity.setPosition(path.start().xCoord, path.start().yCoord, path.start().zCoord);
+        EntityRollingStockBase entity = new EntityRollingStockCart(world);
         world.spawnEntityInWorld(entity);
+        entity.alignToBlock(pos);
         return true;
     }
 
