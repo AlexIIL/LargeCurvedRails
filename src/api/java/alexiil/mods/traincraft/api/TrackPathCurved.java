@@ -93,4 +93,9 @@ public class TrackPathCurved implements ITrackPath {
                 MCObjectUtils.equals(end, other.end);
         // @formatter:on
     }
+
+    @Override
+    public String toString() {
+        return "TrackPathCurved[" + creator + ", " + start + ", " + bezOffset + ", " + end + ", " + length + "]";
+    }
 }

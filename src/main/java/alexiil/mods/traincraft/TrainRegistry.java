@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -32,14 +31,6 @@ public enum TrainRegistry {
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
             | SecurityException e) {
             throw new IllegalArgumentException(e);
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void textureStitch(TextureStitchEvent.Pre stitch) {
-        for (EntityRollingStockBase base : trains.values()) {
-            ResourceLocation location = base.getTextureLocation();
-            stitch.map.registerSprite(location);
         }
     }
 

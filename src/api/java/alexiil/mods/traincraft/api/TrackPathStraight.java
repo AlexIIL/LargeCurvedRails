@@ -66,4 +66,9 @@ public class TrackPathStraight implements ITrackPath {
                 MCObjectUtils.equals(direction, other.direction);
         // @formatter:on
     }
+
+    @Override
+    public String toString() {
+        return "TrackPathStraight[" + creator + ", " + start + ", " + end + ", " + direction + ", " + length + "]";
+    }
 }

@@ -1,19 +1,32 @@
 package alexiil.mods.traincraft.component;
 
-import org.lwjgl.opengl.GL11;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.ResourceLocation;
 
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.component.ComponentResting;
 import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.render.RenderRollingStockBase;
 
 public class ComponentCart extends ComponentResting {
+    private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/cart.obj");
+    private static final ResourceLocation textureLocation = new ResourceLocation("traincraft:trains/cart");
+
     public ComponentCart(IRollingStock stock, IComponent childFront, IComponent childBack, double frontBack) {
         super(stock, childFront, childBack, frontBack);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void textureStitch(TextureStitchEvent.Pre event) {
+        event.map.registerSprite(textureLocation);
     }
 
     @Override
@@ -22,13 +35,14 @@ public class ComponentCart extends ComponentResting {
         childFront.render(stock, partialTicks);
         childBack.render(stock, partialTicks);
 
-        GlStateManager.disableTexture2D();
-        GlStateManager.color(0, 1, 0);
-        GL11.glBegin(GL11.GL_LINES);
-        GL11.glVertex3d(0, 0, 0);
-        GL11.glVertex3d(0, 1, 0);
-        GL11.glEnd();
-        GlStateManager.enableTexture2D();
+        GlStateManager.pushMatrix();
+        preRenderOffsets(stock, partialTicks);
+        
+        IBakedModel model = RenderRollingStockBase.getModel(modelLocation);
+        BlockModelRenderer renderer = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();
+        renderer.renderModelBrightnessColor(model, ((Entity) stock).getBrightness(partialTicks), 1, 1, 1);
+        
+        GlStateManager.popMatrix();
     }
 
     @Override

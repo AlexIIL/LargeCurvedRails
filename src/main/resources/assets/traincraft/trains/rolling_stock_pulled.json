@@ -10,13 +10,13 @@
             "name":"wheel_front",
             "identifier":"traincraft:component/wheel_small",
             "origin":0,
-            "attachPointUp":0.25
+            "attachPointUp":0.45
         },
         "backComponent":{
             "name":"wheel_back",
             "identifier":"traincraft:component/wheel_small",
             "origin":0,
-            "attachPointUp":-0.25
+            "attachPointUp":-0.45
         }
     }
 }

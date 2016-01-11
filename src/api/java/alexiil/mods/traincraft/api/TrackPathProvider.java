@@ -2,7 +2,11 @@ package alexiil.mods.traincraft.api;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+
+import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRailBase;
@@ -12,20 +16,47 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 public class TrackPathProvider {
     private static Map<Block, ITrackBlock> registeredBlocks = new HashMap<>();
 
-    public static ITrackPath[] getPathsFor(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public static ITrackPath[] getPathsAsArray(IBlockAccess access, BlockPos pos, IBlockState state) {
         ITrackBlock block = getBlockFor(access, pos, state);
         if (block == null) return new ITrackPath[0];
         return block.paths(access, pos, state);
+    }
+
+    public static List<ITrackPath> getPathsAsList(IBlockAccess access, BlockPos pos, IBlockState state) {
+        return ImmutableList.copyOf(getPathsAsArray(access, pos, state));
+    }
+
+    public static Stream<ITrackPath> getPathsAsStream(IBlockAccess access, BlockPos pos, IBlockState state) {
+        return Stream.of(getPathsAsArray(access, pos, state));
     }
 
     public static ITrackBlock getBlockFor(IBlockAccess access, BlockPos pos, IBlockState state) {
         Block block = state.getBlock();
         if (block instanceof ITrackBlock) return (ITrackBlock) block;
         return registeredBlocks.get(block);
+    }
+
+    public static int pathIndex(World world, ITrackPath path) {
+        ITrackPath[] arr = getPathsAsArray(world, path.creatingBlock(), world.getBlockState(path.creatingBlock()));
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i].equals(path)) return i;
+            if (arr[i].reverse().equals(path)) return i;
+        }
+        return -1;
+    }
+
+    public static boolean isPathReversed(World world, ITrackPath path) {
+        ITrackPath[] arr = getPathsAsArray(world, path.creatingBlock(), world.getBlockState(path.creatingBlock()));
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i].equals(path)) return false;
+            if (arr[i].reverse().equals(path)) return true;
+        }
+        return false;
     }
 
     public static void registerBlock(Block block, ITrackBlock track) {

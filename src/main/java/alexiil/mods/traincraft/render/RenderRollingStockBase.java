@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -49,8 +47,7 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
         stockModelMap.clear();
     }
 
-    public static IBakedModel getModel(EntityRollingStockBase entity) {
-        ResourceLocation location = entity.getModelLocation();
+    public static IBakedModel getModel(ResourceLocation location) {
         if (!stockModelMap.containsKey(location)) {
             IModel model;
             try {
@@ -69,7 +66,6 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
     public void doRender(EntityRollingStockBase entity, double x, double y, double z, float entityYaw, float partialTicks) {
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
         GlStateManager.pushMatrix();
-        GlStateManager.disableDepth();
 
         /* If we are on a track the ignore the actual position of the entity and use whatever rail we are currently
          * on */
@@ -82,23 +78,7 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
         y = -interpPlayerPos.yCoord;
         z = -interpPlayerPos.zCoord;
 
-        GlStateManager.disableTexture2D();
-        GlStateManager.color(1, 1, 1);
-        GL11.glBegin(GL11.GL_LINES);
-        GL11.glVertex3d(0, 0, 0);
-        GL11.glVertex3d(0, 1, 0);
-        GL11.glEnd();
-        GlStateManager.enableTexture2D();
-
         GlStateManager.translate(x, y, z);
-
-        GlStateManager.disableTexture2D();
-        GlStateManager.color(1, 0, 0);
-        GL11.glBegin(GL11.GL_LINES);
-        GL11.glVertex3d(0, 0, 0);
-        GL11.glVertex3d(0, 1, 0);
-        GL11.glEnd();
-        GlStateManager.enableTexture2D();
 
         GlStateManager.color(1, 1, 1);
 
@@ -106,7 +86,6 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
 
         entity.mainComponent.render(entity, partialTicks);
 
-        GlStateManager.enableDepth();
         GlStateManager.popMatrix();
     }
 

@@ -31,9 +31,9 @@ public abstract class ComponentResting implements IComponent {
     }
 
     @Override
-    public void alignTo(Vec3 position, Vec3 direction, ITrackPath path) {
-        childFront.alignTo(position.add(scale(direction, childFront.originOffset())), direction, path);
-        childBack.alignTo(position.add(scale(direction, childBack.originOffset())), direction, path);
+    public void alignTo(ITrackPath around, double offset) {
+        childFront.alignTo(around, offset + childFront.originOffset());
+        childBack.alignTo(around, offset + childBack.originOffset());
     }
 
     @Override

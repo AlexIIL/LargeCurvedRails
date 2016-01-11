@@ -1,5 +1,8 @@
 package alexiil.mods.traincraft.api.component;
 
+import org.lwjgl.opengl.GL11;
+
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.Vec3;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -30,7 +33,21 @@ public interface IComponent {
     @SideOnly(Side.CLIENT)
     void render(IRollingStock stock, float partialTicks);
 
+    @SideOnly(Side.CLIENT)
+    default void preRenderOffsets(IRollingStock stock, float partialTicks) {
+        Vec3 actualPos = getTrackPos(partialTicks);
+        GlStateManager.translate(actualPos.xCoord, actualPos.yCoord, actualPos.zCoord);
+
+        Vec3 lookVec = getTrackDirection(partialTicks);
+
+        double tan = Math.atan2(lookVec.xCoord, lookVec.zCoord);
+        // The tan is in radians but OpenGL uses degrees
+        GL11.glRotated(tan * (180 / Math.PI), 0, 1, 0);
+
+        GL11.glRotated(Math.asin(-lookVec.yCoord) * 180 / Math.PI, 1, 0, 0);
+    }
+
     IComponent createNew(IRollingStock stock);
 
-    void alignTo(Vec3 position, Vec3 direction, ITrackPath path);
+    void alignTo(ITrackPath around, double meters);
 }

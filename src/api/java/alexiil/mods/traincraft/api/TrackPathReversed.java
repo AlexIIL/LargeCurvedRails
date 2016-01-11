@@ -62,4 +62,9 @@ public class TrackPathReversed implements ITrackPath {
     public double progress(Vec3 lastPlace) {
         return 1 - original.progress(lastPlace);
     }
+
+    @Override
+    public String toString() {
+        return "TrackPathReversed[" + original + "]";
+    }
 }

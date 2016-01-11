@@ -6,11 +6,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.IRollingStock;
+import alexiil.mods.traincraft.api.*;
 import alexiil.mods.traincraft.api.IRollingStock.Face;
-import alexiil.mods.traincraft.api.ITrackPath;
-import alexiil.mods.traincraft.api.MCObjectUtils;
-import alexiil.mods.traincraft.api.TrackPathProvider;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
 
 public abstract class ComponentTrackFollower implements IComponent {
@@ -25,6 +22,7 @@ public abstract class ComponentTrackFollower implements IComponent {
     private final IRollingStock stock;
 
     private ITrackPath currentPath;
+    /** The progress accross the current path, in meters. */
     private double progress = 0;
     private double lastRecievedProgress = 0;
 
@@ -53,29 +51,33 @@ public abstract class ComponentTrackFollower implements IComponent {
     @Override
     public Vec3 getTrackPos(float partialTicks) {
         if (currentPath == null) return lastPlace;
-        if (partialTicks == 0) return lastPlace = currentPath.interpolate(progress);
-        return lastPlace = currentPath.interpolate(progress + partialTicks * stock.speed(Face.FRONT) / currentPath.length());
+        if (partialTicks == 0) return lastPlace = currentPath.interpolate(progress / currentPath.length());
+        return lastPlace = currentPath.interpolate((progress + partialTicks * stock.speed(Face.FRONT) / 20) / currentPath.length());
     }
 
     @Override
     public Vec3 getTrackDirection(float partialTicks) {
         if (currentPath == null) return lookVec;
-        if (partialTicks == 0) return lookVec = currentPath.direction(progress);
-        return lookVec = currentPath.direction(progress + partialTicks * stock.speed(Face.FRONT) / currentPath.length());
+        if (partialTicks == 0) return lookVec = currentPath.direction(progress / currentPath.length());
+        return lookVec = currentPath.direction((progress + partialTicks * stock.speed(Face.FRONT) / 20) / currentPath.length());
     }
 
     @Override
-    public void alignTo(Vec3 position, Vec3 direction, ITrackPath path) {
-        lastPlace = path.interpolate(0);
-        lookVec = path.direction(0);
-        currentPath = stock.getTrain().requestNextTrackPath(this, null, Face.FRONT);
-        lastPlace = position;
-        progress = currentPath.progress(lastPlace);
+    public void alignTo(ITrackPath around, double meters) {
+        around = stock.getTrain().offsetPath(around, meters);
+        currentPath = around;
+        meters = stock.getTrain().offsetMeters(around, meters);
+        progress = meters;
+
         Entity ent = (Entity) stock;
+
+        int index = TrackPathProvider.pathIndex(ent.getEntityWorld(), currentPath);
+        boolean reversed = TrackPathProvider.isPathReversed(ent.getEntityWorld(), currentPath);
+
         DataWatcher dataWatcher = ent.getDataWatcher();
         dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_TRACK_POS, currentPath.creatingBlock());
-        dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, FLAG_HAS_PATH);
-        dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PATH_INDEX, 0);
+        dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, FLAG_HAS_PATH + (reversed ? FLAG_PATH_REVERSED : 0));
+        dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PATH_INDEX, index);
         dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PROGRESS, (float) progress);
     }
 
@@ -90,19 +92,12 @@ public abstract class ComponentTrackFollower implements IComponent {
             // double speed = dataWatcher.getWatchableObjectFloat(DATA_WATCHER_SPEED);
             // speedMPT = speed;
 
-            // Update the server side progress seperatly from the client side progress
-            double prog = dataWatcher.getWatchableObjectFloat(dataWatcherOffset + DATA_WATCHER_PROGRESS);
-            if (prog != lastRecievedProgress) {
-                progress = prog;
-                lastRecievedProgress = prog;
-            }
-
             int flags = dataWatcher.getWatchableObjectInt(dataWatcherOffset + DATA_WATCHER_FLAGS);
             if ((flags & FLAG_HAS_PATH) == FLAG_HAS_PATH) {
                 BlockPos currentTrack = MCObjectUtils.getWatchableObjectBlockPos(dataWatcher, dataWatcherOffset + DATA_WATCHER_TRACK_POS);
                 int index = dataWatcher.getWatchableObjectInt(dataWatcherOffset + DATA_WATCHER_PATH_INDEX);
 
-                ITrackPath[] paths = TrackPathProvider.getPathsFor(world, currentTrack, world.getBlockState(currentTrack));
+                ITrackPath[] paths = TrackPathProvider.getPathsAsArray(world, currentTrack, world.getBlockState(currentTrack));
                 if (index >= paths.length || index < 0) {
                     // Something went wrong...
                     currentPath = null;
@@ -116,12 +111,17 @@ public abstract class ComponentTrackFollower implements IComponent {
             } else {
                 currentPath = null;
             }
-
-            if (currentPath != null) {
+            // Update the server side progress seperatly from the client side progress
+            double prog = dataWatcher.getWatchableObjectFloat(dataWatcherOffset + DATA_WATCHER_PROGRESS);
+            if (prog != lastRecievedProgress) {
+                progress = prog;
+                lastRecievedProgress = prog;
+            } else if (currentPath != null) {
+                // Only update it ourselves if we have gone a tick without seeing the server data
                 double length = currentPath.length();
-                progress += distanceMoved / length;
-                lastPlace = currentPath.interpolate(progress);
-                lookVec = currentPath.direction(progress);
+                progress += distanceMoved;
+                lastPlace = currentPath.interpolate(progress / length);
+                lookVec = currentPath.direction(progress / length);
             }
         } else {// Else if its the server world
             // getTrain().tick(this);
@@ -132,50 +132,38 @@ public abstract class ComponentTrackFollower implements IComponent {
 
             // Use the current track path
             if (currentPath != null) {
-                double length = currentPath.length();
-                progress += distanceMoved / length;
-                if (progress > 1) {
-                    Vec3 newPos = currentPath.interpolate(1.001);
-                    lastPlace = newPos;
-                    // Because we are off the path, lets just reset it to 0 and pretend nothing happened
-                    // TODO: Past paths! And future paths!
-                    progress = progress - 1;
-                    requestNextPath(dataWatcher, world);
-                } else {
-                    lastPlace = currentPath.interpolate(progress);
-
-                    lookVec = currentPath.direction(progress);
-                    dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PROGRESS, (float) progress);
+                progress += distanceMoved;
+                ITrackPath old = currentPath;
+                currentPath = stock().getTrain().offsetPath(currentPath, progress);
+                if (old != currentPath) {
+                    progress = stock().getTrain().offsetMeters(old, progress);
+                    if (currentPath != null) {
+                        stock.getTrain().usePath(currentPath);
+                        stock.getTrain().releasePath(old);
+                    }
                 }
+            }
+            if (currentPath != null) {
+                lastPlace = currentPath.interpolate(progress / currentPath.length());
+
+                lookVec = currentPath.direction(progress / currentPath.length());
+                int index = TrackPathProvider.pathIndex(ent.getEntityWorld(), currentPath);
+                boolean reversed = TrackPathProvider.isPathReversed(ent.getEntityWorld(), currentPath);
+
+                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_TRACK_POS, currentPath.creatingBlock());
+                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, FLAG_HAS_PATH + (reversed ? FLAG_PATH_REVERSED : 0));
+                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PATH_INDEX, index);
+                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PROGRESS, (float) progress);
+            } else {
+                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_TRACK_POS, new BlockPos(0, 0, 0));
+                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, 0);
+                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PATH_INDEX, -1);
+                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PROGRESS, (float) progress);
             }
         }
     }
 
     private void requestNextPath(DataWatcher dataWatcher, World world) {
-        currentPath = stock.getTrain().requestNextTrackPath(this, currentPath, Face.FRONT);
-
-        if (currentPath == null) {
-            dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, 0);
-        } else {
-            int index = -1;
-            boolean reversed = false;
-
-            BlockPos pos = currentPath.creatingBlock();
-            ITrackPath[] arr = TrackPathProvider.getPathsFor(world, pos, world.getBlockState(pos));
-            for (int i = 0; i < arr.length; i++) {
-                if (currentPath.equals(arr[i])) {
-                    index = i;
-                    break;
-                } else if (currentPath.equals(arr[i].reverse())) {
-                    index = i;
-                    reversed = true;
-                    break;
-                }
-            }
-            dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_TRACK_POS, currentPath.creatingBlock());
-            dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, FLAG_HAS_PATH + (reversed ? FLAG_PATH_REVERSED : 0));
-            dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PATH_INDEX, index);
-            dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PROGRESS, 0f);
-        }
+        currentPath = TrainCraftAPI.MOVEMENT_MANAGER.closest(this, Face.FRONT);
     }
 }

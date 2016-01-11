@@ -35,9 +35,9 @@ public interface ITrackPath {
     ITrackPath offset(BlockPos pos);
 
     public static Vec3 interpolate(Vec3 start, Vec3 end, double position) {
-        double x = start.xCoord * position + end.xCoord * (1 - position);
-        double y = start.yCoord * position + end.yCoord * (1 - position);
-        double z = start.zCoord * position + end.zCoord * (1 - position);
+        double x = start.xCoord * (1 - position) + end.xCoord * position;
+        double y = start.yCoord * (1 - position) + end.yCoord * position;
+        double z = start.zCoord * (1 - position) + end.zCoord * position;
         return new Vec3(x, y, z);
     }
 

@@ -3,17 +3,13 @@ package alexiil.mods.traincraft.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.IRollingStock;
-import alexiil.mods.traincraft.api.ITrackPath;
-import alexiil.mods.traincraft.api.TrackPathProvider;
-import alexiil.mods.traincraft.api.Train;
+import alexiil.mods.traincraft.api.*;
 import alexiil.mods.traincraft.api.component.IComponent;
 
 public abstract class EntityRollingStockBase extends Entity implements IRollingStock {
@@ -68,9 +64,11 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
         return mainComponent.getTrackDirection(partialTicks);
     }
 
-    public abstract ResourceLocation getModelLocation();
-
-    public abstract ResourceLocation getTextureLocation();
+    @Override
+    public float getEyeHeight() {
+        // Push it up slightly off the ground
+        return 0.5f;
+    }
 
     @Override
     public double speed(Face face) {
@@ -118,8 +116,12 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     protected void writeEntityToNBT(NBTTagCompound tagCompound) {}
 
     public void alignToBlock(BlockPos pos) {
-        ITrackPath path = TrackPathProvider.getPathsFor(worldObj, pos, worldObj.getBlockState(pos))[0];
-        Vec3 direction = path.direction(0.5);
-        mainComponent.alignTo(new Vec3(pos).addVector(0.5, 0, 0.5), direction, path);
+        ITrackPath path = TrackPathProvider.getPathsAsArray(worldObj, pos, worldObj.getBlockState(pos))[0];
+        getTrain().disband();
+        Train old = getTrain();
+        setTrain(new Train(this, path));
+        TrainCraftAPI.WORLD_CACHE.createTrain(getTrain());
+        TrainCraftAPI.WORLD_CACHE.deleteTrainIfUnused(old);
+        mainComponent.alignTo(path, 0);
     }
 }

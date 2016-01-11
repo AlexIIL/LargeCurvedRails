@@ -1,6 +1,5 @@
 package alexiil.mods.traincraft.entity;
 
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
@@ -12,27 +11,14 @@ import alexiil.mods.traincraft.component.ComponentSmallWheel;
 public class EntityRollingStockCart extends EntityRollingStockBase {
     private static final IComponent mainComponent;
 
-    private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/wheel_small.obj");
-    private static final ResourceLocation textureLocation = new ResourceLocation("traincraft:textures/trains/wheel_small.png");
-
     static {
-        ComponentTrackFollower wheel1 = new ComponentSmallWheel(null, -0.25, 0);
-//        ComponentTrackFollower wheel2 = new ComponentSmallWheel(null, 0.25, 1);
-        mainComponent =wheel1;// new ComponentCart(null, wheel1, wheel2, 0.5);
+        ComponentTrackFollower wheel1 = new ComponentSmallWheel(null, -0.45, 0);
+        ComponentTrackFollower wheel2 = new ComponentSmallWheel(null, 0.45, 1);
+        mainComponent = new ComponentCart(null, wheel1, wheel2, 0.5);
     }
 
     public EntityRollingStockCart(World world) {
         super(world, mainComponent);
-    }
-
-    @Override
-    public ResourceLocation getModelLocation() {
-        return modelLocation;
-    }
-
-    @Override
-    public ResourceLocation getTextureLocation() {
-        return textureLocation;
     }
 
     @Override
