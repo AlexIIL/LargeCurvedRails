@@ -5,9 +5,10 @@ public class GsonComponentData {
     public String modelLocation;
     public String textureLocation;
     public EnumCompType type;
+    public double wheelRadius;
 
     public enum EnumCompType {
-        JOINER,
-        TRACK
+        WHEEL,
+        RESTING
     }
 }

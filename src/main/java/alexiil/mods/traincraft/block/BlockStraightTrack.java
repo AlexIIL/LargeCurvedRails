@@ -30,10 +30,12 @@ public class BlockStraightTrack extends BlockAbstractTrack {
         static {
             BlockPos creator = new BlockPos(0, 0, 0);
 
-            Vec3 north = new Vec3(0.5, 0, 0);
-            Vec3 south = new Vec3(0.5, 0, 1);
-            Vec3 west = new Vec3(0, 0, 0.5);
-            Vec3 east = new Vec3(1, 0, 0.5);
+            double trackHeight = 2 / 16.0;
+
+            Vec3 north = new Vec3(0.5, trackHeight, 0);
+            Vec3 south = new Vec3(0.5, trackHeight, 1);
+            Vec3 west = new Vec3(0, trackHeight, 0.5);
+            Vec3 east = new Vec3(1, trackHeight, 0.5);
 
             NORTH_SOUTH.path = new TrackPathStraight(north, south, creator);
             EAST_WEST.path = new TrackPathStraight(east, west, creator);
@@ -65,8 +67,8 @@ public class BlockStraightTrack extends BlockAbstractTrack {
         // Temp
         if (world.isRemote) return true;
         EntityRollingStockBase entity = new EntityRollingStockCart(world);
-        world.spawnEntityInWorld(entity);
         entity.alignToBlock(pos);
+        world.spawnEntityInWorld(entity);
         return true;
     }
 

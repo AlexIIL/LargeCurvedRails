@@ -31,7 +31,7 @@ public class TrainCraft {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        TrainRegistry.registerTrain(EntityRollingStockCart.class, "rolling_stock_pulled");
+        TrainRegistry.registerTrain(EntityRollingStockCart.class, "minecart_wooden", 0);
 
         Proxy.proxy.init(event);
     }

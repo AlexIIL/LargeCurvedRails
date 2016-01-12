@@ -1,0 +1,8 @@
+{
+    "boxMin": [],
+    "boxMax": [],
+    "modelLocation":"traincraft:trains/wheel_wooden_small.obj",
+    "textureLocation":"traincraft:trains/wheel_wooden_small",
+    "type":"WHEEL",
+    "wheelRadius":0.125
+}

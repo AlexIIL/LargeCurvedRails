@@ -39,10 +39,10 @@ public class ComponentSmallWheel extends ComponentTrackFollower {
 
         preRenderOffsets(stock, partialTicks);
 
-        GL11.glTranslated(0, 0.25, 0);
+        GL11.glTranslated(0, 0.125, 0);
         rotationAngle += 3;
         GL11.glRotated(rotationAngle + partialTicks * 3, 1, 0, 0);
-        GL11.glTranslated(0, -0.25, 0);
+        GL11.glTranslated(0, -0.125, 0);
 
         IBakedModel model = RenderRollingStockBase.getModel(modelLocation);
         BlockModelRenderer renderer = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();

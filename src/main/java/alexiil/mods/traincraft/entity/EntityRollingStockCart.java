@@ -12,8 +12,8 @@ public class EntityRollingStockCart extends EntityRollingStockBase {
     private static final IComponent mainComponent;
 
     static {
-        ComponentTrackFollower wheel1 = new ComponentSmallWheel(null, -0.45, 0);
-        ComponentTrackFollower wheel2 = new ComponentSmallWheel(null, 0.45, 1);
+        ComponentTrackFollower wheel1 = new ComponentSmallWheel(null, -0.25, 0);
+        ComponentTrackFollower wheel2 = new ComponentSmallWheel(null, 0.25, 1);
         mainComponent = new ComponentCart(null, wheel1, wheel2, 0.5);
     }
 

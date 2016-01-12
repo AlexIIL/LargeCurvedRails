@@ -123,5 +123,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
         TrainCraftAPI.WORLD_CACHE.createTrain(getTrain());
         TrainCraftAPI.WORLD_CACHE.deleteTrainIfUnused(old);
         mainComponent.alignTo(path, 0);
+        Vec3 vec = getPathPosition();
+        setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
     }
 }

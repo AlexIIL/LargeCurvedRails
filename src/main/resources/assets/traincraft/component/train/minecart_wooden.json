@@ -1,0 +1,7 @@
+{
+    "boxMin": [],
+    "boxMax": [],
+    "modelLocation":"traincraft:trains/minecart_wooden.obj",
+    "textureLocation":"traincraft:trains/minecart_wooden",
+    "type":"RESTING"
+}

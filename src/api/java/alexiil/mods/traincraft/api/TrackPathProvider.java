@@ -71,10 +71,12 @@ public class TrackPathProvider {
         // Vanilla tracks
         Map<EnumRailDirection, ITrackPath> map = new EnumMap<>(EnumRailDirection.class);
 
-        Vec3 north = new Vec3(0.5, 0, 0);
-        Vec3 south = new Vec3(0.5, 0, 1);
-        Vec3 west = new Vec3(0, 0, 0.5);
-        Vec3 east = new Vec3(1, 0, 0.5);
+        double trackHeight = 2 / 16.0;
+
+        Vec3 north = new Vec3(0.5, trackHeight, 0);
+        Vec3 south = new Vec3(0.5, trackHeight, 1);
+        Vec3 west = new Vec3(0, trackHeight, 0.5);
+        Vec3 east = new Vec3(1, trackHeight, 0.5);
 
         Vec3 up = new Vec3(0, 1, 0);
 
@@ -87,7 +89,7 @@ public class TrackPathProvider {
         map.put(EnumRailDirection.ASCENDING_NORTH, new TrackPathStraight(south, north.add(up), from));
         map.put(EnumRailDirection.ASCENDING_SOUTH, new TrackPathStraight(north, south.add(up), from));
 
-        Vec3 bezPos = new Vec3(0.5, 0, 0.5);
+        Vec3 bezPos = new Vec3(0.5, trackHeight, 0.5);
         map.put(EnumRailDirection.SOUTH_EAST, new TrackPathCurved(from, south, bezPos, east));
         map.put(EnumRailDirection.SOUTH_WEST, new TrackPathCurved(from, south, bezPos, west));
         map.put(EnumRailDirection.NORTH_WEST, new TrackPathCurved(from, north, bezPos, west));

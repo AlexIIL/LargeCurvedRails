@@ -23,10 +23,11 @@ public enum TrainRegistry {
 
     private static final Map<Class<? extends EntityRollingStockBase>, EntityRollingStockBase> trains = new HashMap<>();
 
-    public static void registerTrain(Class<? extends EntityRollingStockBase> stock, String modUniqueName) throws IllegalArgumentException {
+    public static void registerTrain(Class<? extends EntityRollingStockBase> stock, String modUniqueName, int modSpecificId)
+            throws IllegalArgumentException {
         try {
             EntityRollingStockBase base = stock.getConstructor(World.class).newInstance((World) null);
-            EntityRegistry.registerModEntity(stock, modUniqueName, 0, Loader.instance().activeModContainer().getMod(), 60, 64, false);
+            EntityRegistry.registerModEntity(stock, modUniqueName, modSpecificId, Loader.instance().activeModContainer().getMod(), 60, 64, false);
             trains.put(stock, base);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
             | SecurityException e) {
