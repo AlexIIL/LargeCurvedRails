@@ -52,14 +52,14 @@ public abstract class ComponentTrackFollower implements IComponent {
     public Vec3 getTrackPos(float partialTicks) {
         if (currentPath == null) return lastPlace;
         if (partialTicks == 0) return lastPlace = currentPath.interpolate(progress / currentPath.length());
-        return lastPlace = currentPath.interpolate((progress + partialTicks * stock.speed(Face.FRONT) / 20) / currentPath.length());
+        return lastPlace = currentPath.interpolate((progress + partialTicks * stock.speed() / 20) / currentPath.length());
     }
 
     @Override
     public Vec3 getTrackDirection(float partialTicks) {
         if (currentPath == null) return lookVec;
         if (partialTicks == 0) return lookVec = currentPath.direction(progress / currentPath.length());
-        return lookVec = currentPath.direction((progress + partialTicks * stock.speed(Face.FRONT) / 20) / currentPath.length());
+        return lookVec = currentPath.direction((progress + partialTicks * stock.speed() / 20) / currentPath.length());
     }
 
     @Override
@@ -84,7 +84,7 @@ public abstract class ComponentTrackFollower implements IComponent {
     @Override
     public void tick() {
         Entity ent = (Entity) stock;
-        double distanceMoved = stock.speed(Face.FRONT) / 20.0;
+        double distanceMoved = stock.speed() / 20.0;
         DataWatcher dataWatcher = ent.getDataWatcher();
         World world = ent.getEntityWorld();
 

@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.block.TCBlocks;
 import alexiil.mods.traincraft.entity.EntityRollingStockCart;
+import alexiil.mods.traincraft.entity.EntitySmallSteamLocomotive;
 import alexiil.mods.traincraft.network.MessageHandler;
 
 @Mod(modid = DefaultProps.MODID, name = "TrainCraft")
@@ -32,6 +33,7 @@ public class TrainCraft {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         TrainRegistry.registerTrain(EntityRollingStockCart.class, "minecart_wooden", 0);
+        TrainRegistry.registerTrain(EntitySmallSteamLocomotive.class, "stream_locomotive_small", 1);
 
         Proxy.proxy.init(event);
     }

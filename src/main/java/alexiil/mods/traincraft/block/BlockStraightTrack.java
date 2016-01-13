@@ -13,6 +13,7 @@ import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathStraight;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
 import alexiil.mods.traincraft.entity.EntityRollingStockCart;
+import alexiil.mods.traincraft.entity.EntitySmallSteamLocomotive;
 
 public class BlockStraightTrack extends BlockAbstractTrack {
     public enum EnumDirection implements IStringSerializable {
@@ -66,7 +67,9 @@ public class BlockStraightTrack extends BlockAbstractTrack {
             float hitZ) {
         // Temp
         if (world.isRemote) return true;
-        EntityRollingStockBase entity = new EntityRollingStockCart(world);
+        EntityRollingStockBase entity;
+        if (player.isSneaking()) entity = new EntitySmallSteamLocomotive(world);
+        else entity = new EntityRollingStockCart(world);
         entity.alignToBlock(pos);
         world.spawnEntityInWorld(entity);
         return true;

@@ -3,6 +3,7 @@ package alexiil.mods.traincraft.api.component;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -50,4 +51,10 @@ public interface IComponent {
     IComponent createNew(IRollingStock stock);
 
     void alignTo(ITrackPath around, double meters);
+
+    double frictionCoefficient();
+
+    double frontArea();
+
+    AxisAlignedBB getBoundingBox();
 }

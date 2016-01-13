@@ -28,7 +28,7 @@ public class EntityRollingStockCart extends EntityRollingStockBase {
 
     @Override
     public int weight() {
-        return 200;
+        return 50 /* + items() */;
     }
 
     @Override
@@ -37,15 +37,7 @@ public class EntityRollingStockCart extends EntityRollingStockBase {
     }
 
     @Override
-    public double resistance() {
-        double C = 0.08;
-        double frontArea = 0.25;
-        double speed = Math.abs(speed(Face.FRONT));
-        return C * weight() * speed + frontArea * speed * speed;
-    }
-
-    @Override
-    public double engineOutput(Face face) {
+    public double engineOutput() {
         return 0;
     }
 }

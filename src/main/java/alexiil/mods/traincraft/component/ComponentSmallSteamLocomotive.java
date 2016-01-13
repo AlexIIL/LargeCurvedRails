@@ -13,17 +13,17 @@ import alexiil.mods.traincraft.api.component.ComponentResting;
 import alexiil.mods.traincraft.api.component.IComponent;
 import alexiil.mods.traincraft.render.RenderRollingStockBase;
 
-public class ComponentCart extends ComponentResting {
-    private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/cart.obj");
-    private static final ResourceLocation textureLocation = new ResourceLocation("traincraft:trains/cart");
+public class ComponentSmallSteamLocomotive extends ComponentResting {
+    private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/steam_small.obj");
+    private static final ResourceLocation textureLocation = new ResourceLocation("traincraft:trains/steam_small");
 
-    public ComponentCart(IRollingStock stock, IComponent childFront, IComponent childBack, double frontBack) {
+    public ComponentSmallSteamLocomotive(IRollingStock stock, IComponent childFront, IComponent childBack, double frontBack) {
         super(stock, childFront, childBack, frontBack);
     }
 
     @Override
     public double frontArea() {
-        return super.frontArea() + 0.5;
+        return super.frontArea() + 1.2;
     }
 
     @SideOnly(Side.CLIENT)
@@ -47,11 +47,11 @@ public class ComponentCart extends ComponentResting {
 
     @Override
     public IComponent createNew(IRollingStock stock) {
-        return new ComponentCart(stock, childFront.createNew(stock), childBack.createNew(stock), frontBack);
+        return new ComponentSmallSteamLocomotive(stock, childFront.createNew(stock), childBack.createNew(stock), frontBack);
     }
 
     @Override
     protected AxisAlignedBB box() {
-        return new AxisAlignedBB(-0.5, 0.2, 0, 0.5, 1, 1);
+        return new AxisAlignedBB(-1, 0.2, 0, 1, 1, 1);
     }
 }

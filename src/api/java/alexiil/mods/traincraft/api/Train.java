@@ -14,6 +14,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.IRollingStock.Face;
 
 public class Train {
@@ -166,26 +167,22 @@ public class Train {
 
     /** Applies an amount of momentum to all components of the train. Also rebances all momentum around to make the
      * speeds equal. */
-    public void applyMomentum(double newtons, Face face) {
-        double totalMomentum = parts().stream().mapToDouble(s -> s.momentum(face)).sum();
+    public void applyMomentum(double newtons) {
+        double totalMomentum = parts().stream().mapToDouble(s -> s.momentum()).sum();
         totalMomentum += newtons;
         int totalWeight = parts().stream().mapToInt(s -> s.weight()).sum();
         double speed = totalMomentum / totalWeight;
-        parts().forEach(s -> s.setSpeed(speed, face));
+        parts().forEach(s -> s.setSpeed(speed));
     }
 
     public void applyBrakes(double maxNewtons) {
-        Face face = Face.FRONT;
-        double momentum = parts.stream().mapToDouble(p -> p.momentum(face)).sum();
-        Face oppositeFace = Face.BACK;
-        if (momentum < 0) {
-            momentum = -momentum;
-            oppositeFace = Face.FRONT;
-        }
-        if (momentum >= maxNewtons) {
-            applyMomentum(maxNewtons, oppositeFace);
+        double momentum = parts.stream().mapToDouble(p -> p.momentum()).sum();
+        double speed = parts.get(0).speed();
+        maxNewtons = Math.abs(maxNewtons);
+        if (Math.abs(momentum) >= maxNewtons) {
+            applyMomentum(speed < 0 ? maxNewtons : -maxNewtons);
         } else {
-            applyMomentum(momentum, oppositeFace);
+            applyMomentum(-momentum);
         }
     }
 
@@ -208,36 +205,39 @@ public class Train {
     }
 
     private void computeMomentumChanges(IRollingStock caller) {
-        /* Work everything out related to the front of the train. */
-        Face face = Face.FRONT;
-
         // First rebalance all the momentum around if not all of the speeds are equal
-        double speed = caller.speed(face);
+        double speed = caller.speed();
         for (int i = 0; i < parts.size(); i++)
-            if (parts.get(i).speed(face) != speed) {
-                // Applying no newtons just rebalances everything
-                applyMomentum(0, face);
-                speed = caller.speed(face);
+            if (parts.get(i).speed() != speed) {
+                // Applying 0 newtons just rebalances everything
+                applyMomentum(0);
+                speed = caller.speed();
                 break;
             }
 
         // Sum up all forces by gravity
-        double gravityForce = parts.stream().mapToDouble(p -> p.inclination(face) * p.weight()).sum();
+        double gravityForce = parts.stream().mapToDouble(p -> p.inclination() * p.weight()).sum();
+        // If we are going forwards then make gravity go the other way around
+        // if (speed > 0) gravityForce *= -1;
 
         // Sum up all power going into motion (but ignore the engine if it is braking)
-        double engineForce = parts.stream().mapToDouble(p -> p.isBraking() ? 0 : p.engineOutput(face)).sum();
+        double engineForce = parts.stream().mapToDouble(p -> p.isBraking() ? 0 : p.engineOutput()).sum();
 
         double totalForce = engineForce - gravityForce;
 
-        applyMomentum(totalForce / 20.0, face);
+        applyMomentum(totalForce / 20.0);
 
         double resistance = parts.stream().mapToDouble(p -> p.resistance()).sum();
-        double brakes = parts.stream().mapToDouble(p -> (p.isBraking()) ? p.maxBrakingForce() + Math.abs(p.engineOutput(face)) : 0).sum();
+
+        double brakes = parts.stream().mapToDouble(p -> (p.isBraking()) ? p.maxBrakingForce() + Math.abs(p.engineOutput()) : 0).sum();
 
         double totalResistance = resistance + brakes;
 
         // We only apply one twentieth of the resistance as we are applying it per tick rather than per second.
         applyBrakes(totalResistance / 20.0);
+
+//        TrainCraft.trainCraftLog.info("S = " + (int) speed + ", G = " + (int) gravityForce + ", E = " + (int) engineForce + ", TF = "
+//            + (int) totalForce + ", R = " + (int) resistance + ", B = " + (int) brakes + ", TR =" + (int) totalResistance);
     }
 
     // ###########################

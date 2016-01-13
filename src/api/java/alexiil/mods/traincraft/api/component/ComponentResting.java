@@ -1,5 +1,6 @@
 package alexiil.mods.traincraft.api.component;
 
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
 import alexiil.mods.traincraft.api.IRollingStock;
@@ -31,10 +32,29 @@ public abstract class ComponentResting implements IComponent {
     }
 
     @Override
+    public double frictionCoefficient() {
+        return childFront.frictionCoefficient() + childBack.frictionCoefficient();
+    }
+
+    @Override
+    public double frontArea() {
+        return childFront.frontArea();
+    }
+
+    @Override
     public void alignTo(ITrackPath around, double offset) {
         childFront.alignTo(around, offset + childFront.originOffset());
         childBack.alignTo(around, offset + childBack.originOffset());
     }
+
+    @Override
+    public final AxisAlignedBB getBoundingBox() {
+        AxisAlignedBB front = childFront.getBoundingBox().offset(childFront.originOffset(), 0, 0);
+        AxisAlignedBB back = childBack.getBoundingBox().offset(childBack.originOffset(), 0, 0);
+        return front.union(back).union(box());
+    }
+
+    protected abstract AxisAlignedBB box();
 
     @Override
     public void tick() {

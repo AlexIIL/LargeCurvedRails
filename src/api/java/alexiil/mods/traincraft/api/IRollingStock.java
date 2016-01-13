@@ -7,8 +7,19 @@ import net.minecraft.util.Vec3;
  * form a train. */
 public interface IRollingStock {
     public enum Face {
-        FRONT,
-        BACK;
+        FRONT(1),
+        BACK(-1);
+
+        public final int direction;
+
+        private Face(int direction) {
+            this.direction = direction;
+        }
+
+        public Face opposite() {
+            if (this == FRONT) return BACK;
+            return FRONT;
+        }
     }
 
     /** @return The train object that contains this rolling stock. */
@@ -21,27 +32,25 @@ public interface IRollingStock {
 
     /** @param face The speed this face is advancing at.
      * @return The current speed of this stock, in meters per <strong>second</strong> rather than per tick. */
-    double speed(Face face);
+    double speed();
 
-    /** @param face The face that you want to test it going towards.
-     * @return The current momentum (in newtons) towards the given face . */
-    default double momentum(Face face) {
-        return speed(face) * weight();
+    /** @return The current momentum (in newtons) towards the direction of the train. (May be negative) */
+    default double momentum() {
+        return speed() * weight();
     }
 
-    /** If {@link #momentum(Face)} returns a value greater than 0
+    /** If {@link #momentum()} returns a value greater than 0
      * 
      * @param newtons The number of newtons to apply immediatly
      * @param face The face to apply the momentum to. */
-    default void applyMomentum(double newtons, Face face) {
-        getTrain().applyMomentum(newtons, face);
+    default void applyMomentum(double newtons) {
+        getTrain().applyMomentum(newtons);
     }
 
     /** Sets the speed DIRECTLY to this rolling stock.
      * 
-     * This is a callback function for {@link Train#applyMomentum(double, Face)}, you should NEVER call this
-     * yourself. */
-    void setSpeed(double newSpeed, Face face);
+     * This is a callback function for {@link Train#applyMomentum(double)}, you should NEVER call this yourself. */
+    void setSpeed(double newSpeed);
 
     /** @return the maximum newtons that this rolling stock can brake with. You should probably experiment to find a
      *         good value. */
@@ -52,7 +61,7 @@ public interface IRollingStock {
     /** The current resistance that this stock applies per second. Usually this will be
      * <p>
      * <code>
-     * C * {@link #weight()} * {@link #speed(Face)} + frontArea * {@link #speed(Face)} * {@link #speed(Face)} )
+     * C * {@link #weight()} *  1 - {@link Math#abs(double)} ( {@link #inclination()} )  + frontArea * {@link #speed()} )
      * </code>
      * <p>
      * The value for C generally depends on the type and number of wheels you have, for example 0.08 for wooden based
@@ -71,7 +80,7 @@ public interface IRollingStock {
      * @param face The direction to test against.
      * 
      * @return The current power output of this locamotive (may be 0 in most cases if this is not a locamotive) */
-    double engineOutput(Face face);
+    double engineOutput();
 
     /** @param face The face to test against (So if this was going forwards down a hill, then if a value of
      *            {@link Face#FRONT} was passed this would return a negative value)
@@ -79,34 +88,32 @@ public interface IRollingStock {
      * @return The current inclination (between -1 and 1) for how much the train is positioned vertically. A value of -1
      *         indicates that the train is going vertically down, and a value of 1 indicates the train is going
      *         vertically upwards. If the train is on a 45 degree slope upwards then this should return 0.5. (in other
-     *         words don't run the angle through any trig) */
-    double inclination(Face face);
+     *         words run the look vector y component through {@link Math#asin(double)}) */
+    double inclination();
 
     /** @param maxNewtons The maximum number of newtons to apply
      * @return The number of newtons left over from applying the brakes (can be used for checking how much wear needs to
      *         be apllied etc) */
     default double applyBrakes(double maxNewtons) {
         // Make max mewtons positive or zero
-        maxNewtons = maxNewtons < 0 ? -maxNewtons : maxNewtons;
+        maxNewtons = Math.abs(maxNewtons);
         // Get the amount of momentum going forwards
-        double forwardsMomentum = momentum(Face.FRONT);
-        Face face = Face.FRONT;
+        double forwardsMomentum = momentum();
         if (forwardsMomentum < 0) {
-            // If its going backwards then we need to apply momentum to the back
-            face = Face.BACK;
             // Invert the momentum so we can use comparison easily.
             forwardsMomentum = -forwardsMomentum;
         }
         /* If we have more momentum than braking power then apply the maximum braking power (and return 0 because we
          * used it all up) */
         if (forwardsMomentum > maxNewtons) {
-            applyMomentum(maxNewtons, face);
+            applyMomentum(maxNewtons);
             return 0;
+        } else {
+            // Apply our own momentum against us.
+            applyMomentum(forwardsMomentum);
+            // And return whatever we didn't use up.
+            return maxNewtons - forwardsMomentum;
         }
-        // Apply our own momentum against us.
-        applyMomentum(forwardsMomentum, face);
-        // And return whatever we didn't use up.
-        return maxNewtons - forwardsMomentum;
     }
 
     /** Gets the current position this rolling stock considers itself to be in. This is used by

@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.lwjgl.opengl.GL11;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockModelRenderer;
+import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -19,6 +24,7 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 
+import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.TrainRegistry;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
 
@@ -32,7 +38,7 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
         }
     }
 
-    private static final Map<ResourceLocation, IBakedModel> stockModelMap = new HashMap<>();
+    private static final Map<ResourceLocation, Integer> stockModelMap = new HashMap<>();
 
     protected RenderRollingStockBase(RenderManager renderManager) {
         super(renderManager);
@@ -44,10 +50,11 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
     }
 
     public static void clearModelMap() {
+        stockModelMap.values().forEach(v -> GLAllocation.deleteDisplayLists(v));
         stockModelMap.clear();
     }
 
-    public static IBakedModel getModel(ResourceLocation location) {
+    public static Integer getModel(ResourceLocation location) {
         if (!stockModelMap.containsKey(location)) {
             IModel model;
             try {
@@ -57,9 +64,21 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
                 model = ModelLoaderRegistry.getMissingModel();
             }
             IBakedModel baked = model.bake(ModelRotation.X0_Y0, DefaultVertexFormats.BLOCK, TrainRegistry.INSTANCE.getSpriteFunction());
-            stockModelMap.put(location, baked);
+
+            int glList = GL11.glGenLists(1);
+            GL11.glNewList(glList, GL11.GL_COMPILE);
+
+            BlockModelRenderer renderer = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();
+            renderer.renderModelBrightnessColor(baked, 1, 1, 1, 1);
+
+            GL11.glEndList();
+            stockModelMap.put(location, glList);
         }
         return stockModelMap.get(location);
+    }
+
+    public static void renderModel(ResourceLocation location) {
+        GL11.glCallList(getModel(location));
     }
 
     @Override
