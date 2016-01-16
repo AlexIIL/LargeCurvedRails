@@ -81,6 +81,11 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     }
 
     @Override
+    public IComponent mainComponent() {
+        return mainComponent;
+    }
+
+    @Override
     public Train getTrain() {
         return train;
     }

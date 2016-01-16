@@ -10,6 +10,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import alexiil.mods.traincraft.api.ITrackBlock;
 
 public abstract class BlockAbstractTrack extends BlockTraincraft implements ITrackBlock {
+    public static final float TRACK_HEIGHT = 2 / 16.0f;
+
     public BlockAbstractTrack(IProperty<?>... properties) {
         super(Material.circuits, properties);
     }

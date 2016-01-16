@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.vecmath.Matrix4f;
+
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -24,7 +25,6 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 
-import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.TrainRegistry;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
 
@@ -39,6 +39,7 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
     }
 
     private static final Map<ResourceLocation, Integer> stockModelMap = new HashMap<>();
+    private static final Map<ResourceLocation, IBakedModel> stockModelBakedMap = new HashMap<>();
 
     protected RenderRollingStockBase(RenderManager renderManager) {
         super(renderManager);
@@ -52,10 +53,11 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
     public static void clearModelMap() {
         stockModelMap.values().forEach(v -> GLAllocation.deleteDisplayLists(v));
         stockModelMap.clear();
+        stockModelBakedMap.clear();
     }
 
-    public static Integer getModel(ResourceLocation location) {
-        if (!stockModelMap.containsKey(location)) {
+    public static IBakedModel bakeModel(ResourceLocation location) {
+        if (!stockModelBakedMap.containsKey(location)) {
             IModel model;
             try {
                 model = OBJLoader.instance.loadModel(location);
@@ -63,13 +65,27 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
                 e.printStackTrace();
                 model = ModelLoaderRegistry.getMissingModel();
             }
-            IBakedModel baked = model.bake(ModelRotation.X0_Y0, DefaultVertexFormats.BLOCK, TrainRegistry.INSTANCE.getSpriteFunction());
+            IBakedModel baked = model.bake(ModelRotation.X0_Y0, DefaultVertexFormats.ITEM, TrainRegistry.INSTANCE.getSpriteFunction());
+            stockModelBakedMap.put(location, baked);
+        }
+        return stockModelBakedMap.get(location);
+    }
+
+    public static Integer glModel(ResourceLocation location) {
+        if (!stockModelMap.containsKey(location)) {
+            IBakedModel baked = bakeModel(location);
 
             int glList = GL11.glGenLists(1);
             GL11.glNewList(glList, GL11.GL_COMPILE);
 
-            BlockModelRenderer renderer = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();
-            renderer.renderModelBrightnessColor(baked, 1, 1, 1, 1);
+            Matrix4f identity = new Matrix4f();
+            identity.setIdentity();
+
+            SmoothFaceRenderer.renderModel(baked, identity);
+
+            // BlockModelRenderer renderer =
+            // Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();
+            // renderer.renderModelBrightnessColor(baked, 1, 1, 1, 1);
 
             GL11.glEndList();
             stockModelMap.put(location, glList);
@@ -78,7 +94,11 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
     }
 
     public static void renderModel(ResourceLocation location) {
-        GL11.glCallList(getModel(location));
+        SmoothFaceRenderer.renderDisplayList(glModel(location));
+    }
+
+    public static void renderModelAnimated(ResourceLocation location, Matrix4f transform) {
+        SmoothFaceRenderer.renderModel(bakeModel(location), transform);
     }
 
     @Override
@@ -101,9 +121,13 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
 
         GlStateManager.color(1, 1, 1);
 
+        RenderHelper.disableStandardItemLighting();
+
         renderManager.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 
         entity.mainComponent.render(entity, partialTicks);
+
+        RenderHelper.enableStandardItemLighting();
 
         GlStateManager.popMatrix();
     }

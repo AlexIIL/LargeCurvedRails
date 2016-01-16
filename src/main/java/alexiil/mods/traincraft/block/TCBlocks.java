@@ -13,8 +13,14 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public enum TCBlocks {
     /** Bog standard straight track. Goes in any of the 4 minecraft directions. (North, East, South, West). */
     STRAIGHT_TRACK(() -> new BlockStraightTrack(), null),
-    /** Track that curves from two straight sections */
-    CURVED_TRACK(() -> null, null),
+    /** Track that curves from two straight sections. This is the smallest variant */
+    CURVED_TRACK_2_WIDE(() -> new BlockCurvedTrack(2), null),
+    /** Track that curves from two straight sections. */
+    CURVED_TRACK_3_WIDE(() -> new BlockCurvedTrack(3), null),
+    /** Track that curves from two straight sections. */
+    CURVED_TRACK_4_WIDE(() -> new BlockCurvedTrack(4), null),
+    /** Track that curves from two straight sections. */
+    CURVED_TRACK_8_WIDE(() -> new BlockCurvedTrack(8), null),
     /** Track that slopes in a direction */
     SLOPED_TRACK(() -> null, null),
     /** Track that goes straight in a diagonal direction. (NorthEast, SouthEast, SouthWest, NorthWes). */

@@ -1,5 +1,8 @@
 package alexiil.mods.traincraft.component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
@@ -17,8 +20,9 @@ public class ComponentSmallSteamLocomotive extends ComponentResting {
     private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/steam_small.obj");
     private static final ResourceLocation textureLocation = new ResourceLocation("traincraft:trains/steam_small");
 
-    public ComponentSmallSteamLocomotive(IRollingStock stock, IComponent childFront, IComponent childBack, double frontBack) {
-        super(stock, childFront, childBack, frontBack);
+    public ComponentSmallSteamLocomotive(IRollingStock stock, IComponent childFront, IComponent childBack, List<IComponent> childMiddle,
+            double frontBack) {
+        super(stock, childFront, childBack, childMiddle, frontBack);
     }
 
     @Override
@@ -47,11 +51,12 @@ public class ComponentSmallSteamLocomotive extends ComponentResting {
 
     @Override
     public IComponent createNew(IRollingStock stock) {
-        return new ComponentSmallSteamLocomotive(stock, childFront.createNew(stock), childBack.createNew(stock), frontBack);
+        List<IComponent> middle = childMiddle.stream().map(c -> c.createNew(stock)).collect(Collectors.toList());
+        return new ComponentSmallSteamLocomotive(stock, childFront.createNew(stock), childBack.createNew(stock), middle, frontBack);
     }
 
     @Override
     protected AxisAlignedBB box() {
-        return new AxisAlignedBB(-1, 0.2, 0, 1, 1, 1);
+        return new AxisAlignedBB(-1, 0.2, 0, 1, 1.25, 1);
     }
 }

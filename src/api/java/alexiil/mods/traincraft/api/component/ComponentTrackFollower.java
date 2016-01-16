@@ -20,6 +20,7 @@ public abstract class ComponentTrackFollower implements IComponent {
     private static final int FLAG_PATH_REVERSED = 2;
 
     private final IRollingStock stock;
+    private IComponent parent;
 
     private ITrackPath currentPath;
     /** The progress accross the current path, in meters. */
@@ -36,6 +37,16 @@ public abstract class ComponentTrackFollower implements IComponent {
         this.componentIndex = componentIndex;
         this.dataWatcherOffset = EntityRollingStockBase.DATA_WATCHER_COMPONENT_START + componentIndex
             * EntityRollingStockBase.DATA_WATCHER_COMPONENT_STRIDE;
+    }
+
+    @Override
+    public IComponent parent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(IComponent parent) {
+        this.parent = parent;
     }
 
     @Override

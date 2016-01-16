@@ -1,6 +1,8 @@
 package alexiil.mods.traincraft.component;
 
-import org.lwjgl.opengl.GL11;
+import javax.vecmath.AxisAngle4f;
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector3f;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -36,7 +38,6 @@ public class ComponentSmallWheel extends ComponentTrackFollower {
         super.tick();
         if (((Entity) stock()).getEntityWorld().isRemote) {
             double angleDiff = stock().speed() / (20 * wheelRadius);
-            angleDiff *= 180 / Math.PI;
             rotationAngle += angleDiff;
         }
     }
@@ -58,14 +59,23 @@ public class ComponentSmallWheel extends ComponentTrackFollower {
 
         preRenderOffsets(stock, partialTicks);
 
-        GL11.glTranslated(0, wheelRadius, 0);
-
         double angleDiff = stock().speed() / (20 * wheelRadius);
-        angleDiff *= 180 / Math.PI;
-        GL11.glRotated(rotationAngle + partialTicks * angleDiff, 1, 0, 0);
-        GL11.glTranslated(0, -wheelRadius, 0);
+        double angle = rotationAngle + partialTicks * angleDiff;
 
-        RenderRollingStockBase.renderModel(modelLocation);
+        Matrix4f total = new Matrix4f();
+        total.setIdentity();
+        total.setTranslation(new Vector3f(0, (float) wheelRadius, 0));
+
+        Matrix4f transform = new Matrix4f();
+        transform.setIdentity();
+        transform.setRotation(new AxisAngle4f(1, 0, 0, (float) angle));
+        total.mul(transform);
+
+        transform.setIdentity();
+        transform.setTranslation(new Vector3f(0, -(float) wheelRadius, 0));
+        total.mul(transform);
+
+        RenderRollingStockBase.renderModelAnimated(modelLocation, total);
 
         GlStateManager.popMatrix();
     }

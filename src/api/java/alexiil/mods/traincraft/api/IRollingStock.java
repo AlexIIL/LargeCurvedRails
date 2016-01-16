@@ -3,6 +3,8 @@ package alexiil.mods.traincraft.api;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Vec3;
 
+import alexiil.mods.traincraft.api.component.IComponent;
+
 /** Denotes a train part (that MUST BE an instanceof {@link Entity}) that can usually conenct to other rolling stocks to
  * form a train. */
 public interface IRollingStock {
@@ -115,6 +117,8 @@ public interface IRollingStock {
             return maxNewtons - forwardsMomentum;
         }
     }
+
+    IComponent mainComponent();
 
     /** Gets the current position this rolling stock considers itself to be in. This is used by
      * {@link Train#requestNextTrackPath(IRollingStock, ITrackPath)} if the given path is null or is not contained by

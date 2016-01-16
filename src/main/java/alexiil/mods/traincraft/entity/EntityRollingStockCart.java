@@ -1,5 +1,7 @@
 package alexiil.mods.traincraft.entity;
 
+import java.util.Collections;
+
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
@@ -14,7 +16,7 @@ public class EntityRollingStockCart extends EntityRollingStockBase {
     static {
         ComponentTrackFollower wheel1 = new ComponentSmallWheel(null, -0.25, 0);
         ComponentTrackFollower wheel2 = new ComponentSmallWheel(null, 0.25, 1);
-        mainComponent = new ComponentCart(null, wheel1, wheel2, 0.5);
+        mainComponent = new ComponentCart(null, wheel1, wheel2, Collections.emptyList(), 0.5);
     }
 
     public EntityRollingStockCart(World world) {

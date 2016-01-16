@@ -1,5 +1,8 @@
 package alexiil.mods.traincraft.component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
@@ -17,8 +20,8 @@ public class ComponentCart extends ComponentResting {
     private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/cart.obj");
     private static final ResourceLocation textureLocation = new ResourceLocation("traincraft:trains/cart");
 
-    public ComponentCart(IRollingStock stock, IComponent childFront, IComponent childBack, double frontBack) {
-        super(stock, childFront, childBack, frontBack);
+    public ComponentCart(IRollingStock stock, IComponent childFront, IComponent childBack, List<IComponent> childMiddle, double frontBack) {
+        super(stock, childFront, childBack, childMiddle, frontBack);
     }
 
     @Override
@@ -47,7 +50,8 @@ public class ComponentCart extends ComponentResting {
 
     @Override
     public IComponent createNew(IRollingStock stock) {
-        return new ComponentCart(stock, childFront.createNew(stock), childBack.createNew(stock), frontBack);
+        List<IComponent> middle = childMiddle.stream().map(c -> c.createNew(stock)).collect(Collectors.toList());
+        return new ComponentCart(stock, childFront.createNew(stock), childBack.createNew(stock), middle, frontBack);
     }
 
     @Override

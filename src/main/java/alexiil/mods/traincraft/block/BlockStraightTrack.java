@@ -31,12 +31,10 @@ public class BlockStraightTrack extends BlockAbstractTrack {
         static {
             BlockPos creator = new BlockPos(0, 0, 0);
 
-            double trackHeight = 2 / 16.0;
-
-            Vec3 north = new Vec3(0.5, trackHeight, 0);
-            Vec3 south = new Vec3(0.5, trackHeight, 1);
-            Vec3 west = new Vec3(0, trackHeight, 0.5);
-            Vec3 east = new Vec3(1, trackHeight, 0.5);
+            Vec3 north = new Vec3(0.5, TRACK_HEIGHT, 0);
+            Vec3 south = new Vec3(0.5, TRACK_HEIGHT, 1);
+            Vec3 west = new Vec3(0, TRACK_HEIGHT, 0.5);
+            Vec3 east = new Vec3(1, TRACK_HEIGHT, 0.5);
 
             NORTH_SOUTH.path = new TrackPathStraight(north, south, creator);
             EAST_WEST.path = new TrackPathStraight(east, west, creator);
@@ -55,8 +53,7 @@ public class BlockStraightTrack extends BlockAbstractTrack {
 
     public static final PropertyEnum<EnumDirection> TRACK_DIRECTION = PropertyEnum.create("facing", EnumDirection.class);
 
-    private static final float HEIGHT = 0.125f;
-    private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, HEIGHT, 1);
+    private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, TRACK_HEIGHT, 1);
 
     public BlockStraightTrack() {
         super(TRACK_DIRECTION);
@@ -87,7 +84,7 @@ public class BlockStraightTrack extends BlockAbstractTrack {
 
     @Override
     public void setBlockBoundsBasedOnState(IBlockAccess worldIn, BlockPos pos) {
-        setBlockBounds(0, 0, 0, 1, HEIGHT, 1);
+        setBlockBounds(0, 0, 0, 1, TRACK_HEIGHT, 1);
     }
 
     @Override

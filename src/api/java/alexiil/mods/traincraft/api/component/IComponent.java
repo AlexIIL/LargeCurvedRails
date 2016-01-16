@@ -39,7 +39,7 @@ public interface IComponent {
         Vec3 actualPos = getTrackPos(partialTicks);
         GlStateManager.translate(actualPos.xCoord, actualPos.yCoord, actualPos.zCoord);
 
-        Vec3 lookVec = getTrackDirection(partialTicks);
+        Vec3 lookVec = rotatingComponent().getTrackDirection(partialTicks);
 
         double tan = Math.atan2(lookVec.xCoord, lookVec.zCoord);
         // The tan is in radians but OpenGL uses degrees
@@ -47,6 +47,15 @@ public interface IComponent {
 
         GL11.glRotated(Math.asin(-lookVec.yCoord) * 180 / Math.PI, 1, 0, 0);
     }
+
+    default IComponent rotatingComponent() {
+        if (parent() == null) return this;
+        return parent();
+    }
+
+    IComponent parent();
+
+    void setParent(IComponent parent);
 
     IComponent createNew(IRollingStock stock);
 
