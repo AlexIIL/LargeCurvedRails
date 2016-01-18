@@ -5,12 +5,12 @@
     },
     "variants": {
         "facing": {
-            "north_south": { "model":"minecraft:normal_rail_flat" },
-            "east_west":   { "model":"minecraft:normal_rail_flat", "y": 90 },
-            "south_east":  { "model":"minecraft:normal_rail_curved" },
-            "south_west":  { "model":"minecraft:normal_rail_curved", "y": 90 },
-            "north_west":  { "model":"minecraft:normal_rail_curved", "y": 180 },
-            "north_east":  { "model":"minecraft:normal_rail_curved", "y": 270 }
+            "north_south": { "model":"traincraft:track_straight_axis.obj" },
+            "east_west":   { "model":"traincraft:track_straight_axis.obj", "y": 90 },
+            "south_east":  { "model":"traincraft:track_straight_diag.obj" },
+            "south_west":  { "model":"traincraft:track_straight_diag.obj", "y": 90 },
+            "north_west":  { "model":"traincraft:track_straight_diag_mirror.obj", "y": 180 },
+            "north_east":  { "model":"traincraft:track_straight_diag_mirror.obj", "y": 270 }
         }
     }    
 }

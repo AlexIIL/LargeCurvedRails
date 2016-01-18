@@ -8,9 +8,12 @@ import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.*;
 import alexiil.mods.traincraft.api.IRollingStock.Face;
-import alexiil.mods.traincraft.entity.EntityRollingStockBase;
 
 public abstract class ComponentTrackFollower implements IComponent {
+    // Each component uses: [ int (flag), float (progress), blockpos (track), int (track index)]
+    public static final int DATA_WATCHER_COMPONENT_START = 6;
+    public static final int DATA_WATCHER_COMPONENT_STRIDE = 4;
+
     private static final int DATA_WATCHER_FLAGS = 0;
     private static final int DATA_WATCHER_PATH_INDEX = 1;
     private static final int DATA_WATCHER_PROGRESS = 2;
@@ -35,8 +38,7 @@ public abstract class ComponentTrackFollower implements IComponent {
         this.stock = stock;
         constructorOffset = lastRecievedProgress = progress = offset;
         this.componentIndex = componentIndex;
-        this.dataWatcherOffset = EntityRollingStockBase.DATA_WATCHER_COMPONENT_START + componentIndex
-            * EntityRollingStockBase.DATA_WATCHER_COMPONENT_STRIDE;
+        this.dataWatcherOffset = DATA_WATCHER_COMPONENT_START + componentIndex * DATA_WATCHER_COMPONENT_STRIDE;
     }
 
     @Override
@@ -74,8 +76,9 @@ public abstract class ComponentTrackFollower implements IComponent {
     }
 
     @Override
-    public void alignTo(ITrackPath around, double meters) {
+    public void alignTo(ITrackPath around, double meters) throws AlignmentFailureException {
         around = stock.getTrain().offsetPath(around, meters);
+        if (around == null) throw new AlignmentFailureException();
         currentPath = around;
         meters = stock.getTrain().offsetMeters(around, meters);
         progress = meters;

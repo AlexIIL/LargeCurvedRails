@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -35,6 +36,7 @@ public class ProxyClient extends Proxy {
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
         RenderingRegistry.registerEntityRenderingHandler(EntityRollingStockBase.class, RenderRollingStockBase.Factory.INSTANCE);
+        OBJLoader.instance.addDomain("traincraft");
     }
 
     @SubscribeEvent
@@ -73,9 +75,10 @@ public class ProxyClient extends Proxy {
         interp = interp.addVector(0, -player.getEyeHeight(), 0);
         wr.setTranslation(-interp.xCoord, -interp.yCoord, -interp.zCoord);
 
-        for (int x = -5; x <= 5; x++) {
-            for (int y = -5; y <= 5; y++) {
-                for (int z = -5; z <= 5; z++) {
+        final int radius = 10;
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                for (int z = -radius; z <= radius; z++) {
                     BlockPos offset = around.add(x, y, z);
                     ITrackPath[] paths = TrackPathProvider.getPathsAsArray(world, offset, world.getBlockState(offset));
                     for (ITrackPath path : paths) {

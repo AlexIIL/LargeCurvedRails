@@ -9,6 +9,7 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import alexiil.mods.traincraft.api.AlignmentFailureException;
 import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.ITrackPath;
 
@@ -59,7 +60,7 @@ public interface IComponent {
 
     IComponent createNew(IRollingStock stock);
 
-    void alignTo(ITrackPath around, double meters);
+    void alignTo(ITrackPath around, double meters) throws AlignmentFailureException;
 
     double frictionCoefficient();
 

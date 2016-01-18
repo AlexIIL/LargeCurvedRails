@@ -9,6 +9,7 @@ import net.minecraft.util.*;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.api.AlignmentFailureException;
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathStraight;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
@@ -67,8 +68,14 @@ public class BlockStraightTrack extends BlockAbstractTrack {
         EntityRollingStockBase entity;
         if (player.isSneaking()) entity = new EntitySmallSteamLocomotive(world);
         else entity = new EntityRollingStockCart(world);
-        entity.alignToBlock(pos);
-        world.spawnEntityInWorld(entity);
+        try {
+            entity.alignToBlock(pos);
+            world.spawnEntityInWorld(entity);
+        } catch (AlignmentFailureException e) {
+            // In the future this will display a notification to the player that something went wrong, but for the
+            // moment we will leave it as-is
+            return false;
+        }
         return true;
     }
 

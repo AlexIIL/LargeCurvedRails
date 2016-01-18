@@ -14,7 +14,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.IRollingStock.Face;
 
 public class Train {
@@ -236,8 +235,10 @@ public class Train {
         // We only apply one twentieth of the resistance as we are applying it per tick rather than per second.
         applyBrakes(totalResistance / 20.0);
 
-//        TrainCraft.trainCraftLog.info("S = " + (int) speed + ", G = " + (int) gravityForce + ", E = " + (int) engineForce + ", TF = "
-//            + (int) totalForce + ", R = " + (int) resistance + ", B = " + (int) brakes + ", TR =" + (int) totalResistance);
+        // TrainCraft.trainCraftLog.info("S = " + (int) speed + ", G = " + (int) gravityForce + ", E = " + (int)
+        // engineForce + ", TF = "
+        // + (int) totalForce + ", R = " + (int) resistance + ", B = " + (int) brakes + ", TR =" + (int)
+        // totalResistance);
     }
 
     // ###########################

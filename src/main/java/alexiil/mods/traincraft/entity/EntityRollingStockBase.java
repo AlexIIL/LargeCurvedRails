@@ -15,14 +15,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.*;
+import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponent;
 
 public abstract class EntityRollingStockBase extends Entity implements IRollingStock {
     private static final int DATA_WATCHER_SPEED = 5;
 
-    // Each component uses: [ int (flag), float (progress), blockpos (track), int (track index)]
-    public static final int DATA_WATCHER_COMPONENT_START = 6;
-    public static final int DATA_WATCHER_COMPONENT_STRIDE = 4;
     private static final Object[] DATA_WATCHER_COMPONENT_VARS = { Integer.valueOf(0), new Integer(0), Float.valueOf(0), new BlockPos(0, 0, 0) };
     /** Max speed of 20 meters per second */
     private static final double MAX_SPEED = 20;
@@ -191,7 +189,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
         dataWatcher.addObject(DATA_WATCHER_SPEED, (float) speedMPT);
         // Each track following component uses these flags
         for (int i = 0; i < 4; i++) {
-            int start = DATA_WATCHER_COMPONENT_START + DATA_WATCHER_COMPONENT_STRIDE * i;
+            int start = ComponentTrackFollower.DATA_WATCHER_COMPONENT_START + ComponentTrackFollower.DATA_WATCHER_COMPONENT_STRIDE * i;
             for (int j = 0; j < DATA_WATCHER_COMPONENT_VARS.length; j++) {
                 dataWatcher.addObject(start + j, DATA_WATCHER_COMPONENT_VARS[j]);
             }
@@ -204,7 +202,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     @Override
     protected void writeEntityToNBT(NBTTagCompound tagCompound) {}
 
-    public void alignToBlock(BlockPos pos) {
+    public void alignToBlock(BlockPos pos) throws AlignmentFailureException {
         ITrackPath path = TrackPathProvider.getPathsAsArray(worldObj, pos, worldObj.getBlockState(pos))[0];
         getTrain().disband();
         Train old = getTrain();

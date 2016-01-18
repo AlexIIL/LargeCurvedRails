@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
+import alexiil.mods.traincraft.api.AlignmentFailureException;
 import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.ITrackPath;
 
@@ -78,10 +79,11 @@ public abstract class ComponentResting implements IComponent {
     }
 
     @Override
-    public void alignTo(ITrackPath around, double offset) {
+    public void alignTo(ITrackPath around, double offset) throws AlignmentFailureException {
         childFront.alignTo(around, offset + childFront.originOffset());
         childBack.alignTo(around, offset + childBack.originOffset());
-        childMiddle.forEach(c -> c.alignTo(around, offset + c.originOffset()));
+        for (IComponent comp : childMiddle)
+            comp.alignTo(around, offset + comp.originOffset());
     }
 
     @Override

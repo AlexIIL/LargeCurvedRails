@@ -43,7 +43,8 @@ public class BlockCurvedTrack extends BlockSeperatedTrack {
         BlockPos creator = new BlockPos(0, 0, 0);
         for (EnumFacing horizontal : EnumFacing.HORIZONTALS) {
             Axis axis = horizontal.getAxis();
-            Vec3 startPoint = new Vec3(axis == Axis.Z ? 0.5 : 0, TRACK_HEIGHT, axis == Axis.X ? 0.5 : 0);
+            int thing = (int) (horizontal.getAxisDirection().getOffset() * -0.5 + 0.5);
+            Vec3 startPoint = new Vec3(axis == Axis.Z ? 0.5 : thing, TRACK_HEIGHT, axis == Axis.X ? 0.5 : thing);
 
             double diff = diagonalLength * horizontal.getAxisDirection().getOffset();
             Vec3 bezPoint = startPoint.addVector(axis == Axis.X ? diff : 0, 0, axis == Axis.Z ? diff : 0);

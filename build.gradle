@@ -38,8 +38,8 @@ dependencies {
 }
 
 minecraft {
-    mappings = "snapshot_20160103"
-    version = "1.8.9-11.15.0.1694"
+    mappings = "snapshot_20160116"
+    version = "1.8.9-11.15.0.1699"
 
     runDir = "run" // the directory for ForgeGradle to run Minecraft in
 
@@ -47,3 +47,15 @@ minecraft {
     replace "@VERSION@", project.version
     replace "@MC_VERSION@", version
 }
+
+// add api classes to main package
+jar {
+	from sourceSets.api.output
+}
+
+task apiJar(type: Jar) {
+    from sourceSets.api.output
+    classifier = "api"
+}
+
+tasks.build.dependsOn apiJar
