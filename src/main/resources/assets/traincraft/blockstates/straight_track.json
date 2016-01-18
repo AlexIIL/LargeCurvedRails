@@ -1,7 +1,7 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "textures": { }
+        "textures": { "#track":"traincraft:block/track_straight" }
     },
     "variants": {
         "facing": {
@@ -9,8 +9,8 @@
             "east_west":   { "model":"traincraft:track_straight_axis.obj", "y": 90 },
             "south_east":  { "model":"traincraft:track_straight_diag.obj" },
             "south_west":  { "model":"traincraft:track_straight_diag.obj", "y": 90 },
-            "north_west":  { "model":"traincraft:track_straight_diag_mirror.obj", "y": 180 },
-            "north_east":  { "model":"traincraft:track_straight_diag_mirror.obj", "y": 270 }
+            "north_west":  { "model":"traincraft:track_straight_diag.obj", "y": 180, "textures":{ "#track":"traincraft:block/track_straight_mirror" } },
+            "north_east":  { "model":"traincraft:track_straight_diag.obj", "y": 270, "textures":{ "#track":"traincraft:block/track_straight_mirror" } }
         }
     }    
 }

@@ -6,4 +6,4 @@ Ka 1.000000 1.000000 1.000000
 Kd 1.000000 1.000000 1.000000
 Ks 1.000000 1.000000 1.000000
 d 1.000000
-map_Kd traincraft:block/track_straight
+map_Kd track
