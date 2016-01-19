@@ -4,8 +4,10 @@ import java.util.Locale;
 
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.*;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -58,6 +60,14 @@ public class BlockTrackStraight extends BlockAbstractTrack {
 
     public BlockTrackStraight() {
         super(TRACK_DIRECTION);
+    }
+
+    @Override
+    public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta,
+            EntityLivingBase placer) {
+        EnumFacing entFacing = placer.getHorizontalFacing();
+        if (entFacing.getAxis() == Axis.X) return getDefaultState().withProperty(TRACK_DIRECTION, EnumDirection.EAST_WEST);
+        else return getDefaultState().withProperty(TRACK_DIRECTION, EnumDirection.NORTH_SOUTH);
     }
 
     @Override

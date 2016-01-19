@@ -11,7 +11,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public enum TCBlocks {
-    /** Bog standard straight track. Goes in any of the 4 minecraft directions. (North, East, South, West). */
+    /** Bog standard straight track. Goes in any of the 4 minecraft directions (North, East, South, West) and all
+     * diagonal directions (NorthEast, SouthEast, SouthWest, NorthWest). */
     STRAIGHT_TRACK(() -> new BlockTrackStraight(), null),
     /** Track that curves from two straight sections. This is the smallest variant */
     CURVED_TRACK_2_WIDE(() -> new BlockTrackCurved(2), null),
@@ -24,9 +25,7 @@ public enum TCBlocks {
     /** Meta-track that points along many pointers to the actual track piece. */
     POINTER_TRACK(() -> new BlockTrackPointer(), null),
     /** Track that slopes in a direction */
-    SLOPED_TRACK(() -> null, null),
-    /** Track that goes straight in a diagonal direction. (NorthEast, SouthEast, SouthWest, NorthWes). */
-    DIAGONAL_TRACK(() -> null, null);
+    SLOPED_TRACK(() -> null, null);
 
     private final Supplier<Block> supplier;
     private final Class<? extends ItemBlock> itemBlock;

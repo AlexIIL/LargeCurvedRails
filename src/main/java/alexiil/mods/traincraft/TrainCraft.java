@@ -12,6 +12,7 @@ import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.block.TCBlocks;
 import alexiil.mods.traincraft.entity.EntityRollingStockCart;
 import alexiil.mods.traincraft.entity.EntitySmallSteamLocomotive;
+import alexiil.mods.traincraft.item.TCItems;
 import alexiil.mods.traincraft.network.MessageHandler;
 
 @Mod(modid = DefaultProps.MODID, name = "TrainCraft")
@@ -25,7 +26,10 @@ public class TrainCraft {
 
         TrainCraftAPI.WORLD_CACHE = TrainWorldCache.INSTANCE;
         TrainCraftAPI.MOVEMENT_MANAGER = TrainMovementManager.INSTANCE;
+
         TCBlocks.preInit(event);
+        TCItems.preInit();
+        TCTabs.preInit();
         Proxy.proxy.preInit(event);
         MessageHandler.INSTANCE.preInit();
     }
@@ -34,6 +38,8 @@ public class TrainCraft {
     public void init(FMLInitializationEvent event) {
         TrainRegistry.registerTrain(EntityRollingStockCart.class, "minecart_wooden", 0);
         TrainRegistry.registerTrain(EntitySmallSteamLocomotive.class, "stream_locomotive_small", 1);
+
+        TCRecipies.init();
 
         Proxy.proxy.init(event);
     }

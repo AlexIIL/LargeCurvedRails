@@ -1,8 +1,6 @@
 package alexiil.mods.traincraft.block;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
@@ -17,7 +15,6 @@ import alexiil.mods.traincraft.api.ITrackPath;
 public class BlockTrackPointer extends BlockAbstractTrack {
     /**
      * 
-     *
      */
     public enum EnumOffset implements IStringSerializable {
         // @formatter:off
@@ -45,6 +42,7 @@ public class BlockTrackPointer extends BlockAbstractTrack {
         private EnumOffset(int x, int y, int z) {
             this.offset = new BlockPos(x, y, z);
             dispName = name().toLowerCase(Locale.ROOT).replace("_", "_with_").replace("N", "_negative_").replace("P", "_positive_");
+            OFFSET_MAP.put(offset, this);
         }
 
         @Override
@@ -52,6 +50,8 @@ public class BlockTrackPointer extends BlockAbstractTrack {
             return dispName;
         }
     }
+
+    private static final Map<BlockPos, EnumOffset> OFFSET_MAP = new HashMap<>();
 
     public static final PropertyEnum<EnumOffset> PROP_OFFSET = PropertyEnum.create("offset", EnumOffset.class);
     /** Many more tries than are technically needed, but this makes sure that */
