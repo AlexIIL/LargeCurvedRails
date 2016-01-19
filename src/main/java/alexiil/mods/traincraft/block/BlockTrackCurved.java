@@ -28,7 +28,7 @@ public class BlockTrackCurved extends BlockTrackSeperated {
     private final int length, width;
 
     public BlockTrackCurved(int width) {
-        super(PROPERTY_FACING, PROPERTY_MASTER, PROPERTY_DIRECTION);
+        super(PROPERTY_FACING, PROPERTY_DIRECTION);
         if (width < 2) throw new IllegalArgumentException("Must be at least 2 wide!");
         trackPaths = HashBasedTable.create();
         int w = width - 1;
@@ -97,14 +97,12 @@ public class BlockTrackCurved extends BlockTrackSeperated {
     public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
         boolean positive = state.getValue(PROPERTY_DIRECTION);
         EnumFacing mainDirection = state.getValue(PROPERTY_FACING);
-        EnumFacing other = getOther(mainDirection, positive);
+        return new ITrackPath[] { trackPaths.get(mainDirection, positive).offset(pos) };
+    }
 
-        BlockPos coordinate = findMaster(access, pos, length + width, (tryState) -> {
-            if (tryState.getValue(PROPERTY_FACING) != mainDirection) return false;
-            return tryState.getValue(PROPERTY_DIRECTION) == positive;
-        } , mainDirection, other);
-
-        if (coordinate == null) return new ITrackPath[0];
-        return new ITrackPath[] { trackPaths.get(mainDirection, positive).offset(coordinate) };
+    @Override
+    public boolean isSlave(IBlockAccess access, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState) {
+        /* FIXME: Do a better check to actually make sure that the given block really is included in the path! */
+        return true;
     }
 }

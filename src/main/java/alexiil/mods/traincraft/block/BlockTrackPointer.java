@@ -1,47 +1,43 @@
 package alexiil.mods.traincraft.block;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.ITrackPath;
 
 /** This "points" to a different block that contains all of the actual information regarding the track path. */
 public class BlockTrackPointer extends BlockAbstractTrack {
-    // 0: X-1
-    // 1: X+1
-    // 2: Z-1
-    // 3: Z+1
-    // 4: Y-1
-    // 5: Y+1
-    // 6: X-2
-    // 7: X+2
-    // 8: Z-2
-    // 9: Z+2
-    // A: X-1,Z-1
-    // B: X+1,Z-1
-    // C: X-1,Z+1
-    // D: X+1,Z+1
-    // E: UNUSED
-    // F: UNUSED
+    /**
+     * 
+     *
+     */
     public enum EnumOffset implements IStringSerializable {
-        XN1(-1, 0, 0),
-        XP1(1, 0, 0),
-        YN1(0, -1, 0),
-        YP1(0, 1, 0),
-        ZN1(0, 0, -1),
-        ZP1(0, 0, 1),
-        XN2(-2, 0, 0),
-        XP2(2, 0, 0),
-        ZN2(0, 0, -2),
-        ZP2(0, 0, 2),
-        XN1_ZN1(-1, 0, -1),
-        XP1_ZN1(1, 0, -1),
-        XN1_ZP1(-1, 0, 1),
-        XP1_ZP1(1, 0, 1);
+        // @formatter:off
+        /** 0 */ XN1    (-1, 0, 0),
+        /** 1 */ XP1    ( 1, 0, 0),
+        /** 2 */ YN1    ( 0,-1, 0),
+        /** 3 */ YP1    ( 0, 1, 0),
+        /** 4 */ ZN1    ( 0, 0,-1),
+        /** 5 */ ZP1    ( 0, 0, 1),
+        /** 6 */ XN2    (-2, 0, 0),
+        /** 7 */ XP2    ( 2, 0, 0),
+        /** 8 */ ZN2    ( 0, 0,-2),
+        /** 9 */ ZP2    ( 0, 0, 2),
+        /** A */ XN1_ZN1(-1, 0,-1),
+        /** B */ XP1_ZN1( 1, 0,-1),
+        /** C */ XN1_ZP1(-1, 0, 1),
+        /** D */ XP1_ZP1( 1, 0, 1);
+        /** E */ // UNUSED
+        /** D */ // UNUSED
+        // @formatter:on
 
         public final BlockPos offset;
         private final String dispName;
@@ -57,8 +53,64 @@ public class BlockTrackPointer extends BlockAbstractTrack {
         }
     }
 
+    public static final PropertyEnum<EnumOffset> PROP_OFFSET = PropertyEnum.create("offset", EnumOffset.class);
+    /** Many more tries than are technically needed, but this makes sure that */
+    private static final int MAX_TRIES = 90;
+
+    public BlockTrackPointer() {
+        super(PROP_OFFSET);
+    }
+
     @Override
     public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
+        try {
+            BlockPos master = findMaster(access, pos, state);
+            IBlockState masterState = access.getBlockState(master);
+            BlockTrackSeperated seperated = (BlockTrackSeperated) masterState.getBlock();
+            return seperated.paths(access, master, masterState);
+        } catch (IllegalPathException e) {
+            // Only update it if it was a
+            if (access instanceof World) {
+                World world = (World) access;
+                List<BlockPos> illegalPositions = e.path;
+                illegalPositions.forEach(p -> world.markBlockForUpdate(p));
+            }
+            return new ITrackPath[0];
+        }
+    }
+
+    private BlockPos findMaster(IBlockAccess access, BlockPos pos, IBlockState state) throws IllegalPathException {
+        BlockPos toTry = pos;
+        List<BlockPos> tried = new ArrayList<>();
+        int i = 0;
+        while (i++ < MAX_TRIES) {
+            IBlockState tryState = access.getBlockState(toTry);
+            if (tryState.getBlock() == this) {
+                EnumOffset offset = tryState.getValue(PROP_OFFSET);
+                toTry = toTry.add(offset.offset);
+                if (tried.contains(toTry)) {
+                    /* Somehow we have gone back around and tried to test a block that points back to ourselves...
+                     * something is wrong somewhere. */
+                    throw new IllegalPathException(tried);
+                }
+                tried.add(toTry);
+            } else if (tryState.getBlock() instanceof BlockTrackSeperated) {
+                BlockTrackSeperated seperated = (BlockTrackSeperated) tryState.getBlock();
+                if (seperated.isSlave(access, toTry, tryState, pos, state)) return toTry;
+            } else {
+                /* Somehow this block doesn't point to a proper block. */
+                throw new IllegalPathException(tried);
+            }
+        }
         return null;
+    }
+
+    @SuppressWarnings("serial")
+    private static class IllegalPathException extends Exception {
+        private final List<BlockPos> path;
+
+        public IllegalPathException(List<BlockPos> path) {
+            this.path = path;
+        }
     }
 }

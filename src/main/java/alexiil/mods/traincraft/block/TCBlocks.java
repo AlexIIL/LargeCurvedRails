@@ -21,6 +21,8 @@ public enum TCBlocks {
     CURVED_TRACK_4_WIDE(() -> new BlockTrackCurved(4), null),
     /** Track that curves from two straight sections. */
     CURVED_TRACK_8_WIDE(() -> new BlockTrackCurved(8), null),
+    /** Meta-track that points along many pointers to the actual track piece. */
+    POINTER_TRACK(() -> new BlockTrackPointer(), null),
     /** Track that slopes in a direction */
     SLOPED_TRACK(() -> null, null),
     /** Track that goes straight in a diagonal direction. (NorthEast, SouthEast, SouthWest, NorthWes). */
