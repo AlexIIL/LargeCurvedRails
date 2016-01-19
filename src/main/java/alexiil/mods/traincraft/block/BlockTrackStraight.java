@@ -16,7 +16,7 @@ import alexiil.mods.traincraft.entity.EntityRollingStockBase;
 import alexiil.mods.traincraft.entity.EntityRollingStockCart;
 import alexiil.mods.traincraft.entity.EntitySmallSteamLocomotive;
 
-public class BlockStraightTrack extends BlockAbstractTrack {
+public class BlockTrackStraight extends BlockAbstractTrack {
     public enum EnumDirection implements IStringSerializable {
         // AXIS ALIGNED SECTIONS
         NORTH_SOUTH,
@@ -56,7 +56,7 @@ public class BlockStraightTrack extends BlockAbstractTrack {
 
     private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, TRACK_HEIGHT, 1);
 
-    public BlockStraightTrack() {
+    public BlockTrackStraight() {
         super(TRACK_DIRECTION);
     }
 

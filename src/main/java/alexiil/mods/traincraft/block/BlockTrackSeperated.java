@@ -9,10 +9,10 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 
-public abstract class BlockSeperatedTrack extends BlockAbstractTrack {
+public abstract class BlockTrackSeperated extends BlockAbstractTrack {
     public static final PropertyBool PROPERTY_MASTER = PropertyBool.create("master");
 
-    public BlockSeperatedTrack(IProperty<?>... properties) {
+    public BlockTrackSeperated(IProperty<?>... properties) {
         super(properties);
     }
 
@@ -34,4 +34,6 @@ public abstract class BlockSeperatedTrack extends BlockAbstractTrack {
         }
         return pos;
     }
+
+    // public boolean isSlave()
 }

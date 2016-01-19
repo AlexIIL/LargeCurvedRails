@@ -15,7 +15,7 @@ import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathCurved;
 
-public class BlockCurvedTrack extends BlockSeperatedTrack {
+public class BlockTrackCurved extends BlockTrackSeperated {
     public static final PropertyEnum<EnumFacing> PROPERTY_FACING = PropertyEnum.create("facing", EnumFacing.class, EnumFacing.HORIZONTALS);
     /** Designates whether this track goes in a positive direction after this or a negative direction: if
      * {@link #PROPERTY_FACING} was {@link EnumFacing#NORTH} (-Z) then if this was true this would curve into positive X
@@ -27,7 +27,7 @@ public class BlockCurvedTrack extends BlockSeperatedTrack {
     private final Table<EnumFacing, Boolean, ITrackPath> trackPaths;
     private final int length, width;
 
-    public BlockCurvedTrack(int width) {
+    public BlockTrackCurved(int width) {
         super(PROPERTY_FACING, PROPERTY_MASTER, PROPERTY_DIRECTION);
         if (width < 2) throw new IllegalArgumentException("Must be at least 2 wide!");
         trackPaths = HashBasedTable.create();
