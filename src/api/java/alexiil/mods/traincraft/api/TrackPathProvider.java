@@ -89,13 +89,6 @@ public class TrackPathProvider {
         map.put(EnumRailDirection.ASCENDING_NORTH, new TrackPathStraight(south, north.add(up), from));
         map.put(EnumRailDirection.ASCENDING_SOUTH, new TrackPathStraight(north, south.add(up), from));
 
-        Vec3 bezPos = new Vec3(0.5, trackHeight, 0.5);// TODO: Change these to arcs!
-        map.put(EnumRailDirection.SOUTH_EAST, new TrackPathCurved(from, south, bezPos, east));
-        map.put(EnumRailDirection.SOUTH_WEST, new TrackPathCurved(from, south, bezPos, west));
-        map.put(EnumRailDirection.NORTH_WEST, new TrackPathCurved(from, north, bezPos, west));
-        map.put(EnumRailDirection.NORTH_EAST, new TrackPathCurved(from, north, bezPos, east));
-
-        // Arcs
         map.put(EnumRailDirection.SOUTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3(1, trackHeight, 1), 0.5, 0.5, 180, 270));
         map.put(EnumRailDirection.SOUTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3(0, trackHeight, 1), 0.5, 0.5, 270, 360));
         map.put(EnumRailDirection.NORTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3(0, trackHeight, 0), 0.5, 0.5, 0, 90));

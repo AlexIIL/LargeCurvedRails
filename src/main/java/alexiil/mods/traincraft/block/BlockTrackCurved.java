@@ -6,16 +6,18 @@ import com.google.common.collect.Table;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.*;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPath2DArc;
-import alexiil.mods.traincraft.api.TrackPathCurved;
 
 public class BlockTrackCurved extends BlockTrackSeperated {
     public static final PropertyEnum<EnumFacing> PROPERTY_FACING = PropertyEnum.create("facing", EnumFacing.class, EnumFacing.HORIZONTALS);
@@ -32,45 +34,15 @@ public class BlockTrackCurved extends BlockTrackSeperated {
         super(PROPERTY_FACING, PROPERTY_DIRECTION);
         if (width < 2) throw new IllegalArgumentException("Must be at least 2 wide!");
         trackPaths = HashBasedTable.create();
-        int w = width - 1;
-        int ww = w * w;
-        double sq = Math.sqrt(ww + ww);
-        int diagonalLength = MathHelper.floor_double(sq);
         TrainCraft.trainCraftLog.info("Curved track with a width of " + width);
 
         BlockPos creator = new BlockPos(0, 0, 0);
         for (EnumFacing horizontal : EnumFacing.HORIZONTALS) {
-            //
-            // float angle;
-            // switch (horizontal) {
-//                // @formatter:off
-//                case NORTH: angle =   0f;
-//                case EAST:  angle =  90f;
-//                case SOUTH: angle = 180f;
-//                case WEST:  angle = 270f;
-//                // @formatter:on
-            // }
-
             Axis axis = horizontal.getAxis();
             int thing = (int) (horizontal.getAxisDirection().getOffset() * -0.5 + 0.5);
             Vec3 startPoint = new Vec3(axis == Axis.Z ? 0.5 : thing, TRACK_HEIGHT, axis == Axis.X ? 0.5 : thing);
 
-            double diff = diagonalLength * horizontal.getAxisDirection().getOffset();
-            Vec3 bezPoint = startPoint.addVector(axis == Axis.X ? diff : 0, 0, axis == Axis.Z ? diff : 0);
-
-            Vec3 offset = new Vec3(axis == Axis.X ? diff : 0, 0, axis == Axis.Z ? diff : 0);
             for (boolean positive : new boolean[] { false, true }) {
-                // BEZ
-                EnumFacing other = getOther(horizontal, positive);
-                axis = other.getAxis();
-                double actualDiff = diff * other.getAxisDirection().getOffset();
-                Vec3 otherOffset = new Vec3(axis == Axis.X ? actualDiff : 0, 0, axis == Axis.Z ? actualDiff : 0);
-
-                Vec3 endPoint = bezPoint.add(offset).add(otherOffset);
-                TrackPathCurved curved = new TrackPathCurved(creator, startPoint, bezPoint, endPoint);
-
-                // ARC
-
                 int multiplier = positive ? 1 : -1;
                 double radius = width * 3 - 1;
 
