@@ -2,6 +2,7 @@ package alexiil.mods.traincraft;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.lwjgl.opengl.GL11;
 
@@ -11,6 +12,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
@@ -19,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -26,9 +29,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathProvider;
+import alexiil.mods.traincraft.block.BlockTrackCurved;
+import alexiil.mods.traincraft.block.TCBlocks;
 import alexiil.mods.traincraft.component.ComponentCart;
 import alexiil.mods.traincraft.component.ComponentSmallWheel;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
+import alexiil.mods.traincraft.model.TrackCurvedBlockModel;
+import alexiil.mods.traincraft.model.VoidStateMapper;
 import alexiil.mods.traincraft.render.RenderRollingStockBase;
 
 public class ProxyClient extends Proxy {
@@ -37,11 +44,24 @@ public class ProxyClient extends Proxy {
         super.preInit(event);
         RenderingRegistry.registerEntityRenderingHandler(EntityRollingStockBase.class, RenderRollingStockBase.Factory.INSTANCE);
         OBJLoader.instance.addDomain("traincraft");
+        for (TCBlocks b : TCBlocks.values()) {
+            if (b.getBlock() instanceof BlockTrackCurved) {
+                ModelLoader.setCustomStateMapper(b.getBlock(), VoidStateMapper.INSTANCE);
+            }
+        }
     }
 
     @SubscribeEvent
     public void modelBake(ModelBakeEvent bake) {
         RenderRollingStockBase.clearModelMap();
+        for (TCBlocks b : TCBlocks.values()) {
+            if (b.getBlock() instanceof BlockTrackCurved) {
+                BlockTrackCurved curved = (BlockTrackCurved) b.getBlock();
+                TrackCurvedBlockModel model = new TrackCurvedBlockModel(curved);
+                ModelResourceLocation mrl = new ModelResourceLocation("traincraft:" + b.name().toLowerCase(Locale.ROOT));
+                bake.modelRegistry.putObject(mrl, model);
+            }
+        }
     }
 
     @SubscribeEvent
@@ -75,7 +95,7 @@ public class ProxyClient extends Proxy {
         interp = interp.addVector(0, -player.getEyeHeight(), 0);
         wr.setTranslation(-interp.xCoord, -interp.yCoord, -interp.zCoord);
 
-        final int radius = 10;
+        final int radius = 15;
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
