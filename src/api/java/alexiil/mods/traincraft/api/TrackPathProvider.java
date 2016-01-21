@@ -22,7 +22,7 @@ public class TrackPathProvider {
     private static Map<Block, ITrackBlock> registeredBlocks = new HashMap<>();
 
     public static ITrackPath[] getPathsAsArray(IBlockAccess access, BlockPos pos, IBlockState state) {
-        ITrackBlock block = getBlockFor(access, pos, state);
+        ITrackBlock block = getBlockFor(state);
         if (block == null) return new ITrackPath[0];
         return block.paths(access, pos, state);
     }
@@ -35,7 +35,7 @@ public class TrackPathProvider {
         return Stream.of(getPathsAsArray(access, pos, state));
     }
 
-    public static ITrackBlock getBlockFor(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public static ITrackBlock getBlockFor(IBlockState state) {
         Block block = state.getBlock();
         if (block instanceof ITrackBlock) return (ITrackBlock) block;
         return registeredBlocks.get(block);
@@ -94,6 +94,12 @@ public class TrackPathProvider {
         map.put(EnumRailDirection.SOUTH_WEST, new TrackPathCurved(from, south, bezPos, west));
         map.put(EnumRailDirection.NORTH_WEST, new TrackPathCurved(from, north, bezPos, west));
         map.put(EnumRailDirection.NORTH_EAST, new TrackPathCurved(from, north, bezPos, east));
+
+        // Arcs
+        map.put(EnumRailDirection.SOUTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3(1, trackHeight, 1), 0.5, 0.5, 180, 270));
+        map.put(EnumRailDirection.SOUTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3(0, trackHeight, 1), 0.5, 0.5, 270, 360));
+        map.put(EnumRailDirection.NORTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3(0, trackHeight, 0), 0.5, 0.5, 0, 90));
+        map.put(EnumRailDirection.NORTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3(1, trackHeight, 0), 0.5, 0.5, 90, 180));
 
         BlockRailBase[] rails = { (BlockRailBase) Blocks.rail, (BlockRailBase) Blocks.activator_rail, (BlockRailBase) Blocks.detector_rail,
             (BlockRailBase) Blocks.golden_rail };

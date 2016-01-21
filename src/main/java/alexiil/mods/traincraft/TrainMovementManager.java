@@ -37,7 +37,7 @@ public enum TrainMovementManager implements ITrainMovementManager {
 
     private ITrackPath next(IBlockAccess access, BlockPos toTry, ITrackPath from) {
         IBlockState state = access.getBlockState(toTry);
-        ITrackBlock block = TrackPathProvider.getBlockFor(access, toTry, state);
+        ITrackBlock block = TrackPathProvider.getBlockFor(state);
         if (block == null) return null;
         ITrackPath[] paths = block.paths(access, toTry, state);
         if (paths.length == 0) return null;
@@ -81,7 +81,7 @@ public enum TrainMovementManager implements ITrainMovementManager {
 
     private ITrackPath closest(IBlockAccess access, BlockPos toTry, Vec3 current, Vec3 direction) {
         IBlockState state = access.getBlockState(toTry);
-        ITrackBlock block = TrackPathProvider.getBlockFor(access, toTry, state);
+        ITrackBlock block = TrackPathProvider.getBlockFor(state);
         if (block == null) return null;
         ITrackPath[] paths = block.paths(access, toTry, state);
         if (paths.length == 0) return null;

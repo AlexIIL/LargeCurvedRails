@@ -51,7 +51,7 @@ public enum CurvedModelGenerator {
 
     private static List<BakedQuad> generateModelFor(ITrackPath path, TextureAtlasSprite railSprite, List<List<BakedQuad>> sleepers) {
         List<BakedQuad> list = new ArrayList<>();
-        if (true) return list;
+        // if (true) return list;
 
         double length = path.length();
         int numSleepers = (int) (length * 4);

@@ -132,10 +132,15 @@ public abstract class ComponentTrackFollower implements IComponent {
                 lastRecievedProgress = prog;
             } else if (currentPath != null) {
                 // Only update it ourselves if we have gone a tick without seeing the server data
-                double length = currentPath.length();
                 progress += distanceMoved;
-                lastPlace = currentPath.interpolate(progress / length);
-                lookVec = currentPath.direction(progress / length);
+                currentPath = stock().getTrain().offsetPath(currentPath, progress);
+                if (currentPath != null) {
+                    progress = stock().getTrain().offsetMeters(currentPath, progress);
+
+                    double length = currentPath.length();
+                    lastPlace = currentPath.interpolate(progress / length);
+                    lookVec = currentPath.direction(progress / length);
+                }
             }
         } else {// Else if its the server world
             // getTrain().tick(this);

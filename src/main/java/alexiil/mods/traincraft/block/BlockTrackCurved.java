@@ -28,7 +28,6 @@ public class BlockTrackCurved extends BlockTrackSeperated {
 
     private final Table<EnumFacing, Boolean, ITrackPath> trackPaths;
 
-    @SuppressWarnings("incomplete-switch")
     public BlockTrackCurved(int width) {
         super(PROPERTY_FACING, PROPERTY_DIRECTION);
         if (width < 2) throw new IllegalArgumentException("Must be at least 2 wide!");
@@ -94,9 +93,20 @@ public class BlockTrackCurved extends BlockTrackSeperated {
                 double ang = 45 * multiplier * (horizontal.getAxis() == Axis.X ? -1 : 1);
                 double end = start + ang;
 
-                // WARNING: Some of these are off by a little bit that no-one understands!
+                double radiusStart = radius;
+                double triDist = width * 2 - 0.5;
+                double radiusEnd = Math.pow((2 * triDist * triDist), 0.5);
 
-                TrackPath2DArc arc = new TrackPath2DArc(creator, center, radius, start * Math.PI / 180, end * Math.PI / 180);
+                if ((horizontal.getAxis() == Axis.Z) != positive) {
+                    double holder = start;
+                    start = end;
+                    end = holder;
+                    holder = radiusStart;
+                    radiusStart = radiusEnd;
+                    radiusEnd = holder;
+                }
+
+                TrackPath2DArc arc = new TrackPath2DArc(creator, center, radiusStart, radiusEnd, start * Math.PI / 180, end * Math.PI / 180);
 
                 TrainCraft.trainCraftLog.info("\t" + horizontal + ", " + positive);
                 for (int i = 0; i < 10; i++) {

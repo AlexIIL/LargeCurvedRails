@@ -25,33 +25,34 @@ public class ItemTrackDiagonal extends ItemBlockTrainCraft {
         angle = (angle % 360 + 360) % 360;
 
         if (side != null && side != EnumFacing.UP) {
-            switch (side) {
-                case DOWN: {
-                    hitX = 1 - hitX;
-                    hitY = 1 - hitY;
-                }
-                case EAST:
-                    hitX = 1;
-                case WEST:
-                    hitX = 0;
-                case NORTH:
-                    hitZ = 0;
-                case SOUTH:
-                    hitZ = 1;
-                default:;
+            if (side == EnumFacing.DOWN) {
+                hitX = 1 - hitX;
+                hitY = 1 - hitY;
             }
+            // @formatter:off
+            else if (side == EnumFacing.SOUTH) hitZ = 1;
+            else if (side == EnumFacing.NORTH) hitZ = 0;
+            else if (side == EnumFacing.WEST ) hitX = 0;
+            else /*  side == EnumFacing.EAST*/ hitX = 1;
+            // @formatter:on
         }
 
         EnumDirection direction;
-        if ((angle >= 0 && angle <= 90) || (angle >= 180 && angle <= 270)) {
+        if ((angle >= 0 && angle <= 90) || (angle >= 180 && angle <= 270))
+
+        {
             float graphT = hitX + hitZ - 1;
             if (graphT > 0) direction = EnumDirection.SOUTH_EAST;
             else direction = EnumDirection.NORTH_WEST;
-        } else if ((angle >= 90 && angle <= 180) || (angle >= 270 && angle <= 360)) {
+        } else if ((angle >= 90 && angle <= 180) || (angle >= 270 && angle <= 360))
+
+        {
             float graphT = hitZ - hitX;
             if (graphT > 0) direction = EnumDirection.SOUTH_WEST;
             else direction = EnumDirection.NORTH_EAST;
-        } else {
+        } else
+
+        {
             TrainCraft.trainCraftLog.warn("Could not place a block with an angle of " + angle);
             return false;
         }

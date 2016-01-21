@@ -1,7 +1,14 @@
 package alexiil.mods.traincraft.api;
 
+import org.lwjgl.opengl.GL11;
+
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
+
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ITrackPath {
     /** Gets a Vec3 position that has been interpolated between
@@ -57,4 +64,11 @@ public interface ITrackPath {
         }
         return pointP;
     }
+
+    /** Renderers information to inform the debug screen of what makes this path a path.
+     * 
+     * @param wr The world renderer that has been set up to render with {@link DefaultVertexFormats#POSITION_COLOR} and
+     *            {@link GL11#GL_LINES} */
+    @SideOnly(Side.CLIENT)
+    default void renderInfo(WorldRenderer wr) {}
 }

@@ -115,8 +115,22 @@ public class ProxyClient extends Proxy {
                             dir = new Vec3(dir.xCoord * STEP_DIST, dir.yCoord * STEP_DIST, dir.zCoord * STEP_DIST);
                             Vec3 point2 = point.add(dir);
 
-                            wr.pos(point2.xCoord, point2.yCoord, point2.zCoord).color(0, 255, 0, 255).endVertex();
+                            wr.pos(point2.xCoord, point2.yCoord, point2.zCoord).color(255, 0, 0, 255).endVertex();
                         }
+
+                        BlockPos c = path.creatingBlock();
+                        wr.pos(c.getX() + 0.5, c.getY() + 0.3, c.getZ() + 0.5).color(0, 0, 0, 255).endVertex();
+                        wr.pos(c.getX() + 0.5, c.getY() + 0.7, c.getZ() + 0.5).color(0, 0, 0, 255).endVertex();
+
+                        Vec3 s = path.start();
+                        wr.pos(s.xCoord, s.yCoord, s.zCoord).color(0, 255, 0, 255).endVertex();
+                        wr.pos(s.xCoord, s.yCoord + 0.3, s.zCoord).color(0, 255, 0, 255).endVertex();
+
+                        Vec3 e = path.end();
+                        wr.pos(e.xCoord, e.yCoord, e.zCoord).color(0, 255, 0, 255).endVertex();
+                        wr.pos(e.xCoord, e.yCoord + 0.3, e.zCoord).color(0, 255, 0, 255).endVertex();
+
+                        path.renderInfo(wr);
                     }
                 }
             }

@@ -268,7 +268,9 @@ public class Train {
         // @formatter:off
         return paths.build()
                 .flatMap(p -> Arrays.asList(p, p.reverse()).stream())
-                .filter(p -> p.interpolate(pos).distanceTo(attachPoint) == 0)
+                // Add a *tiny* bit of leway for path positions
+                //   -Arcs don't quite work out start and ends exactly.
+                .filter(p -> p.interpolate(pos).distanceTo(attachPoint) <= 1E-2)
                 .filter(p -> p.direction(pos).distanceTo(direction) <= 1.2);
     }
 
