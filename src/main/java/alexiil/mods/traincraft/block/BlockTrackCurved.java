@@ -93,8 +93,8 @@ public class BlockTrackCurved extends BlockTrackSeperated {
 
                 double ang = 45 * multiplier * (horizontal.getAxis() == Axis.X ? -1 : 1);
                 double end = start + ang;
-                
-                // WARNING: Some of these are off by one!
+
+                // WARNING: Some of these are off by a little bit that no-one understands!
 
                 TrackPath2DArc arc = new TrackPath2DArc(creator, center, radius, start * Math.PI / 180, end * Math.PI / 180);
 
