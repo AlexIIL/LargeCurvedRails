@@ -69,7 +69,8 @@ public class BlockTrackCurved extends BlockTrackSeperated {
                 double triDist = width * 2 - 0.5;
                 double radiusEnd = Math.pow((2 * triDist * triDist), 0.5);
 
-                if ((horizontal.getAxis() == Axis.Z) != positive) {
+                boolean reverse = (horizontal.getAxis() == Axis.Z) != positive;
+                if (reverse) {
                     double holder = start;
                     start = end;
                     end = holder;
@@ -78,16 +79,8 @@ public class BlockTrackCurved extends BlockTrackSeperated {
                     radiusEnd = holder;
                 }
 
-                TrackPath2DArc arc = new TrackPath2DArc(creator, center, radiusStart, radiusEnd, start * Math.PI / 180, end * Math.PI / 180);
-
-                TrainCraft.trainCraftLog.info("\t" + horizontal + ", " + positive);
-                for (int i = 0; i < 10; i++) {
-                    double pos = i / 9.0;
-                    Vec3 point = arc.interpolate(pos);
-                    Vec3 dir = arc.direction(pos);
-                    TrainCraft.trainCraftLog.info("\t\t" + i + " = " + point + " -> " + dir);
-                }
-
+                ITrackPath arc = new TrackPath2DArc(creator, center, radiusStart, radiusEnd, start * Math.PI / 180, end * Math.PI / 180);
+                if (reverse) arc = arc.reverse();
                 trackPaths.put(horizontal, positive, arc);
             }
         }
@@ -106,13 +99,6 @@ public class BlockTrackCurved extends BlockTrackSeperated {
     @Override
     public void setBlockBoundsBasedOnState(IBlockAccess worldIn, BlockPos pos) {
         setBlockBounds(0, 0, 0, 1, TRACK_HEIGHT, 1);
-    }
-
-    private static EnumFacing getOther(EnumFacing mainDirection, boolean positive) {
-        EnumFacing toUse = EnumFacing.EAST;
-        if (mainDirection.getAxis() == toUse.getAxis()) toUse = EnumFacing.SOUTH;
-        if (!positive) toUse = toUse.getOpposite();
-        return toUse;
     }
 
     @Override

@@ -5,10 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.vecmath.AxisAngle4f;
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Vector3f;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -22,42 +18,8 @@ import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.block.BlockTrackCurved;
 
 public class TrackCurvedBlockModel implements ISmartBlockModel {
-    private static Map<EnumFacing, Matrix4f> rotationMatricies = new HashMap<>();
     private Map<IBlockState, IBakedModel> cache = new HashMap<>();
     private final BlockTrackCurved curved;
-
-    static {
-        for (EnumFacing face : EnumFacing.HORIZONTALS) {
-            Matrix4f translate = new Matrix4f();
-            translate.setIdentity();
-            translate.setTranslation(new Vector3f(0.5f, 0, 0.5f));
-
-            final float angle;
-
-            // @formatter:off
-                 if (face == EnumFacing.NORTH) angle =   0f * (float) Math.PI / 180f;
-            else if (face == EnumFacing.EAST ) angle =  90f * (float) Math.PI / 180f;
-            else if (face == EnumFacing.SOUTH) angle = 180f * (float) Math.PI / 180f;
-            else if (face == EnumFacing.WEST ) angle = 270f * (float) Math.PI / 180f;
-            else  angle =   0f;
-            // @formatter:on
-
-            Matrix4f rotate = new Matrix4f();
-            rotate.setIdentity();
-            rotate.setRotation(new AxisAngle4f(0, 1, 0, angle));
-
-            Matrix4f translateBack = new Matrix4f();
-            translateBack.setIdentity();
-            translateBack.setTranslation(new Vector3f(-0.5f, 0, -0.5f));
-
-            Matrix4f total = new Matrix4f();
-            total.setIdentity();
-            total.mul(translateBack);
-            total.mul(rotate);
-            total.mul(translate);
-            rotationMatricies.put(face, total);
-        }
-    }
 
     public TrackCurvedBlockModel(BlockTrackCurved curved) {
         this.curved = curved;
@@ -70,7 +32,7 @@ public class TrackCurvedBlockModel implements ISmartBlockModel {
             boolean positive = state.getValue(BlockTrackCurved.PROPERTY_DIRECTION);
             ITrackPath path = curved.path(positive, facing);
             IBakedModel baked = CurvedModelGenerator.INSTANCE.generateModelFor(path, !positive);
-            cache.put(state, ModelUtil.multiplyMatrix(baked, rotationMatricies.get(facing)));
+            cache.put(state, baked);
         }
         return cache.get(state);
     }

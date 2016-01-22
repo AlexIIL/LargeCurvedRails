@@ -41,7 +41,7 @@ public class BlockTrackPointer extends BlockAbstractTrack {
 
         private EnumOffset(int x, int y, int z) {
             this.offset = new BlockPos(x, y, z);
-            dispName = name().toLowerCase(Locale.ROOT).replace("_", "_with_").replace("N", "_negative_").replace("P", "_positive_");
+            dispName = name().replace("_", "_with_").replace("N", "_negative_").replace("P", "_positive_").toLowerCase(Locale.ROOT);
             OFFSET_MAP.put(offset, this);
         }
 

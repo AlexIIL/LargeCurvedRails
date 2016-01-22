@@ -26,7 +26,7 @@ public class TrackPath2DArc implements ITrackPath {
         this.radiusEnd = radiusEnd;
         this.angleStart = start;
         this.angleEnd = end;
-        this.length = approximateLength();
+        this.length = (radiusStart + radiusEnd) * Math.abs(angleStart - angleEnd) / 2;
     }
 
     private TrackPath2DArc(BlockPos creator, Vec3 center, double radiusStart, double radiusEnd, double start, double end, double length) {
@@ -70,20 +70,6 @@ public class TrackPath2DArc implements ITrackPath {
         return new TrackPath2DArc(creator.add(pos), center, radiusStart, radiusEnd, angleStart, angleEnd, length);
     }
 
-    private double approximateLength() {
-        /* Approximation of the length of any curve. Larger values of "num" will produce more accurate results. Because
-         * this is not called very often (the main curves are cached by the correct classes, so each unique curve
-         * computes this once) this is set to a large value. */
-        double length = 0;
-        int num = 1024;
-        for (int i = 1; i < num; i++) {
-            Vec3 p0 = interpolate((i - 1) / (double) num);
-            Vec3 p1 = interpolate(i / (double) num);
-            length += p0.distanceTo(p1);
-        }
-        return length;
-    }
-
     @Override
     @SideOnly(Side.CLIENT)
     public void renderInfo(WorldRenderer wr) {
@@ -110,6 +96,7 @@ public class TrackPath2DArc implements ITrackPath {
     public boolean equals(Object obj) {
         if (obj == null) return false;
         if (obj.getClass() != getClass()) return false;
+        if (obj == this) return true;
         TrackPath2DArc arc = (TrackPath2DArc) obj;
         // @formatter:off
         return Objects.equals(creator, arc.creator) && 

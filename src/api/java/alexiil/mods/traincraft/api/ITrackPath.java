@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface ITrackPath {
     /** Gets a Vec3 position that has been interpolated between
      * 
-     * @param position A position between (and including) 0 and 1. Other values */
+     * @param position A position between (and including) 0 and 1. Other values might not return what you expected. */
     Vec3 interpolate(double position);
 
     /** Get the direction of the track path at a particular interpolated point. */

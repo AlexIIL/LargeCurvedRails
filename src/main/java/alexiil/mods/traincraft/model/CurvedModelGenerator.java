@@ -5,12 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.vecmath.Matrix4f;
+
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Vec3;
 
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -51,23 +54,24 @@ public enum CurvedModelGenerator {
 
     private static List<BakedQuad> generateModelFor(ITrackPath path, TextureAtlasSprite railSprite, List<List<BakedQuad>> sleepers) {
         List<BakedQuad> list = new ArrayList<>();
-        // if (true) return list;
 
         double length = path.length();
         int numSleepers = (int) (length * 4);
-        double sleeperDist = 1 / numSleepers;
+        double sleeperDist = 1 / (double) numSleepers;
 
         int sleeperIndex = 0;
-        double offset = 0;
+        double offset = sleeperDist / 2;
         for (int i = 0; i < numSleepers; i++) {
-            double position = offset + sleeperDist;
-            TrainCraft.trainCraftLog.info("offset = " + offset + ", position = " + position);
             List<BakedQuad> sleeper = sleepers.get(sleeperIndex);
-            sleeper = ModelUtil.multiplyMatrix(sleeper, MatrixUtil.rotateTo(path.direction(position)));
-            sleeper = ModelUtil.multiplyMatrix(sleeper, MatrixUtil.translation(path.interpolate(position)));
+            sleeper = ModelUtil.multiplyMatrix(sleeper, MatrixUtil.rotateTo(path.direction(offset)));
+
+            Vec3 translationVec = path.interpolate(offset).subtract(new Vec3(path.creatingBlock()));
+            Matrix4f translation = MatrixUtil.translation(translationVec);
+            sleeper = ModelUtil.multiplyMatrix(sleeper, translation);
+
             list.addAll(sleeper);
 
-            offset += 1 / (double) numSleepers;
+            offset += sleeperDist;
             sleeperIndex++;
             sleeperIndex %= sleepers.size();
         }
