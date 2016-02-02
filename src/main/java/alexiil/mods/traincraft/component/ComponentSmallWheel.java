@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponent;
-import alexiil.mods.traincraft.render.RenderRollingStockBase;
+import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 
 public class ComponentSmallWheel extends ComponentTrackFollower {
     private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/wheel_small.obj");

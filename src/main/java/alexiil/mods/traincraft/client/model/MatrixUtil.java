@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.model;
+package alexiil.mods.traincraft.client.model;
 
 import javax.vecmath.AxisAngle4f;
 import javax.vecmath.Matrix4f;
@@ -25,6 +25,7 @@ public class MatrixUtil {
         float pDotD = from.dot(to);
         Vector3f fromPerp = new Vector3f(1, 0, 0);
         float pPerpDotD = fromPerp.dot(to);
+        if (pPerpDotD < 0) pPerpDotD = -pPerpDotD;
 
         float angle = (float) Math.atan2(pPerpDotD, pDotD);
 

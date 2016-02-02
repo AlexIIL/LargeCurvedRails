@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.model;
+package alexiil.mods.traincraft.client.model;
 
 import java.util.Collections;
 import java.util.HashMap;

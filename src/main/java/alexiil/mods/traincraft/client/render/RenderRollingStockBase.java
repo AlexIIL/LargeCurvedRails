@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.render;
+package alexiil.mods.traincraft.client.render;
 
 import java.io.IOException;
 import java.util.HashMap;

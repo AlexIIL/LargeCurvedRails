@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.component.ComponentResting;
 import alexiil.mods.traincraft.api.component.IComponent;
-import alexiil.mods.traincraft.render.RenderRollingStockBase;
+import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 
 public class ComponentCart extends ComponentResting {
     private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/cart.obj");

@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.model;
+package alexiil.mods.traincraft.client.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +56,7 @@ public enum CurvedModelGenerator {
         List<BakedQuad> list = new ArrayList<>();
 
         double length = path.length();
-        int numSleepers = (int) (length * 4);
+        int numSleepers = (int) (length * 16);
         double sleeperDist = 1 / (double) numSleepers;
 
         int sleeperIndex = 0;

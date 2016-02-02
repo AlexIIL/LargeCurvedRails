@@ -13,30 +13,19 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TrackPath2DArc implements ITrackPath {
     private final BlockPos creator;
     private final Vec3 center;
-    private final double radiusStart, radiusEnd, angleStart, angleEnd, length;
+    private final double radius, angleStart, angleEnd, length;
 
-    public static TrackPath2DArc createDegrees(BlockPos creator, Vec3 center, double radiusStart, double endRadius, int start, int end) {
-        return new TrackPath2DArc(creator, center, radiusStart, endRadius, start * Math.PI / 180, end * Math.PI / 180);
+    public static TrackPath2DArc createDegrees(BlockPos creator, Vec3 center, double radius, int start, int end) {
+        return new TrackPath2DArc(creator, center, radius, start * Math.PI / 180, end * Math.PI / 180);
     }
 
-    public TrackPath2DArc(BlockPos creator, Vec3 center, double radiusStart, double radiusEnd, double start, double end) {
+    public TrackPath2DArc(BlockPos creator, Vec3 center, double radius, double start, double end) {
         this.creator = creator;
         this.center = center;
-        this.radiusStart = radiusStart;
-        this.radiusEnd = radiusEnd;
+        this.radius = radius;
         this.angleStart = start;
         this.angleEnd = end;
-        this.length = (radiusStart + radiusEnd) * Math.abs(angleStart - angleEnd) / 2;
-    }
-
-    private TrackPath2DArc(BlockPos creator, Vec3 center, double radiusStart, double radiusEnd, double start, double end, double length) {
-        this.creator = creator;
-        this.center = center;
-        this.radiusStart = radiusStart;
-        this.radiusEnd = radiusEnd;
-        this.angleStart = start;
-        this.angleEnd = end;
-        this.length = length;
+        this.length = radius * Math.abs(angleStart - angleEnd);
     }
 
     @Override
@@ -47,17 +36,41 @@ public class TrackPath2DArc implements ITrackPath {
     @Override
     public Vec3 interpolate(double position) {
         float angle = (float) (angleStart * (1 - position) + angleEnd * position);
-        double radius = (radiusStart * (1 - position) + radiusEnd * position);
         Vec3 vec = new Vec3(radius * MathHelper.cos(angle), 0, radius * MathHelper.sin(angle));
         return center.add(vec).add(new Vec3(creator));
     }
 
     @Override
     public Vec3 direction(double position) {
-        float angle = (float) (angleStart * (1 - position) + angleEnd * position);
-        double radius = (radiusStart * (1 - position) + radiusEnd * position);
-        Vec3 vec = new Vec3(radius * -MathHelper.sin(angle), 0, radius * MathHelper.cos(angle));
-        return vec.normalize();
+        if (position < 1) return interpolate(position + 0.01).subtract(interpolate(position)).normalize();
+
+        // WARNING: MATHS!
+
+        // (A differencial equation for the above function)
+
+        float o = (float) position;
+        float sa = (float) angleStart;
+        float ea = (float) angleEnd;
+        float sr = (float) radius;
+        float er = (float) radius;
+
+        float a = sa + o * (ea - sa);
+        float da_do = ea - sa;
+
+        float r = sr + o * (er - sr);
+        // float f = MathHelper.cos(a);
+        float df_do = -MathHelper.sin(a) * da_do;
+
+        // float x = r * f;
+        float dx_do = r * df_do;
+
+        // float g = MathHelper.sin(a);
+        float dg_do = MathHelper.cos(a) * da_do;
+
+        // float z = r * g;
+        float dz_do = r * dg_do;
+
+        return new Vec3(dx_do, 0, dz_do).normalize();
     }
 
     @Override
@@ -67,7 +80,7 @@ public class TrackPath2DArc implements ITrackPath {
 
     @Override
     public ITrackPath offset(BlockPos pos) {
-        return new TrackPath2DArc(creator.add(pos), center, radiusStart, radiusEnd, angleStart, angleEnd, length);
+        return new TrackPath2DArc(creator.add(pos), center, radius, angleStart, angleEnd);
     }
 
     @Override
@@ -89,7 +102,7 @@ public class TrackPath2DArc implements ITrackPath {
 
     @Override
     public int hashCode() {
-        return MCObjectUtils.hash(creator, center, radiusStart, radiusEnd, angleStart, angleEnd);
+        return MCObjectUtils.hash(creator, center, radius, angleStart, angleEnd);
     }
 
     @Override
@@ -101,8 +114,7 @@ public class TrackPath2DArc implements ITrackPath {
         // @formatter:off
         return Objects.equals(creator, arc.creator) && 
                 MCObjectUtils.equals(center, arc.center) &&
-                radiusStart == arc.radiusStart &&
-                radiusEnd == arc.radiusEnd &&
+                radius == arc.radius &&
                 angleStart == arc.angleStart &&
                 angleEnd == arc.angleEnd &&
                 length == arc.length;

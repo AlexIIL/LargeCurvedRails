@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.model;
+package alexiil.mods.traincraft.client.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;

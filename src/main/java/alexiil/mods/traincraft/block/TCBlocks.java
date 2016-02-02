@@ -4,37 +4,60 @@ import java.util.Locale;
 import java.util.function.Supplier;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockPlanks;
+import net.minecraft.block.BlockStone;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
+import alexiil.mods.traincraft.block.BlockTrackAscendingPointer.BlockShownSet;
+
 public enum TCBlocks {
     /** Bog standard straight track. Goes in any of the 4 minecraft directions (North, East, South, West) and all
      * diagonal directions (NorthEast, SouthEast, SouthWest, NorthWest). */
-    STRAIGHT_TRACK(() -> new BlockTrackStraight(), null),
+    STRAIGHT_TRACK(() -> new BlockTrackStraight()),
     /** Track that curves from two straight sections. This is the smallest variant */
-    CURVED_TRACK_2_WIDE(() -> new BlockTrackCurved(2), null),
+    CURVED_TRACK_2_WIDE(() -> new BlockTrackCurved(2)),
     /** Track that curves from two straight sections. */
-    CURVED_TRACK_3_WIDE(() -> new BlockTrackCurved(3), null),
+    CURVED_TRACK_3_WIDE(() -> new BlockTrackCurved(3)),
     /** Track that curves from two straight sections. */
-    CURVED_TRACK_4_WIDE(() -> new BlockTrackCurved(4), null),
+    CURVED_TRACK_4_WIDE(() -> new BlockTrackCurved(4)),
     /** Track that curves from two straight sections. */
-    CURVED_TRACK_8_WIDE(() -> new BlockTrackCurved(8), null),
+    CURVED_TRACK_8_WIDE(() -> new BlockTrackCurved(8)),
     /** Meta-track that points along many pointers to the actual track piece. */
-    POINTER_TRACK(() -> new BlockTrackPointer(), null),
-    /** Track that slopes in a direction */
-    SLOPED_TRACK(() -> null, null);
+    POINTER_TRACK(() -> new BlockTrackPointer()),
+    /** Track that ascends in a direction. */
+    // TODO: Should this be a blockstate property?
+    ASCENDING_TRACK_3_LONG(() -> new BlockTrackAscending(3)),
+    ASCENDING_TRACK_4_LONG(() -> new BlockTrackAscending(4)),
+    ASCENDING_TRACK_6_LONG(() -> new BlockTrackAscending(6)),
+    ASCENDING_TRACK_8_LONG(() -> new BlockTrackAscending(8)),
+    ASCENDING_TRACK_12_LONG(() -> new BlockTrackAscending(12)),
+    ASCENDING_TRACK_POINTER_1(() -> new BlockTrackAscendingPointer(createBlockShownSet1()));
 
     private final Supplier<Block> supplier;
     private final Class<? extends ItemBlock> itemBlock;
 
     private Block block;
 
+    private TCBlocks(Supplier<Block> blockSupplier) {
+        this(blockSupplier, null);
+    }
+
     private TCBlocks(Supplier<Block> blockSupplier, Class<? extends ItemBlock> itemBlock) {
         this.supplier = blockSupplier;
         this.itemBlock = itemBlock;
+    }
+
+    private static BlockShownSet createBlockShownSet1() {
+        // 3 variants
+        Object[] arr = { Blocks.stone, BlockStone.EnumType.ANDESITE, BlockStone.EnumType.DIORITE, BlockStone.EnumType.GRANITE };
+        // 6 variants
+        Object[] arr2 = { Blocks.planks, BlockPlanks.EnumType.class };
+        return new BlockShownSet(Blocks.cobblestone, arr, arr2);
     }
 
     public static void preInit(FMLPreInitializationEvent event) {

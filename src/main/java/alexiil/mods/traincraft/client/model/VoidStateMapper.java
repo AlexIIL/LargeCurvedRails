@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.model;
+package alexiil.mods.traincraft.client.model;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

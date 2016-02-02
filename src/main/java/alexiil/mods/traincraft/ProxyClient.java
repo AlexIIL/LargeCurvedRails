@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import org.lwjgl.opengl.GL11;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -29,14 +30,17 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathProvider;
+import alexiil.mods.traincraft.block.BlockTrackAscendingPointer;
 import alexiil.mods.traincraft.block.BlockTrackCurved;
+import alexiil.mods.traincraft.block.BlockTrackPointer;
 import alexiil.mods.traincraft.block.TCBlocks;
+import alexiil.mods.traincraft.client.model.TrackCurvedBlockModel;
+import alexiil.mods.traincraft.client.model.TrackPointerBlockModel;
+import alexiil.mods.traincraft.client.model.VoidStateMapper;
+import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 import alexiil.mods.traincraft.component.ComponentCart;
 import alexiil.mods.traincraft.component.ComponentSmallWheel;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
-import alexiil.mods.traincraft.model.TrackCurvedBlockModel;
-import alexiil.mods.traincraft.model.VoidStateMapper;
-import alexiil.mods.traincraft.render.RenderRollingStockBase;
 
 public class ProxyClient extends Proxy {
     @Override
@@ -45,7 +49,8 @@ public class ProxyClient extends Proxy {
         RenderingRegistry.registerEntityRenderingHandler(EntityRollingStockBase.class, RenderRollingStockBase.Factory.INSTANCE);
         OBJLoader.instance.addDomain("traincraft");
         for (TCBlocks b : TCBlocks.values()) {
-            if (b.getBlock() instanceof BlockTrackCurved) {
+            Block block = b.getBlock();
+            if (block instanceof BlockTrackCurved || block instanceof BlockTrackAscendingPointer) {
                 ModelLoader.setCustomStateMapper(b.getBlock(), VoidStateMapper.INSTANCE);
             }
         }
@@ -55,11 +60,16 @@ public class ProxyClient extends Proxy {
     public void modelBake(ModelBakeEvent bake) {
         RenderRollingStockBase.clearModelMap();
         for (TCBlocks b : TCBlocks.values()) {
+            ModelResourceLocation mrl = new ModelResourceLocation("traincraft:" + b.name().toLowerCase(Locale.ROOT));
+
             if (b.getBlock() instanceof BlockTrackCurved) {
                 BlockTrackCurved curved = (BlockTrackCurved) b.getBlock();
                 TrackCurvedBlockModel model = new TrackCurvedBlockModel(curved);
-                ModelResourceLocation mrl = new ModelResourceLocation("traincraft:" + b.name().toLowerCase(Locale.ROOT));
                 bake.modelRegistry.putObject(mrl, model);
+            }
+
+            if (b.getBlock() instanceof BlockTrackPointer) {
+                bake.modelRegistry.putObject(mrl, TrackPointerBlockModel.INSTANCE);
             }
         }
     }

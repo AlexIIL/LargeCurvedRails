@@ -23,7 +23,6 @@ buildscript {
 
 apply plugin: "net.minecraftforge.gradle.forge" // adds the forge dependency
 apply plugin: 'maven' // for uploading to a maven repo
-//apply plugin: 'checkstyle'
 
 version = "0.1.0-alpha"
 // Feel free to rename this at some point
@@ -38,8 +37,8 @@ dependencies {
 }
 
 minecraft {
-    mappings = "snapshot_20160116"
-    version = "1.8.9-11.15.0.1699"
+    mappings = "snapshot_20160123"
+    version = "1.8.9-11.15.0.1718"
 
     runDir = "run" // the directory for ForgeGradle to run Minecraft in
 

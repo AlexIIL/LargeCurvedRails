@@ -2,6 +2,7 @@ package alexiil.mods.traincraft.block;
 
 import java.util.*;
 
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
@@ -13,9 +14,6 @@ import alexiil.mods.traincraft.api.ITrackPath;
 
 /** This "points" to a different block that contains all of the actual information regarding the track path. */
 public class BlockTrackPointer extends BlockAbstractTrack {
-    /**
-     * 
-     */
     public enum EnumOffset implements IStringSerializable {
         // @formatter:off
         /** 0 */ XN1    (-1, 0, 0),
@@ -57,6 +55,10 @@ public class BlockTrackPointer extends BlockAbstractTrack {
     /** Many more tries than are technically needed, but this makes sure that */
     private static final int MAX_TRIES = 90;
 
+    protected BlockTrackPointer(IProperty<?>... properties) {
+        super(properties);
+    }
+
     public BlockTrackPointer() {
         super(PROP_OFFSET);
     }
@@ -66,10 +68,16 @@ public class BlockTrackPointer extends BlockAbstractTrack {
         try {
             BlockPos master = findMaster(access, pos, state);
             IBlockState masterState = access.getBlockState(master);
-            BlockTrackSeperated seperated = (BlockTrackSeperated) masterState.getBlock();
-            return seperated.paths(access, master, masterState);
+            if (masterState.getBlock() instanceof BlockTrackSeperated) {
+                BlockTrackSeperated seperated = (BlockTrackSeperated) masterState.getBlock();
+                return seperated.paths(access, master, masterState);
+            }
+            if (access instanceof World) {
+                ((World) access).markBlockForUpdate(pos);
+            }
+            return new ITrackPath[0];
         } catch (IllegalPathException e) {
-            // Only update it if it was a
+            // Only update it if it was an actual world
             if (access instanceof World) {
                 World world = (World) access;
                 List<BlockPos> illegalPositions = e.path;
@@ -79,7 +87,7 @@ public class BlockTrackPointer extends BlockAbstractTrack {
         }
     }
 
-    private BlockPos findMaster(IBlockAccess access, BlockPos pos, IBlockState state) throws IllegalPathException {
+    protected BlockPos findMaster(IBlockAccess access, BlockPos pos, IBlockState state) throws IllegalPathException {
         BlockPos toTry = pos;
         List<BlockPos> tried = new ArrayList<>();
         int i = 0;
@@ -106,7 +114,7 @@ public class BlockTrackPointer extends BlockAbstractTrack {
     }
 
     @SuppressWarnings("serial")
-    private static class IllegalPathException extends Exception {
+    protected static class IllegalPathException extends Exception {
         private final List<BlockPos> path;
 
         public IllegalPathException(List<BlockPos> path) {

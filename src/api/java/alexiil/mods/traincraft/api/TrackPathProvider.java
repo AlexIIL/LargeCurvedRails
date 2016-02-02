@@ -89,10 +89,10 @@ public class TrackPathProvider {
         map.put(EnumRailDirection.ASCENDING_NORTH, new TrackPathStraight(south, north.add(up), from));
         map.put(EnumRailDirection.ASCENDING_SOUTH, new TrackPathStraight(north, south.add(up), from));
 
-        map.put(EnumRailDirection.SOUTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3(1, trackHeight, 1), 0.5, 0.5, 180, 270));
-        map.put(EnumRailDirection.SOUTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3(0, trackHeight, 1), 0.5, 0.5, 270, 360));
-        map.put(EnumRailDirection.NORTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3(0, trackHeight, 0), 0.5, 0.5, 0, 90));
-        map.put(EnumRailDirection.NORTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3(1, trackHeight, 0), 0.5, 0.5, 90, 180));
+        map.put(EnumRailDirection.SOUTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3(1, trackHeight, 1), 0.5, 180, 270));
+        map.put(EnumRailDirection.SOUTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3(0, trackHeight, 1), 0.5, 270, 360));
+        map.put(EnumRailDirection.NORTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3(0, trackHeight, 0), 0.5, 0, 90));
+        map.put(EnumRailDirection.NORTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3(1, trackHeight, 0), 0.5, 90, 180));
 
         BlockRailBase[] rails = { (BlockRailBase) Blocks.rail, (BlockRailBase) Blocks.activator_rail, (BlockRailBase) Blocks.detector_rail,
             (BlockRailBase) Blocks.golden_rail };
