@@ -124,7 +124,7 @@ public abstract class BlockTraincraft extends Block {
     private <V extends Comparable<V>, T extends V> IBlockState withProperty0(IBlockState state, IProperty<V> prop, T value) {
         return state.withProperty(prop, value);
     }
-    
+
     @Override
     public BlockState getBlockState() {
         return this.myBlockState;

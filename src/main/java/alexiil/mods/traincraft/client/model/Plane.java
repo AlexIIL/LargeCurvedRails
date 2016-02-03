@@ -15,7 +15,8 @@ public class Plane {
     public Split getSplit(Line line) {
         Face a = getSide(line.start);
         Face b = getSide(line.end);
-        if (a == b) return a == Face.IN_PLANE ? null : Split.NOT_TOUCHING;
+        if (a == b) return a == Face.IN_PLANE ? Split.IN_PLANE : Split.NOT_TOUCHING;
+        if (a == Face.IN_PLANE || b == Face.IN_PLANE) return Split.TOUCHES_PLANE;
         return Split.PASSES_THROUGH_PLANE;
     }
 
@@ -43,11 +44,11 @@ public class Plane {
 
         Vector3d normal = convertToMutable(this.normal);
         double lDotN = lineDirection.dot(normal);
-        Vector3d pointMinusL = new Vector3d(linePoint);
-        pointMinusL.sub(convertToMutable(point));
+        Vector3d pointMinusL = new Vector3d(convertToMutable(point));
+        pointMinusL.sub(linePoint);
         double pointMinusLdotN = pointMinusL.dot(normal);
 
-        double interp = pointMinusLdotN / lDotN;
+        double interp = Math.abs(pointMinusLdotN / lDotN);
         Vec3 pos = line.start.add(scale(line.end.subtract(line.start), interp));
         return new Interpolation(line, pos, interp);
     }
@@ -90,6 +91,7 @@ public class Plane {
     public enum Split {
         NOT_TOUCHING,
         IN_PLANE,
-        PASSES_THROUGH_PLANE
+        PASSES_THROUGH_PLANE,
+        TOUCHES_PLANE
     }
 }

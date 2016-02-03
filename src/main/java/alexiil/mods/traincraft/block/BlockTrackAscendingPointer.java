@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyHelper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -16,7 +17,7 @@ import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.block.BlockTrackAscendingPointer.BlockShownSet.BlockShown;
 
 public class BlockTrackAscendingPointer extends BlockTrackPointer {
-    public static class BlockShownSet implements IProperty<BlockShown> {
+    public static class BlockShownSet extends PropertyHelper<BlockShown> {
         private final List<BlockShown> shown = new ArrayList<>();
 
         // BNF:
@@ -25,6 +26,7 @@ public class BlockTrackAscendingPointer extends BlockTrackPointer {
         // definingarray ::= Block,Class<Enum>|Block<enumvalue>
         // enumvalue ::= Enum|Enum<enumvalue>
         public BlockShownSet(Object... states) {
+            super("material", BlockShown.class);
             if (states.length <= 0) throw new IllegalArgumentException("Too few blocks(" + states.length + "), need at least 1!");
             if (states.length > 16) throw new IllegalArgumentException("Too many blocks(" + states.length + "), only 16 allowed (max)");
             for (Object state : states) {
@@ -80,18 +82,8 @@ public class BlockTrackAscendingPointer extends BlockTrackPointer {
         }
 
         @Override
-        public String getName() {
-            return "material";
-        }
-
-        @Override
         public Collection<BlockShown> getAllowedValues() {
             return shown;
-        }
-
-        @Override
-        public Class<BlockShown> getValueClass() {
-            return BlockShown.class;
         }
 
         @Override
@@ -132,8 +124,11 @@ public class BlockTrackAscendingPointer extends BlockTrackPointer {
         }
     }
 
+    public final BlockShownSet materialTypeProp;
+
     public BlockTrackAscendingPointer(BlockShownSet blocksShown) {
         super(blocksShown);
+        materialTypeProp = blocksShown;
     }
 
     @Override
@@ -149,5 +144,9 @@ public class BlockTrackAscendingPointer extends BlockTrackPointer {
         }
         // We failed. Update this block to remove it.
         return pos;
+    }
+
+    public IBlockState getSupportingMaterial(IBlockAccess access, BlockPos pos, IBlockState state) {
+        return state.getValue(materialTypeProp).state;
     }
 }

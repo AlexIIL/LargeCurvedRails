@@ -20,10 +20,7 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
 import alexiil.mods.traincraft.TrainCraft;
-import alexiil.mods.traincraft.client.model.Plane.Face;
-import alexiil.mods.traincraft.client.model.Plane.Interpolation;
-import alexiil.mods.traincraft.client.model.Plane.Line;
-import alexiil.mods.traincraft.client.model.Plane.Split;
+import alexiil.mods.traincraft.client.model.Polygon.BisectedPolygon;
 
 public class MutableQuad {
     public static final VertexFormat ITEM_LMAP = new VertexFormat(DefaultVertexFormats.ITEM);
@@ -81,8 +78,8 @@ public class MutableQuad {
     }
 
     private final Vertex[] verticies = new Vertex[4];
-    private int tintIndex = -1;
-    private EnumFacing face = null;
+    int tintIndex = -1;
+    EnumFacing face = null;
 
     public MutableQuad(int tintIndex, EnumFacing face) {
         this.tintIndex = tintIndex;
@@ -107,6 +104,25 @@ public class MutableQuad {
         }
     }
 
+    public MutableQuad(Vertex[] verticies, int tintIndex, EnumFacing face) {
+        if (verticies.length > 4 || verticies.length < 3) throw new IllegalStateException("Not enough verticies");
+        this.tintIndex = tintIndex;
+        this.face = face;
+        for (int i = 0; i < verticies.length; i++) {
+            this.verticies[i] = new Vertex(verticies[i]);
+        }
+        if (verticies.length == 3) this.verticies[3] = new Vertex(verticies[2]);
+    }
+
+    public MutableQuad[][] bisect(Plane p) {
+        Polygon poly = new Polygon(this);
+        BisectedPolygon bi = poly.bisect(p);
+        MutableQuad[][] quads = { {}, {} };
+        if (bi.towards != null) quads[0] = bi.towards.toQuads();
+        if (bi.away != null) quads[1] = bi.away.toQuads();
+        return quads;
+    }
+
     public UnpackedBakedQuad toUnpacked(VertexFormat format) {
         float[][][] data = new float[4][][];
         for (int vertex = 0; vertex < 4; vertex++) {
@@ -124,40 +140,6 @@ public class MutableQuad {
 
     public Vertex getVertex(int v) {
         return verticies[v & 0b11];
-    }
-
-    /** Bisects this quad with the given plane. A two-dimensional array is returned with the first quad being the one
-     * that is {@link Face#TOWARDS} and the second one being {@link Face#AWAY} from the planes direction (the planes
-     * normal). One of the quads might be null if this quad doesn't actually touch the plane. */
-    public MutableQuad[] bisect(Plane bisectionPlane) {
-        boolean intersects = false;
-        Line[] lines = new Line[4];
-        for (int i = 0; i < 4; i++) {
-            Vertex a = verticies[i];
-            Vertex b = verticies[(i + 1) % 4];
-            Line line = new Line(a.positionvd(), b.positionvd());
-            lines[i] = line;
-            if (intersects) continue;
-            if (bisectionPlane.getSplit(line) == Split.PASSES_THROUGH_PLANE) intersects = true;
-        }
-
-        if (!intersects) {
-            Face face = bisectionPlane.getSide(verticies[0].positionvd());
-            if (face == Face.TOWARDS) return new MutableQuad[] { this, null };
-            else return new MutableQuad[] { null, this };
-        }
-        MutableQuad a = new MutableQuad(this);
-        MutableQuad b = new MutableQuad(this);
-
-        for (int i = 0; i < 4; i++) {
-            Line l = lines[i];
-            Interpolation interpolation = bisectionPlane.getOnPlane(l);
-            Vec3 intersection = interpolation.point;
-            double interp = interpolation.interp;
-            // TODO: edit the two quads into one away and one towards.
-        }
-
-        return new MutableQuad[] { a, b };
     }
 
     /* A lot of delegate functions here. The actual documentation should be per-vertex. */
@@ -200,11 +182,33 @@ public class MutableQuad {
         public Vertex() {}
 
         public Vertex(Vertex v) {
-            positionv(v.positionvf());
-            normalv(v.normal());
+            positionvf(v.positionvf());
+            normalv(v.normalv());
             colourv(v.colourv());
-            texv(v.tex());
-            lightv(v.light());
+            texv(v.texv());
+            lightv(v.lightv());
+        }
+
+        public Vertex(Vertex start, Vertex end, float interp) {
+            Vector3f pos = new Vector3f();
+            pos.interpolate(start.positionvf(), end.positionvf(), interp);
+            positionvf(pos);
+
+            Vector4f colour = new Vector4f();
+            colour.interpolate(start.colourv(), end.colourv(), interp);
+            colourv(colour);
+
+            Vector3f normal = new Vector3f();
+            normal.interpolate(start.normalv(), end.normalv(), interp);
+            normalv(normal);
+
+            Vector2f tex = new Vector2f();
+            tex.interpolate(start.texv(), end.texv(), interp);
+            texv(tex);
+
+            Vector2f light = new Vector2f();
+            light.interpolate(start.lightv(), end.lightv(), interp);
+            lightv(light);
         }
 
         public void setData(float[][] from, VertexFormat vfFrom) {
@@ -252,8 +256,16 @@ public class MutableQuad {
 
         private static Set<String> failedStrings = new HashSet<>();
 
-        public void positionv(Vector3f vec) {
+        public void positionvf(Vector3f vec) {
             positionf(vec.x, vec.y, vec.z);
+        }
+
+        public void positionvd(Vec3 vec) {
+            positiond(vec.xCoord, vec.yCoord, vec.zCoord);
+        }
+
+        public void positiond(double x, double y, double z) {
+            positionf((float) x, (float) y, (float) z);
         }
 
         public void positionf(float x, float y, float z) {
@@ -286,7 +298,7 @@ public class MutableQuad {
         }
 
         /** @return The current normal vector of this vertex. This might be normalised. */
-        public Vector3f normal() {
+        public Vector3f normalv() {
             return new Vector3f(normal);
         }
 
@@ -331,7 +343,7 @@ public class MutableQuad {
             uv[1] = v;
         }
 
-        public Vector2f tex() {
+        public Vector2f texv() {
             return new Vector2f(uv);
         }
 
@@ -352,7 +364,7 @@ public class MutableQuad {
             light[1] = light(sky);
         }
 
-        public Vector2f light() {
+        public Vector2f lightv() {
             return new Vector2f(light);
         }
 

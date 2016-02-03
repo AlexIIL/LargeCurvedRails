@@ -29,7 +29,7 @@ public class ComponentSmallWheel extends ComponentTrackFollower {
     }
 
     @SideOnly(Side.CLIENT)
-    public static void textureStitch(TextureStitchEvent.Pre event) {
+    public static void textureStitchPre(TextureStitchEvent.Pre event) {
         event.map.registerSprite(textureLocation);
     }
 

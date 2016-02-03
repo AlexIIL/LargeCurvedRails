@@ -30,13 +30,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathProvider;
-import alexiil.mods.traincraft.block.BlockTrackAscendingPointer;
+import alexiil.mods.traincraft.block.BlockTrackAscending;
 import alexiil.mods.traincraft.block.BlockTrackCurved;
 import alexiil.mods.traincraft.block.BlockTrackPointer;
 import alexiil.mods.traincraft.block.TCBlocks;
-import alexiil.mods.traincraft.client.model.TrackCurvedBlockModel;
-import alexiil.mods.traincraft.client.model.TrackPointerBlockModel;
-import alexiil.mods.traincraft.client.model.VoidStateMapper;
+import alexiil.mods.traincraft.client.model.*;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 import alexiil.mods.traincraft.component.ComponentCart;
 import alexiil.mods.traincraft.component.ComponentSmallWheel;
@@ -50,7 +48,7 @@ public class ProxyClient extends Proxy {
         OBJLoader.instance.addDomain("traincraft");
         for (TCBlocks b : TCBlocks.values()) {
             Block block = b.getBlock();
-            if (block instanceof BlockTrackCurved || block instanceof BlockTrackAscendingPointer) {
+            if (block instanceof BlockTrackCurved || block instanceof BlockTrackPointer || block instanceof BlockTrackAscending) {
                 ModelLoader.setCustomStateMapper(b.getBlock(), VoidStateMapper.INSTANCE);
             }
         }
@@ -59,25 +57,37 @@ public class ProxyClient extends Proxy {
     @SubscribeEvent
     public void modelBake(ModelBakeEvent bake) {
         RenderRollingStockBase.clearModelMap();
+        CurvedModelGenerator.INSTANCE.clearModelMap();
+        CommonModelSpriteCache.INSTANCE.clearModelMap();
+
         for (TCBlocks b : TCBlocks.values()) {
             ModelResourceLocation mrl = new ModelResourceLocation("traincraft:" + b.name().toLowerCase(Locale.ROOT));
 
             if (b.getBlock() instanceof BlockTrackCurved) {
                 BlockTrackCurved curved = (BlockTrackCurved) b.getBlock();
-                TrackCurvedBlockModel model = new TrackCurvedBlockModel(curved);
-                bake.modelRegistry.putObject(mrl, model);
+                bake.modelRegistry.putObject(mrl, new TrackCurvedBlockModel(curved));
             }
 
             if (b.getBlock() instanceof BlockTrackPointer) {
                 bake.modelRegistry.putObject(mrl, TrackPointerBlockModel.INSTANCE);
             }
+
+            if (b.getBlock() instanceof BlockTrackAscending) {
+                BlockTrackAscending ascending = (BlockTrackAscending) b.getBlock();
+                bake.modelRegistry.putObject(mrl, new TrackAscendingBlockModel(ascending));
+            }
         }
     }
 
     @SubscribeEvent
-    public void textureStitch(TextureStitchEvent.Pre event) {
-        ComponentSmallWheel.textureStitch(event);
-        ComponentCart.textureStitch(event);
+    public void textureStitchPre(TextureStitchEvent.Pre event) {
+        ComponentSmallWheel.textureStitchPre(event);
+        ComponentCart.textureStitchPre(event);
+    }
+
+    @SubscribeEvent
+    public void textureStitchPost(TextureStitchEvent.Post event) {
+        CommonModelSpriteCache.INSTANCE.textureStitchPost(event);
     }
 
     private static final double STEP_DIST = 0.3;
