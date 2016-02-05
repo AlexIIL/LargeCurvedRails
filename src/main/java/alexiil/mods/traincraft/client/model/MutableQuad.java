@@ -2,6 +2,7 @@ package alexiil.mods.traincraft.client.model;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.vecmath.Vector2f;
@@ -142,10 +143,14 @@ public class MutableQuad {
         return verticies[v & 0b11];
     }
 
+    public List<Vertex> verticies() {
+        return Arrays.asList(verticies);
+    }
+
     /* A lot of delegate functions here. The actual documentation should be per-vertex. */
 
     // @formatter:off
-    /** @see Vertex#normalv(Vector3f) */ public void normalv(Vector3f vec) {Arrays.stream(verticies).forEach(v -> v.normalv(vec));}
+    /** @see Vertex#normalvf(Vector3f) */ public void normalvf(Vector3f vec) {Arrays.stream(verticies).forEach(v -> v.normalvf(vec));}
     public void normalf(float x, float y, float z) {Arrays.stream(verticies).forEach(v -> v.normalf(x, y, z));}
 
     public void colourv(Vector4f vec) {Arrays.stream(verticies).forEach(v -> v.colourv(vec));};
@@ -157,6 +162,8 @@ public class MutableQuad {
     public void lightf(float block, float sky) {for (Vertex v : verticies) v.lightf(block, sky);}
     public void lighti(int combined) {for (Vertex v : verticies) v.lighti(combined);}
     public void lighti(int block, int sky) {for (Vertex v : verticies) v.lighti(block, sky);}
+    
+    public void colourByNormal() {for (Vertex v : verticies) v.colourByNormal();};
      // @formatter:on
 
     @Override
@@ -183,7 +190,7 @@ public class MutableQuad {
 
         public Vertex(Vertex v) {
             positionvf(v.positionvf());
-            normalv(v.normalv());
+            normalvf(v.normalv());
             colourv(v.colourv());
             texv(v.texv());
             lightv(v.lightv());
@@ -200,7 +207,7 @@ public class MutableQuad {
 
             Vector3f normal = new Vector3f();
             normal.interpolate(start.normalv(), end.normalv(), interp);
-            normalv(normal);
+            normalvf(normal);
 
             Vector2f tex = new Vector2f();
             tex.interpolate(start.texv(), end.texv(), interp);
@@ -256,22 +263,23 @@ public class MutableQuad {
 
         private static Set<String> failedStrings = new HashSet<>();
 
-        public void positionvf(Vector3f vec) {
-            positionf(vec.x, vec.y, vec.z);
+        public Vertex positionvf(Vector3f vec) {
+            return positionf(vec.x, vec.y, vec.z);
         }
 
-        public void positionvd(Vec3 vec) {
-            positiond(vec.xCoord, vec.yCoord, vec.zCoord);
+        public Vertex positionvd(Vec3 vec) {
+            return positiond(vec.xCoord, vec.yCoord, vec.zCoord);
         }
 
-        public void positiond(double x, double y, double z) {
-            positionf((float) x, (float) y, (float) z);
+        public Vertex positiond(double x, double y, double z) {
+            return positionf((float) x, (float) y, (float) z);
         }
 
-        public void positionf(float x, float y, float z) {
+        public Vertex positionf(float x, float y, float z) {
             position[0] = x;
             position[1] = y;
             position[2] = z;
+            return this;
         }
 
         public Vector3f positionvf() {
@@ -286,15 +294,21 @@ public class MutableQuad {
          * 
          * @see #normalf(float, float, float)
          * @implNote This calls {@link #normalf(float, float, float)} internally, so refer to that for more warnings. */
-        public void normalv(Vector3f vec) {
+        public Vertex normalvf(Vector3f vec) {
             normalf(vec.x, vec.y, vec.z);
+            return this;
+        }
+
+        public Vertex normalvd(Vec3 vec) {
+            return normalf((float) vec.xCoord, (float) vec.yCoord, (float) vec.zCoord);
         }
 
         /** Sets the current normal given the x, y, and z coordinates. These are NOT normalised or checked. */
-        public void normalf(float x, float y, float z) {
+        public Vertex normalf(float x, float y, float z) {
             normal[0] = x;
             normal[1] = y;
             normal[2] = z;
+            return this;
         }
 
         /** @return The current normal vector of this vertex. This might be normalised. */
@@ -302,23 +316,24 @@ public class MutableQuad {
             return new Vector3f(normal);
         }
 
-        public void colourv(Vector4f vec) {
-            colourf(vec.x, vec.y, vec.z, vec.w);
+        public Vertex colourv(Vector4f vec) {
+            return colourf(vec.x, vec.y, vec.z, vec.w);
         };
 
-        public void colourf(float r, float g, float b, float a) {
+        public Vertex colourf(float r, float g, float b, float a) {
             colour[0] = r;
             colour[1] = g;
             colour[2] = b;
             colour[3] = a;
+            return this;
         }
 
-        public void colouri(int rgba) {
-            colouri(rgba, rgba >> 8, rgba >> 16, rgba >>> 24);
+        public Vertex colouri(int rgba) {
+            return colouri(rgba, rgba >> 8, rgba >> 16, rgba >> 24);
         }
 
-        public void colouri(int r, int g, int b, int a) {
-            colourf((r & 0xFF) / 255f, (g & 0xFF) / 255f, (b & 0xFF) / 255f, (a & 0xFF) / 255f);
+        public Vertex colouri(int r, int g, int b, int a) {
+            return colourf((r & 0xFF) / 255f, (g & 0xFF) / 255f, (b & 0xFF) / 255f, (a & 0xFF) / 255f);
         }
 
         public Vector4f colourv() {
@@ -334,34 +349,36 @@ public class MutableQuad {
             // @formatter:on
         }
 
-        public void texv(Vector2f vec) {
-            texf(vec.x, vec.y);
+        public Vertex texv(Vector2f vec) {
+            return texf(vec.x, vec.y);
         }
 
-        public void texf(float u, float v) {
+        public Vertex texf(float u, float v) {
             uv[0] = u;
             uv[1] = v;
+            return this;
         }
 
         public Vector2f texv() {
             return new Vector2f(uv);
         }
 
-        public void lightv(Vector2f vec) {
-            lightf(vec.x, vec.y);
+        public Vertex lightv(Vector2f vec) {
+            return lightf(vec.x, vec.y);
         }
 
-        public void lightf(float block, float sky) {
-            lighti((int) (block * 0xF), (int) (sky * 0xF));
+        public Vertex lightf(float block, float sky) {
+            return lighti((int) (block * 0xF), (int) (sky * 0xF));
         }
 
-        public void lighti(int combined) {
-            lighti(combined >> 4, combined >> 20);
+        public Vertex lighti(int combined) {
+            return lighti(combined >> 4, combined >> 20);
         }
 
-        public void lighti(int block, int sky) {
+        public Vertex lighti(int block, int sky) {
             light[0] = light(block);
             light[1] = light(sky);
+            return this;
         }
 
         public Vector2f lightv() {
@@ -383,6 +400,37 @@ public class MutableQuad {
 
         private static int light(float val) {
             return (int) (val * 0xFFFF / 0x20);
+        }
+
+        public void colourByNormal() {
+            Vector4f col = colourv();
+            Vector3f normal = normalv();
+            float lightMultiplier = diffuseLight(normal);
+            col.x *= lightMultiplier;
+            col.y *= lightMultiplier;
+            col.z *= lightMultiplier;
+            colourv(col);
+        }
+
+        public static float diffuseLight(Vector3f normal) {
+            return diffuseLight(normal.x, normal.y, normal.z);
+        }
+
+        public static float diffuseLight(float x, float y, float z) {
+            boolean up = y >= 0;
+
+            float xx = x * x;
+            float yy = y * y;
+            float zz = z * z;
+
+            float t = xx + yy + zz;
+            float light = (xx * 0.6f + zz * 0.8f) / t;
+
+            float yyt = yy / t;
+            if (!up) yyt *= 0.5;
+            light += yyt;
+
+            return light;
         }
 
         @Override

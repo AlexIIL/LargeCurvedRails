@@ -5,12 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.vecmath.Matrix4f;
-
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.util.Vec3;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -30,26 +27,9 @@ public enum CurvedModelGenerator {
     private static List<BakedQuad> generateModelFor(ITrackPath path, TextureAtlasSprite railSprite, List<List<BakedQuad>> sleepers) {
         List<BakedQuad> list = new ArrayList<>();
 
-        double length = path.length();
-        int numSleepers = (int) (length * 16);
-        double sleeperDist = 1 / (double) numSleepers;
-
-        int sleeperIndex = 0;
-        double offset = sleeperDist / 2;
-        for (int i = 0; i < numSleepers; i++) {
-            List<BakedQuad> sleeper = sleepers.get(sleeperIndex);
-            sleeper = ModelUtil.multiplyMatrix(sleeper, MatrixUtil.rotateTo(path.direction(offset)));
-
-            Vec3 translationVec = path.interpolate(offset).subtract(new Vec3(path.creatingBlock()));
-            Matrix4f translation = MatrixUtil.translation(translationVec);
-            sleeper = ModelUtil.multiplyMatrix(sleeper, translation);
-
-            list.addAll(sleeper);
-
-            offset += sleeperDist;
-            sleeperIndex++;
-            sleeperIndex %= sleepers.size();
-        }
+        list.addAll(CommonModelSpriteCache.generateSleepers(path, sleepers));
+        
+        list.addAll(CommonModelSpriteCache.generateRails(path, railSprite));
 
         return list;
     }

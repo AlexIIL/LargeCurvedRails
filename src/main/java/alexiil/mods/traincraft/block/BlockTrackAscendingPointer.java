@@ -17,6 +17,32 @@ import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.block.BlockTrackAscendingPointer.BlockShownSet.BlockShown;
 
 public class BlockTrackAscendingPointer extends BlockTrackPointer {
+    public final BlockShownSet materialTypeProp;
+
+    public BlockTrackAscendingPointer(BlockShownSet blocksShown) {
+        super(blocksShown);
+        materialTypeProp = blocksShown;
+    }
+
+    @Override
+    protected BlockPos findMaster(IBlockAccess access, BlockPos pos, IBlockState state) throws IllegalPathException {
+        for (EnumFacing face : EnumFacing.HORIZONTALS) {
+            BlockPos masterPos = pos.offset(face);
+            IBlockState masterState = access.getBlockState(masterPos);
+            Block masterBlock = masterState.getBlock();
+            if (masterBlock instanceof BlockTrackAscending) {
+                BlockTrackAscending asc = (BlockTrackAscending) masterBlock;
+                if (asc.isSlave(access, masterPos, masterState, pos, state)) return masterPos;
+            }
+        }
+        // We failed. Update this block to remove it.
+        return pos;
+    }
+
+    public IBlockState getSupportingMaterial(IBlockAccess access, BlockPos pos, IBlockState state) {
+        return state.getValue(materialTypeProp).state;
+    }
+
     public static class BlockShownSet extends PropertyHelper<BlockShown> {
         private final List<BlockShown> shown = new ArrayList<>();
 
@@ -122,31 +148,5 @@ public class BlockTrackAscendingPointer extends BlockTrackPointer {
                 return name;
             }
         }
-    }
-
-    public final BlockShownSet materialTypeProp;
-
-    public BlockTrackAscendingPointer(BlockShownSet blocksShown) {
-        super(blocksShown);
-        materialTypeProp = blocksShown;
-    }
-
-    @Override
-    protected BlockPos findMaster(IBlockAccess access, BlockPos pos, IBlockState state) throws IllegalPathException {
-        for (EnumFacing face : EnumFacing.HORIZONTALS) {
-            BlockPos masterPos = pos.offset(face);
-            IBlockState masterState = access.getBlockState(masterPos);
-            Block masterBlock = masterState.getBlock();
-            if (masterBlock instanceof BlockTrackAscending) {
-                BlockTrackAscending asc = (BlockTrackAscending) masterBlock;
-                if (asc.isSlave(access, masterPos, masterState, pos, state)) return masterPos;
-            }
-        }
-        // We failed. Update this block to remove it.
-        return pos;
-    }
-
-    public IBlockState getSupportingMaterial(IBlockAccess access, BlockPos pos, IBlockState state) {
-        return state.getValue(materialTypeProp).state;
     }
 }

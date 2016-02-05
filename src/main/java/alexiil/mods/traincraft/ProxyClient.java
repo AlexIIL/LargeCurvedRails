@@ -94,6 +94,7 @@ public class ProxyClient extends Proxy {
 
     @SubscribeEvent
     public void renderWorld(RenderWorldLastEvent event) {
+        if (!Minecraft.getMinecraft().gameSettings.showDebugInfo) return;
         if (Minecraft.getMinecraft().theWorld == null || Minecraft.getMinecraft().thePlayer == null) return;
         BlockPos around = new BlockPos(Minecraft.getMinecraft().thePlayer.getPositionVector());
         World world = Minecraft.getMinecraft().theWorld;

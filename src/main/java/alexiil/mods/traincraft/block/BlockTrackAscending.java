@@ -114,4 +114,9 @@ public class BlockTrackAscending extends BlockTrackSeperated {
     public List<BlockPos> slaveOffsets(ITrackPath path) {
         return slaveOffsets.get(path) == null ? ImmutableList.of(BlockPos.ORIGIN) : slaveOffsets.get(path);
     }
+
+    @Override
+    public boolean shouldSideBeRendered(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
+        return true;
+    }
 }

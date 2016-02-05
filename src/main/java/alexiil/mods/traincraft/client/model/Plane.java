@@ -5,7 +5,7 @@ import javax.vecmath.Vector3d;
 import net.minecraft.util.Vec3;
 
 public class Plane {
-    private final Vec3 point, normal;
+    public final Vec3 point, normal;
 
     public Plane(Vec3 onPlane, Vec3 normal) {
         point = onPlane;
@@ -24,7 +24,7 @@ public class Plane {
         Vector3d pMinusPlaneP = convertToMutable(point);
         pMinusPlaneP.sub(convertToMutable(this.point));
         double dot = pMinusPlaneP.dot(convertToMutable(normal));
-        if (dot == 0) return Face.IN_PLANE;
+        if (Math.abs(dot) < 1E-4) return Face.IN_PLANE;
         if (dot > 0) return Face.TOWARDS;
         return Face.AWAY;
     }

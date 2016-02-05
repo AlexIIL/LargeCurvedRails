@@ -31,10 +31,16 @@ public class ModelUtil {
     }
 
     public static IBakedModel wrapInBakedModel(List<BakedQuad> quads, TextureAtlasSprite sprite) {
+        List<BakedQuad> generalQuads = new ArrayList<>();
         List<List<BakedQuad>> faceQuads = new ArrayList<>();
-        for (EnumFacing face : EnumFacing.values())
+        for (EnumFacing face : EnumFacing.values()) {
             faceQuads.add(new ArrayList<>());
-        return new SimpleBakedModel(quads, faceQuads, false, false, sprite, ItemCameraTransforms.DEFAULT);
+        }
+        for (BakedQuad q : quads) {
+            if (q.getFace() == null) generalQuads.add(q);
+            else faceQuads.get(q.getFace().getIndex()).add(q);
+        }
+        return new SimpleBakedModel(generalQuads, faceQuads, true, false, sprite, ItemCameraTransforms.DEFAULT);
     }
 
     public static IBakedModel multiplyMatrix(IBakedModel baked, Matrix4f matrix) {
@@ -67,5 +73,9 @@ public class ModelUtil {
             data[i * step + 2] = Float.floatToRawIntBits(vec.z);
         }
         return colour ? new ColoredBakedQuad(data, quad.getTintIndex(), quad.getFace()) : new BakedQuad(data, quad.getTintIndex(), quad.getFace());
+    }
+
+    public static void applyColourByNormal(List<MutableQuad> quads) {
+        quads.forEach(q -> q.colourByNormal());
     }
 }

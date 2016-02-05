@@ -1,7 +1,8 @@
 package alexiil.mods.traincraft.client.model;
 
-import javax.vecmath.AxisAngle4f;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
 import net.minecraft.util.Vec3;
@@ -9,36 +10,60 @@ import net.minecraft.util.Vec3;
 import alexiil.mods.traincraft.TrainCraft;
 
 public class MatrixUtil {
+    /** Rotates towards the given vector from (0, 0, 1) by firstly rotating around the X axis and the the Y axis. */
     public static Matrix4f rotateTo(Vec3 direction) {
-        Matrix4f matrix = new Matrix4f();
-        matrix.setIdentity();
-        Vector3f from = new Vector3f(0, 0, 1);
-        Vector3f to = new Vector3f((float) direction.xCoord, (float) direction.yCoord, (float) direction.zCoord);
+        direction = direction.normalize();
 
-        Vector3f around = new Vector3f();
-        around.cross(from, to);
-        around.normalize();
+        float xRot = (float) Math.asin(direction.yCoord);
+        Matrix4f matrixRotX = new Matrix4f();
+        matrixRotX.rotX(-xRot);
 
-        // P = wanted
-        // D = current
+        // DO STUFF
 
-        float pDotD = from.dot(to);
-        Vector3f fromPerp = new Vector3f(1, 0, 0);
-        float pPerpDotD = fromPerp.dot(to);
-        if (pPerpDotD < 0) pPerpDotD = -pPerpDotD;
+        float yRot = (float) Math.atan2(direction.xCoord, direction.zCoord);
+        Matrix4f matrixRotY = new Matrix4f();
+        matrixRotY.rotY(yRot);
 
-        float angle = (float) Math.atan2(pPerpDotD, pDotD);
+        Matrix4f total = new Matrix4f();
+        total.setIdentity();
+        total.mul(matrixRotY);
+        total.mul(matrixRotX);
 
-        matrix.setRotation(new AxisAngle4f(around, angle));
-
-        return matrix;
+        return total;
     }
 
     public static Matrix4f translation(Vec3 pos) {
         Matrix4f matrix = new Matrix4f();
         matrix.setIdentity();
         matrix.setTranslation(new Vector3f((float) pos.xCoord, (float) pos.yCoord, (float) pos.zCoord));
-        TrainCraft.trainCraftLog.info("\n\n" + pos + " -> \n" + matrix);
         return matrix;
+    }
+
+    // FIXME: this is probably broken in some way
+    public static Matrix3d rotate(Vector3d x, Vector3d y) {
+        Matrix3d m = new Matrix3d();
+        m.setRow(0, x);
+        m.setRow(2, normalise(cross_product(x, y)));
+        m.setRow(1, normalise(cross_product(row(m, 2), x)));
+        return m;
+    }
+
+    // Ugly as f*** because javax vecmath don't return new objects.
+    private static Vector3d row(Matrix3d m, int row) {
+        Vector3d vec = new Vector3d();
+        m.getRow(row, vec);
+        return vec;
+    }
+
+    private static Vector3d normalise(Vector3d vec) {
+        Vector3d v2 = new Vector3d(vec);
+        v2.normalize();
+        return v2;
+    }
+
+    private static Vector3d cross_product(Vector3d x, Vector3d y) {
+        Vector3d vec = new Vector3d();
+        vec.cross(x, y);
+        return vec;
     }
 }

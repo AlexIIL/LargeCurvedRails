@@ -24,10 +24,11 @@ import alexiil.mods.traincraft.block.BlockAbstractTrack;
 import alexiil.mods.traincraft.block.BlockAbstractTrack.EnumDirection;
 import alexiil.mods.traincraft.block.BlockTrackAscending;
 import alexiil.mods.traincraft.client.model.Plane.Face;
+import alexiil.mods.traincraft.lib.BlockStateKeyWrapper;
 import alexiil.mods.traincraft.property.BlockStatePropWrapper;
 
 public class TrackAscendingBlockModel extends PerspAwareModelBase implements ISmartBlockModel {
-    private Map<IBlockState, IBakedModel> cache = new HashMap<>();
+    private Map<BlockStateKeyWrapper, IBakedModel> cache = new HashMap<>();
     private final BlockTrackAscending ascending;
 
     public TrackAscendingBlockModel(BlockTrackAscending ascending) {
@@ -37,7 +38,8 @@ public class TrackAscendingBlockModel extends PerspAwareModelBase implements ISm
 
     @Override
     public IBakedModel handleBlockState(IBlockState state) {
-        if (!cache.containsKey(state)) {
+        BlockStateKeyWrapper keyWrapper = new BlockStateKeyWrapper(state);
+        if (!cache.containsKey(keyWrapper)) {
             ITrackPath path = ascending.path(state);
             if (path == null) return this;
             IBlockState materialState = null;
@@ -52,12 +54,14 @@ public class TrackAscendingBlockModel extends PerspAwareModelBase implements ISm
             } else material = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState(materialState);
 
             IBakedModel baked = generateBlockModel(path, state, material);
-            cache.put(state, baked);
+            cache.put(keyWrapper, baked);
         }
-        return cache.get(state);
+        return cache.get(keyWrapper);
     }
 
     private IBakedModel generateBlockModel(ITrackPath path, IBlockState state, IBakedModel materialBaked) {
+        List<BakedQuad> quads = new ArrayList<>();
+
         if (path instanceof TrackPathStraight) {
             EnumDirection dir = state.getValue(BlockTrackAscending.TRACK_DIRECTION);
             EnumFacing mf = dir.from;
@@ -70,21 +74,23 @@ public class TrackAscendingBlockModel extends PerspAwareModelBase implements ISm
             planeNormal = planeNormal.add(new Vec3(BlockPos.ORIGIN.offset(mf, -1)));
             Plane plane = new Plane(planePoint, planeNormal);
 
-            List<BakedQuad> quads = new ArrayList<>(materialBaked.getGeneralQuads());
+            List<BakedQuad> materialQuads = new ArrayList<>(materialBaked.getGeneralQuads());
             for (EnumFacing face : EnumFacing.values())
-                quads.addAll(materialBaked.getFaceQuads(face));
+                materialQuads.addAll(materialBaked.getFaceQuads(face));
 
-            List<MutableQuad> fullMutableQuadList = new ArrayList<>();
-
-            List<MutableQuad> mutableQuads = ModelSplitter.makeMutable(quads, DefaultVertexFormats.BLOCK);
+            List<MutableQuad> mutableMaterial = ModelSplitter.makeMutable(materialQuads, DefaultVertexFormats.BLOCK);
+            List<MutableQuad> allOffsets = new ArrayList<>();
             for (BlockPos offset : ascending.slaveOffsets(straight)) {
-                fullMutableQuadList.addAll(ModelSplitter.offset(mutableQuads, new Vec3(offset)));
+                allOffsets.addAll(ModelSplitter.offset(mutableMaterial, new Vec3(offset)));
             }
-            // TODO: Add tops based off of the particle texture
-            fullMutableQuadList = ModelSplitter.bisectCulling(fullMutableQuadList, plane, Face.AWAY);
-
-            return ModelUtil.wrapInBakedModel(ModelSplitter.makeVanilla(fullMutableQuadList, DefaultVertexFormats.BLOCK), null);
+            List<MutableQuad>[] bisected = ModelSplitter.bisect(allOffsets, plane);
+            List<MutableQuad> squishedQuadList = ModelSplitter.squashBisected(bisected, plane, Face.AWAY);
+            quads.addAll(ModelSplitter.makeVanilla(squishedQuadList, DefaultVertexFormats.BLOCK));
         }
-        return null;
+        
+        quads.addAll(CommonModelSpriteCache.generateRails(path, CommonModelSpriteCache.INSTANCE.railSprite(false)));
+        quads.addAll(CommonModelSpriteCache.generateSleepers(path, CommonModelSpriteCache.INSTANCE.loadSleepers()));
+
+        return ModelUtil.wrapInBakedModel(quads, null);
     }
 }

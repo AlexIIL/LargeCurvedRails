@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 
 import alexiil.mods.traincraft.client.model.MutableQuad.Vertex;
 import alexiil.mods.traincraft.client.model.Plane.Face;
@@ -105,6 +106,30 @@ public class Polygon {
         public BisectedPolygon(Polygon away, Polygon towards) {
             this.away = away;
             this.towards = towards;
+        }
+    }
+
+    public static class LinkedVertex {
+        public final List<Polygon> linkedPolys = new ArrayList<>();
+        public final List<LinkedVertex> linkedVerticies = new ArrayList<>();
+        public final Vec3 pos;
+
+        public LinkedVertex(Vec3 pos) {
+            this.pos = pos;
+        }
+
+        public void linkTo(Polygon poly) {
+            if (!linkedPolys.contains(poly)) linkedPolys.add(poly);
+        }
+
+        public void linkTo(LinkedVertex v) {
+            if (!v.linkedVerticies.contains(this)) v.linkedVerticies.add(this);
+            if (!linkedVerticies.contains(v)) linkedVerticies.add(v);
+        }
+
+        public void unlink(LinkedVertex v) {
+            if (v.linkedVerticies.contains(this)) v.linkedVerticies.remove(this);
+            if (linkedVerticies.contains(v)) linkedVerticies.remove(v);
         }
     }
 }

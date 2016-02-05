@@ -1,7 +1,8 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "textures": { "#track":"traincraft:block/track_straight" }
+        "textures": { "#track":"traincraft:block/track_straight" },
+        "custom": { "ambient":false }
     },
     "variants": {
         "facing": {
