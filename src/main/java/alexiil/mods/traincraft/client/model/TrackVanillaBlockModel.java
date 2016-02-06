@@ -28,11 +28,6 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
         return TrackPathProvider.getVanillaTrack(state);
     }
 
-    @Override
-    public void generateExtra(List<BakedQuad> quads, IBlockState state, ITrackPath path) {
-
-    }
-
     public static class NormalModel extends TrackVanillaBlockModel {
         public NormalModel() {}
 

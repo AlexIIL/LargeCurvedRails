@@ -14,7 +14,7 @@ public class TCRecipies {
     }
 
     private static void addTrackRecipies() {
-        GameRegistry.addShapedRecipe(new ItemStack(TCItems.TRACK_STRAIGHT_AXIS.getItem()),
+        GameRegistry.addShapedRecipe(new ItemStack(TCItems.TRACK_STRAIGHT_AXIS.getItem(), 16),
                 // @formatter:off
                 "ISI",
                 "ISI",
@@ -24,7 +24,7 @@ public class TCRecipies {
                 // @formatter:on
         );
 
-        GameRegistry.addShapedRecipe(new ItemStack(TCItems.TRACK_STRAIGHT_DIAG.getItem()),
+        GameRegistry.addShapedRecipe(new ItemStack(TCItems.TRACK_STRAIGHT_DIAG.getItem(), 16),
                 // @formatter:off
                 "I  ",
                 "SI ",

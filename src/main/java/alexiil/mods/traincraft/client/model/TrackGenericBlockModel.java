@@ -3,8 +3,9 @@ package alexiil.mods.traincraft.client.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -16,7 +17,8 @@ import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.lib.BlockStateKeyWrapper;
 
 public abstract class TrackGenericBlockModel extends PerspAwareModelBase implements ISmartBlockModel {
-    private final Cache<BlockStateKeyWrapper, IBakedModel> modelCache = CacheBuilder.newBuilder().maximumSize(maxCacheSize()).build();
+    private final LoadingCache<BlockStateKeyWrapper, IBakedModel> modelCache = CacheBuilder.newBuilder().maximumSize(maxCacheSize() + 10).build(
+            CacheLoader.from(this::generateModel));
 
     public TrackGenericBlockModel() {
         super(null, null, null, null);
@@ -29,14 +31,11 @@ public abstract class TrackGenericBlockModel extends PerspAwareModelBase impleme
 
     @Override
     public IBakedModel handleBlockState(IBlockState state) {
-        IBakedModel model = getFromCache(state);
-        if (model != null) return model;
-        model = generateModel(state);
-        storeInCache(state, model);
-        return model;
+        return getOrCreate(state);
     }
 
-    private IBakedModel generateModel(IBlockState state) {
+    private IBakedModel generateModel(BlockStateKeyWrapper wrapper) {
+        IBlockState state = wrapper.state;
         List<BakedQuad> quads = new ArrayList<>();
 
         ITrackPath path = path(state);
@@ -49,20 +48,16 @@ public abstract class TrackGenericBlockModel extends PerspAwareModelBase impleme
     }
 
     protected List<BakedQuad> generateSleepers(IBlockState state, ITrackPath path) {
-        return CommonModelSpriteCache.generateSleepers(path, CommonModelSpriteCache.INSTANCE.loadSleepers());
+        return CommonModelSpriteCache.generateSleepers(path, CommonModelSpriteCache.INSTANCE.loadSleepers(), false);
     }
 
     protected List<BakedQuad> generateRails(IBlockState state, ITrackPath path) {
         return CommonModelSpriteCache.generateRails(path, CommonModelSpriteCache.INSTANCE.railSprite(false));
     }
 
-    public IBakedModel getFromCache(IBlockState state) {
+    public IBakedModel getOrCreate(IBlockState state) {
         BlockStateKeyWrapper wrapper = new BlockStateKeyWrapper(state);
-        return modelCache.getIfPresent(wrapper);
-    }
-
-    public void storeInCache(IBlockState state, IBakedModel model) {
-        modelCache.put(new BlockStateKeyWrapper(state), model);
+        return modelCache.getUnchecked(wrapper);
     }
 
     public abstract ITrackPath path(IBlockState state);

@@ -31,10 +31,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPathProvider;
-import alexiil.mods.traincraft.block.BlockTrackAscending;
-import alexiil.mods.traincraft.block.BlockTrackCurved;
-import alexiil.mods.traincraft.block.BlockTrackPointer;
-import alexiil.mods.traincraft.block.TCBlocks;
+import alexiil.mods.traincraft.block.*;
 import alexiil.mods.traincraft.client.model.*;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 import alexiil.mods.traincraft.component.ComponentCart;
@@ -49,7 +46,8 @@ public class ProxyClient extends Proxy {
         OBJLoader.instance.addDomain("traincraft");
         for (TCBlocks b : TCBlocks.values()) {
             Block block = b.getBlock();
-            if (block instanceof BlockTrackCurved || block instanceof BlockTrackPointer || block instanceof BlockTrackAscending) {
+            if (block instanceof BlockAbstractTrack
+            /* || block instanceof BlockTrackPointer || block instanceof BlockTrackAscending */) {
                 ModelLoader.setCustomStateMapper(b.getBlock(), VoidStateMapper.INSTANCE);
             }
         }
@@ -64,7 +62,6 @@ public class ProxyClient extends Proxy {
     @SubscribeEvent
     public void modelBake(ModelBakeEvent bake) {
         RenderRollingStockBase.clearModelMap();
-        CurvedModelGenerator.INSTANCE.clearModelMap();
         CommonModelSpriteCache.INSTANCE.clearModelMap();
 
         for (TCBlocks b : TCBlocks.values()) {
@@ -83,6 +80,10 @@ public class ProxyClient extends Proxy {
                 BlockTrackAscending ascending = (BlockTrackAscending) b.getBlock();
                 bake.modelRegistry.putObject(mrl, new TrackAscendingBlockModel(ascending));
             }
+
+            if (b.getBlock() instanceof BlockTrackStraight) {
+                bake.modelRegistry.putObject(mrl, new TrackStraightBlockModel());
+            }
         }
 
         Block[] vanillaTracks = { Blocks.rail, Blocks.activator_rail, Blocks.detector_rail, Blocks.golden_rail };
@@ -97,11 +98,12 @@ public class ProxyClient extends Proxy {
     public void textureStitchPre(TextureStitchEvent.Pre event) {
         ComponentSmallWheel.textureStitchPre(event);
         ComponentCart.textureStitchPre(event);
+        CommonModelSpriteCache.INSTANCE.textureStitchPre(event);
     }
 
     @SubscribeEvent
     public void textureStitchPost(TextureStitchEvent.Post event) {
-        CommonModelSpriteCache.INSTANCE.textureStitchPost(event);
+
     }
 
     private static final double STEP_DIST = 0.3;
