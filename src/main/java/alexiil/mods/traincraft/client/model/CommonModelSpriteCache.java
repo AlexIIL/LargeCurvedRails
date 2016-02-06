@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 
@@ -95,10 +94,14 @@ public enum CommonModelSpriteCache {
     }
 
     public static List<BakedQuad> generateRails(ITrackPath path, TextureAtlasSprite railSprite) {
+        return generateRails(path, railSprite, DEFAULT_RAIL_GAP);
+    }
+
+    public static List<BakedQuad> generateRails(ITrackPath path, TextureAtlasSprite railSprite, int railGap) {
         List<BakedQuad> list = new ArrayList<>();
 
         double length = path.length();
-        int numRailJoints = (int) (length * DEFAULT_RAIL_GAP);
+        int numRailJoints = (int) (length * railGap);
         double railDist = 1 / (double) numRailJoints;
 
         // double currentV = 0;
@@ -115,9 +118,9 @@ public enum CommonModelSpriteCache {
             Vec3 railEndDir = path.direction(offset);
 
             list.addAll(generateRailLeft(railStartMiddle, railEndMiddle, railStartDir, railEndDir, railSprite.getInterpolatedU(1), railSprite
-                    .getInterpolatedU(3), railSprite.getInterpolatedV(0), railSprite.getInterpolatedV(16f / DEFAULT_RAIL_GAP)));
+                    .getInterpolatedU(3), railSprite.getInterpolatedV(0), railSprite.getInterpolatedV(16f / railGap)));
             list.addAll(generateRailRight(railStartMiddle, railEndMiddle, railStartDir, railEndDir, railSprite.getInterpolatedU(3), railSprite
-                    .getInterpolatedU(1), railSprite.getInterpolatedV(0), railSprite.getInterpolatedV(16f / DEFAULT_RAIL_GAP)));
+                    .getInterpolatedU(1), railSprite.getInterpolatedV(0), railSprite.getInterpolatedV(16f / railGap)));
         }
 
         return list;
@@ -181,35 +184,35 @@ public enum CommonModelSpriteCache {
         verticies[1].positionvd(topSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalf(0, 1, 0);
         verticies[2].positionvd(topES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalf(0, 1, 0);
         verticies[3].positionvd(topEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalf(0, 1, 0);
-        quads.add(new MutableQuad(verticies, -1, EnumFacing.UP));
+        quads.add(new MutableQuad(verticies, -1, null));
         // Bottom
         verticies[0].positionvd(bottomSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalf(0, -1, 0);
         verticies[1].positionvd(bottomSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalf(0, -1, 0);
         verticies[2].positionvd(bottomEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalf(0, -1, 0);
         verticies[3].positionvd(bottomES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalf(0, -1, 0);
-        quads.add(new MutableQuad(verticies, -1, EnumFacing.DOWN));
+        quads.add(new MutableQuad(verticies, -1, null));
         // Caps
         verticies[0].positionvd(topSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalvd(normalCaps);
         verticies[1].positionvd(topSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalvd(normalCaps);
         verticies[2].positionvd(bottomSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalvd(normalCaps);
         verticies[3].positionvd(bottomSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalvd(normalCaps);
-        quads.add(new MutableQuad(verticies, -1, EnumFacing.WEST));
+        quads.add(new MutableQuad(verticies, -1, null));
         verticies[0].positionvd(topEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalvd(normalCapsOther);
         verticies[1].positionvd(topES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalvd(normalCapsOther);
         verticies[2].positionvd(bottomES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalvd(normalCapsOther);
         verticies[3].positionvd(bottomEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalvd(normalCapsOther);
-        quads.add(new MutableQuad(verticies, -1, EnumFacing.EAST));
+        quads.add(new MutableQuad(verticies, -1, null));
         // Sides
         verticies[0].positionvd(topES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalvd(normalSides);
         verticies[1].positionvd(topSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalvd(normalSides);
         verticies[2].positionvd(bottomSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalvd(normalSides);
         verticies[3].positionvd(bottomES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalvd(normalSides);
-        quads.add(new MutableQuad(verticies, -1, EnumFacing.SOUTH));
+        quads.add(new MutableQuad(verticies, -1, null));
         verticies[0].positionvd(topSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalvd(normalSidesOther);
         verticies[1].positionvd(topEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalvd(normalSidesOther);
         verticies[2].positionvd(bottomEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalvd(normalSidesOther);
         verticies[3].positionvd(bottomSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalvd(normalSidesOther);
-        quads.add(new MutableQuad(verticies, -1, EnumFacing.NORTH));
+        quads.add(new MutableQuad(verticies, -1, null));
 
         ModelUtil.applyColourByNormal(quads);
         return ModelSplitter.makeVanilla(quads, MutableQuad.ITEM_LMAP);

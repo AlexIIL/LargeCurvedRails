@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -52,6 +53,12 @@ public class ProxyClient extends Proxy {
                 ModelLoader.setCustomStateMapper(b.getBlock(), VoidStateMapper.INSTANCE);
             }
         }
+
+        Block[] vanillaTracks = { Blocks.rail, Blocks.activator_rail, Blocks.detector_rail, Blocks.golden_rail };
+
+        for (Block rail : vanillaTracks) {
+            ModelLoader.setCustomStateMapper(rail, VoidStateMapper.INSTANCE);
+        }
     }
 
     @SubscribeEvent
@@ -76,6 +83,13 @@ public class ProxyClient extends Proxy {
                 BlockTrackAscending ascending = (BlockTrackAscending) b.getBlock();
                 bake.modelRegistry.putObject(mrl, new TrackAscendingBlockModel(ascending));
             }
+        }
+
+        Block[] vanillaTracks = { Blocks.rail, Blocks.activator_rail, Blocks.detector_rail, Blocks.golden_rail };
+
+        for (Block rail : vanillaTracks) {
+            ModelResourceLocation mrl = new ModelResourceLocation(Block.blockRegistry.getNameForObject(rail).toString());
+            bake.modelRegistry.putObject(mrl, TrackVanillaBlockModel.create(rail));
         }
     }
 

@@ -14,6 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.ITrackPath;
 
+@Deprecated
 @SideOnly(Side.CLIENT)
 public enum CurvedModelGenerator {
     INSTANCE;
@@ -24,16 +25,18 @@ public enum CurvedModelGenerator {
         models.clear();
     }
 
+    @Deprecated
     private static List<BakedQuad> generateModelFor(ITrackPath path, TextureAtlasSprite railSprite, List<List<BakedQuad>> sleepers) {
         List<BakedQuad> list = new ArrayList<>();
 
         list.addAll(CommonModelSpriteCache.generateSleepers(path, sleepers));
-        
+
         list.addAll(CommonModelSpriteCache.generateRails(path, railSprite));
 
         return list;
     }
 
+    @Deprecated
     public IBakedModel generateModelFor(ITrackPath path, boolean mirror) {
         if (!models.containsKey(path)) {
             TextureAtlasSprite sprite = CommonModelSpriteCache.INSTANCE.railSprite(mirror);

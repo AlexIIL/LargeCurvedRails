@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 
 public class TrackPathProvider {
     private static Map<Block, ITrackBlock> registeredBlocks = new HashMap<>();
+    private static Map<EnumRailDirection, ITrackPath> vanillaTracks = new EnumMap<>(EnumRailDirection.class);
 
     public static ITrackPath[] getPathsAsArray(IBlockAccess access, BlockPos pos, IBlockState state) {
         ITrackBlock block = getBlockFor(state);
@@ -67,9 +68,19 @@ public class TrackPathProvider {
         registeredBlocks.remove(block);
     }
 
+    public static ITrackPath getVanillaTrack(IBlockState state) {
+        Block b = state.getBlock();
+        if (b instanceof BlockRailBase) {
+            BlockRailBase rail = (BlockRailBase) b;
+            EnumRailDirection dir = state.getValue(rail.getShapeProperty());
+            return vanillaTracks.get(dir);
+        }
+        return null;
+    }
+
     static {
         // Vanilla tracks
-        Map<EnumRailDirection, ITrackPath> map = new EnumMap<>(EnumRailDirection.class);
+        Map<EnumRailDirection, ITrackPath> map = vanillaTracks;
 
         double trackHeight = 2 / 16.0;
 

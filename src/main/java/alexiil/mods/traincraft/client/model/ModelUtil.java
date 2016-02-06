@@ -31,16 +31,11 @@ public class ModelUtil {
     }
 
     public static IBakedModel wrapInBakedModel(List<BakedQuad> quads, TextureAtlasSprite sprite) {
-        List<BakedQuad> generalQuads = new ArrayList<>();
         List<List<BakedQuad>> faceQuads = new ArrayList<>();
         for (EnumFacing face : EnumFacing.values()) {
             faceQuads.add(new ArrayList<>());
         }
-        for (BakedQuad q : quads) {
-            if (q.getFace() == null) generalQuads.add(q);
-            else faceQuads.get(q.getFace().getIndex()).add(q);
-        }
-        return new SimpleBakedModel(generalQuads, faceQuads, true, false, sprite, ItemCameraTransforms.DEFAULT);
+        return new SimpleBakedModel(quads/* new ArrayList<>() */, faceQuads, false, false, sprite, ItemCameraTransforms.DEFAULT);
     }
 
     public static IBakedModel multiplyMatrix(IBakedModel baked, Matrix4f matrix) {
