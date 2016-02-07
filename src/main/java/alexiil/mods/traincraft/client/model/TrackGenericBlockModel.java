@@ -8,6 +8,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.IBakedModel;
 
@@ -40,11 +41,13 @@ public abstract class TrackGenericBlockModel extends PerspAwareModelBase impleme
 
         ITrackPath path = path(state);
 
+        if (path == null) return Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getMissingModel();
+
         quads.addAll(generateSleepers(state, path));
         quads.addAll(generateRails(state, path));
         generateExtra(quads, state, path);
 
-        return ModelUtil.wrapInBakedModel(quads, CommonModelSpriteCache.INSTANCE.railSprite(false));
+        return ModelUtil.wrapInBakedModel(quads, CommonModelSpriteCache.INSTANCE.spriteVanillaRail(false));
     }
 
     protected List<BakedQuad> generateSleepers(IBlockState state, ITrackPath path) {
@@ -52,7 +55,7 @@ public abstract class TrackGenericBlockModel extends PerspAwareModelBase impleme
     }
 
     protected List<BakedQuad> generateRails(IBlockState state, ITrackPath path) {
-        return CommonModelSpriteCache.generateRails(path, CommonModelSpriteCache.INSTANCE.railSprite(false));
+        return CommonModelSpriteCache.generateRails(path, CommonModelSpriteCache.INSTANCE.spriteVanillaRail(false));
     }
 
     public IBakedModel getOrCreate(IBlockState state) {

@@ -30,7 +30,7 @@ public enum CommonModelSpriteCache {
     public static final double SLEEPER_COUNT_PER_METER = 4.3;
     public static final double RAIL_COUNT_PER_METER = 6;
 
-    private TextureAtlasSprite railSprite, railSpriteMirrored;
+    private TextureAtlasSprite railSprite, railSpriteMirrored, spriteVanillaExtras;
     private final List<List<BakedQuad>> sleepers = new ArrayList<>();
 
     public void clearModelMap() {
@@ -40,10 +40,15 @@ public enum CommonModelSpriteCache {
     public void textureStitchPre(TextureStitchEvent.Pre event) {
         railSprite = event.map.registerSprite(new ResourceLocation("traincraft:block/track_straight"));
         railSpriteMirrored = event.map.registerSprite(new ResourceLocation("traincraft:block/track_straight_mirror"));
+        spriteVanillaExtras = event.map.registerSprite(new ResourceLocation("traincraft:block/track_straight_vanilla_extra"));
     }
 
-    public TextureAtlasSprite railSprite(boolean mirror) {
+    public TextureAtlasSprite spriteVanillaRail(boolean mirror) {
         return mirror ? railSpriteMirrored : railSprite;
+    }
+
+    public TextureAtlasSprite spriteVanillaExtras() {
+        return spriteVanillaExtras;
     }
 
     /** Loads (or returns immediatly from the cache) a list of all the available sleeper models. All of the lists are
@@ -98,14 +103,42 @@ public enum CommonModelSpriteCache {
     }
 
     public static List<BakedQuad> generateRails(ITrackPath path, TextureAtlasSprite railSprite) {
-        return generateRails(path, railSprite, RAIL_COUNT_PER_METER);
+        return generateRails(new GenerateRailsArguments(path, railSprite));
     }
 
-    public static List<BakedQuad> generateRails(ITrackPath path, TextureAtlasSprite railSprite, double railGap) {
+    public static class GenerateRailsArguments {
+        private ITrackPath path;
+        private TextureAtlasSprite railSprite;
+        private double railGap = CommonModelSpriteCache.RAIL_COUNT_PER_METER;
+        private float uMin = 1, uMax = 3;
+        private boolean left = true, right = true;
+        private double width = 2 / 16.0, radius = 5 / 16.0;
+        private double yOffset = 0;
+
+        public GenerateRailsArguments(ITrackPath path, TextureAtlasSprite railSprite) {
+            this.path = path;
+            this.railSprite = railSprite;
+        }
+
+        // @formatter:off
+        public GenerateRailsArguments path(ITrackPath path) { this.path = path; return this; }
+        public GenerateRailsArguments railSprite(TextureAtlasSprite railSprite) { this.railSprite = railSprite; return this; }
+        public GenerateRailsArguments railGap(double railGap) { this.railGap = railGap; return this; }
+        public GenerateRailsArguments uMin(float uMin) { this.uMin = uMin; return this; }
+        public GenerateRailsArguments uMax(float uMax) { this.uMax = uMax; return this; }
+        public GenerateRailsArguments left(boolean l) {this.left = l; return this; }
+        public GenerateRailsArguments right(boolean r) {this.right = r; return this; }
+        public GenerateRailsArguments width(double w) {this.width = w; return this; }
+        public GenerateRailsArguments radius(double r) {this.radius = r; return this; }
+        public GenerateRailsArguments yOffset(double y) {this.yOffset = y; return this; }
+        // @formatter:on
+    }
+
+    public static List<BakedQuad> generateRails(GenerateRailsArguments args) {
         List<BakedQuad> list = new ArrayList<>();
 
-        double length = path.length();
-        int numRailJoints = (int) (length * railGap);
+        double length = args.path.length();
+        int numRailJoints = (int) (length * args.railGap);
         double railDist = 1 / (double) numRailJoints;
 
         double currentV = 0;
@@ -113,127 +146,34 @@ public enum CommonModelSpriteCache {
         for (int i = 0; i < numRailJoints; i++) {
             if (currentV + railDist > 1) currentV = 0;
             double vL = 16 * currentV;
-            Vec3 railStartMiddle = path.interpolate(offset);
-            Vec3 railStartDir = path.direction(offset);
+            Vec3 railStartMiddle = args.path.interpolate(offset).addVector(0, args.yOffset, 0);
+            Vec3 railStartDir = args.path.direction(offset);
 
             offset += railDist;
             currentV += railDist;
             double vH = 16 * currentV;
 
-            Vec3 railEndMiddle = path.interpolate(offset);
-            Vec3 railEndDir = path.direction(offset);
-
-            list.addAll(generateRailLeft(railStartMiddle, railEndMiddle, railStartDir, railEndDir, railSprite.getInterpolatedU(1), railSprite
-                    .getInterpolatedU(3), railSprite.getInterpolatedV(vL), railSprite.getInterpolatedV(vH)));
-            list.addAll(generateRailRight(railStartMiddle, railEndMiddle, railStartDir, railEndDir, railSprite.getInterpolatedU(3), railSprite
-                    .getInterpolatedU(1), railSprite.getInterpolatedV(vL), railSprite.getInterpolatedV(vH)));
+            Vec3 railEndMiddle = args.path.interpolate(offset).addVector(0, args.yOffset, 0);
+            Vec3 railEndDir = args.path.direction(offset);
+            if (args.left) {
+                Vec3[][] vecs = { { railStartMiddle, railStartDir }, { railEndMiddle, railEndDir } };
+                float[][] uvs = { //
+                    { args.railSprite.getInterpolatedU(args.uMin), args.railSprite.getInterpolatedU(args.uMax) },//
+                    { args.railSprite.getInterpolatedV(vL), args.railSprite.getInterpolatedV(vH) } //
+                };
+                list.addAll(makeQuads(vecs, uvs, args.radius, args.width));
+            }
+            if (args.right) {
+                Vec3[][] vecs = { { railStartMiddle, railStartDir }, { railEndMiddle, railEndDir } };
+                float[][] uvs = { //
+                    { args.railSprite.getInterpolatedU(args.uMax), args.railSprite.getInterpolatedU(args.uMin) },//
+                    { args.railSprite.getInterpolatedV(vL), args.railSprite.getInterpolatedV(vH) } //
+                };
+                list.addAll(makeQuads(vecs, uvs, -args.radius, args.width));
+            }
         }
 
         return list;
-    }
-
-    private static List<BakedQuad> generateRailLeft(Vec3 startMiddle, Vec3 endMiddle, Vec3 startDir, Vec3 endDir, float uS, float uE, float vS,
-            float vE) {
-        Vec3 otherDirStart = MathUtil.cross(startDir, new Vec3(0, 1, 0)).normalize();
-        Vec3 leftTopSS = startMiddle.add(MathUtil.scale(otherDirStart, 6 / 16.0));
-        Vec3 leftTopSE = startMiddle.add(MathUtil.scale(otherDirStart, 4 / 16.0));
-
-        Vec3 leftBottomSS = leftTopSS.addVector(0, -1 / 16.0, 0);
-        Vec3 leftBottomSE = leftTopSE.addVector(0, -1 / 16.0, 0);
-
-        Vec3 otherDirEnd = MathUtil.cross(endDir, new Vec3(0, 1, 0)).normalize();
-        Vec3 leftTopES = endMiddle.add(MathUtil.scale(otherDirEnd, 6 / 16.0));
-        Vec3 leftTopEE = endMiddle.add(MathUtil.scale(otherDirEnd, 4 / 16.0));
-
-        Vec3 leftBottomES = leftTopES.addVector(0, -1 / 16.0, 0);
-        Vec3 leftBottomEE = leftTopEE.addVector(0, -1 / 16.0, 0);
-
-        Vec3[][] vecs = { { startMiddle, startDir }, { endMiddle, endDir } };
-        float[][] uvs = { { uS, uE }, { vS, vE } };
-
-        return makeQuads(vecs, uvs, 5 / 16.0, 2 / 16.0);
-
-        // return makeRailCuboid(uS, uE, vS, vE, leftTopSS, leftTopSE, leftBottomSS, leftBottomSE, leftTopES, leftTopEE,
-        // leftBottomES, leftBottomEE);
-    }
-
-    private static List<BakedQuad> generateRailRight(Vec3 startMiddle, Vec3 endMiddle, Vec3 startDir, Vec3 endDir, float uS, float uE, float vS,
-            float vE) {
-        Vec3 otherDirStart = MathUtil.cross(startDir, new Vec3(0, 1, 0)).normalize();
-        Vec3 leftTopSS = startMiddle.add(MathUtil.scale(otherDirStart, -4 / 16.0));
-        Vec3 leftTopSE = startMiddle.add(MathUtil.scale(otherDirStart, -6 / 16.0));
-
-        Vec3 leftBottomSS = leftTopSS.addVector(0, -1 / 16.0, 0);
-        Vec3 leftBottomSE = leftTopSE.addVector(0, -1 / 16.0, 0);
-
-        Vec3 otherDirEnd = MathUtil.cross(endDir, new Vec3(0, 1, 0)).normalize();
-        Vec3 leftTopES = endMiddle.add(MathUtil.scale(otherDirEnd, -4 / 16.0));
-        Vec3 leftTopEE = endMiddle.add(MathUtil.scale(otherDirEnd, -6 / 16.0));
-
-        Vec3 leftBottomES = leftTopES.addVector(0, -1 / 16.0, 0);
-        Vec3 leftBottomEE = leftTopEE.addVector(0, -1 / 16.0, 0);
-
-        Vec3[][] vecs = { { startMiddle, startDir }, { endMiddle, endDir } };
-        float[][] uvs = { { uS, uE }, { vS, vE } };
-
-        return makeQuads(vecs, uvs, -5 / 16.0, 2 / 16.0);
-        // return makeRailCuboid(uS, uE, vS, vE, leftTopSS, leftTopSE, leftBottomSS, leftBottomSE, leftTopES, leftTopEE,
-        // leftBottomES, leftBottomEE);
-    }
-
-    @Deprecated
-    private static List<BakedQuad> makeRailCuboid(float uS, float uE, float vS, float vE, Vec3 topSS, Vec3 topSE, Vec3 bottomSS, Vec3 bottomSE,
-            Vec3 topES, Vec3 topEE, Vec3 bottomES, Vec3 bottomEE) {
-        List<MutableQuad> quads = new ArrayList<>();
-        Vec3 normalSides = new Vec3(0, 0, 1);
-        Vec3 normalCaps = new Vec3(1, 0, 0);
-        Vec3 compare = topSS.subtract(topEE);
-        if (Math.abs(compare.xCoord) < Math.abs(compare.zCoord)) {
-            normalSides = new Vec3(1, 0, 0);
-            normalCaps = new Vec3(0, 0, 1);
-        }
-
-        Vec3 normalSidesOther = new Vec3(-normalSides.xCoord, 0, -normalSides.zCoord);
-        Vec3 normalCapsOther = new Vec3(-normalCaps.xCoord, 0, -normalCaps.zCoord);
-
-        Vertex[] verticies = new Vertex[] { new Vertex(), new Vertex(), new Vertex(), new Vertex() };
-        // Top
-        verticies[0].positionvd(topSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalf(0, 1, 0);
-        verticies[1].positionvd(topSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalf(0, 1, 0);
-        verticies[2].positionvd(topES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalf(0, 1, 0);
-        verticies[3].positionvd(topEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalf(0, 1, 0);
-        quads.add(new MutableQuad(verticies, -1, null));
-        // Bottom
-        verticies[0].positionvd(bottomSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalf(0, -1, 0);
-        verticies[1].positionvd(bottomSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalf(0, -1, 0);
-        verticies[2].positionvd(bottomEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalf(0, -1, 0);
-        verticies[3].positionvd(bottomES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalf(0, -1, 0);
-        quads.add(new MutableQuad(verticies, -1, null));
-        // Caps
-        verticies[0].positionvd(topSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalvd(normalCaps);
-        verticies[1].positionvd(topSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalvd(normalCaps);
-        verticies[2].positionvd(bottomSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalvd(normalCaps);
-        verticies[3].positionvd(bottomSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalvd(normalCaps);
-        quads.add(new MutableQuad(verticies, -1, null));
-        verticies[0].positionvd(topEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalvd(normalCapsOther);
-        verticies[1].positionvd(topES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalvd(normalCapsOther);
-        verticies[2].positionvd(bottomES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalvd(normalCapsOther);
-        verticies[3].positionvd(bottomEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalvd(normalCapsOther);
-        quads.add(new MutableQuad(verticies, -1, null));
-        // Sides
-        verticies[0].positionvd(topES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalvd(normalSides);
-        verticies[1].positionvd(topSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vS).normalvd(normalSides);
-        verticies[2].positionvd(bottomSS).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalvd(normalSides);
-        verticies[3].positionvd(bottomES).colourf(1, 1, 1, 1).lighti(0, 0).texf(uS, vE).normalvd(normalSides);
-        quads.add(new MutableQuad(verticies, -1, null));
-        verticies[0].positionvd(topSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalvd(normalSidesOther);
-        verticies[1].positionvd(topEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vS).normalvd(normalSidesOther);
-        verticies[2].positionvd(bottomEE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalvd(normalSidesOther);
-        verticies[3].positionvd(bottomSE).colourf(1, 1, 1, 1).lighti(0, 0).texf(uE, vE).normalvd(normalSidesOther);
-        quads.add(new MutableQuad(verticies, -1, null));
-
-        ModelUtil.applyColourByNormal(quads);
-        return ModelSplitter.makeVanilla(quads, MutableQuad.ITEM_LMAP);
     }
 
     /** @param coords An array of {{start, startDir}, {end, endDir}}
@@ -262,8 +202,6 @@ public enum CommonModelSpriteCache {
 
         Vec3[] b = { down(t[0]), down(t[1]), down(t[2]), down(t[3]) };// Same as tops but down
 
-        Vec3 i = new Vec3(0, 0, 0);
-
         Vec3[][][] pos = {// Very happy formatter right now
             { { t[0], t[1] }, { t[2], t[3] } }, // Up
             { { b[1], b[0] }, { b[3], b[2] } }, // Down
@@ -278,15 +216,11 @@ public enum CommonModelSpriteCache {
             { { uvs[0][1], uvs[0][0] }, { uvs[1][0], uvs[1][1] } }, // Down
             { { uvs[0][1], uvs[0][0] }, { uvs[1][0], uvs[1][1] } }, // Forwards
             { { uvs[0][0], uvs[0][1] }, { uvs[1][0], uvs[1][1] } }, // Back
-            { { uvs[0][0], halfway(uvs[0][0], uvs[0][1]) }, { uvs[1][0], uvs[1][1] } }, // Left
-            { { uvs[0][1], halfway(uvs[0][0], uvs[0][1]) }, { uvs[1][0], uvs[1][1] } }, // Right
+            { { uvs[0][0], (uvs[0][0] + uvs[0][1]) / 2 }, { uvs[1][0], uvs[1][1] } }, // Left
+            { { uvs[0][1], (uvs[0][0] + uvs[0][1]) / 2 }, { uvs[1][0], uvs[1][1] } }, // Right
         };
 
         return makeQuads(pos, tex, normal);
-    }
-
-    private static float halfway(float a, float b) {
-        return (a + b) / 2;// Because I can't be bothered to inline this. woops.
     }
 
     private static Vec3 replaceY(int y, Vec3 v) {
