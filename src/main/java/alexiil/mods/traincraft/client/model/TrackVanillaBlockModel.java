@@ -59,6 +59,9 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
             if (powered) args.uMin(6).uMax(8);
             else args.uMin(4).uMax(6);
             quads.addAll(CommonModelSpriteCache.generateRails(args));
+
+            // Detecting block
+
         }
     }
 
@@ -106,7 +109,7 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
 
             args = new GenerateRailsArguments(path, sprite).right(false).width(1 / 16.0).radius(3.5 / 16.0);
             if (powered) args.uMin(3).uMax(4);
-            else args.uMin(0).uMax(1);
+            else args.uMin(1).uMax(2);
             quads.addAll(CommonModelSpriteCache.generateRails(args));
 
             // Redstone Block

@@ -214,10 +214,10 @@ public enum CommonModelSpriteCache {
         float[][][] tex = {// A bit too exited if you ask me...
             { { uvs[0][0], uvs[0][1] }, { uvs[1][0], uvs[1][1] } },// Up
             { { uvs[0][1], uvs[0][0] }, { uvs[1][0], uvs[1][1] } }, // Down
-            { { uvs[0][1], uvs[0][0] }, { uvs[1][0], uvs[1][1] } }, // Forwards
-            { { uvs[0][0], uvs[0][1] }, { uvs[1][0], uvs[1][1] } }, // Back
-            { { uvs[0][0], (uvs[0][0] + uvs[0][1]) / 2 }, { uvs[1][0], uvs[1][1] } }, // Left
-            { { uvs[0][1], (uvs[0][0] + uvs[0][1]) / 2 }, { uvs[1][0], uvs[1][1] } }, // Right
+            { { uvs[0][1], uvs[0][0] }, { uvs[1][1], uvs[1][0] } }, // Forwards
+            { { uvs[0][0], uvs[0][1] }, { uvs[1][1], uvs[1][0] } }, // Back
+            { { uvs[0][0], (uvs[0][0] + uvs[0][1]) / 2 }, { uvs[1][1], uvs[1][0] } }, // Left
+            { { uvs[0][1], (uvs[0][0] + uvs[0][1]) / 2 }, { uvs[1][1], uvs[1][0] } }, // Right
         };
 
         return makeQuads(pos, tex, normal);
