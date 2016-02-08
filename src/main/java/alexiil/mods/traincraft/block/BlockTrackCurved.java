@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPath2DArc;
-import alexiil.mods.traincraft.api.TrackPathComposite;
+import alexiil.mods.traincraft.api.TrackPathTriComposite;
 import alexiil.mods.traincraft.api.TrackPathStraight;
 import alexiil.mods.traincraft.lib.MathUtil;
 
@@ -36,6 +36,13 @@ public class BlockTrackCurved extends BlockTrackSeperated {
         if (width < 2) throw new IllegalArgumentException("Must be at least 2 wide!");
         trackPaths = HashBasedTable.create();
         TrainCraft.trainCraftLog.info("Curved track with a width of " + width);
+
+        int[][][] angles = {//
+            { { 360, 315 }, { 180, 225 } },// North
+            { { 0, 45 }, { 180, 135 } },// South
+            { { 90, 135 }, { 270, 225 } },// West
+            { { 90, 45 }, { 270, 315 } },// East
+        };
 
         BlockPos creator = new BlockPos(0, 0, 0);
         for (EnumFacing horizontal : EnumFacing.HORIZONTALS) {
@@ -93,16 +100,15 @@ public class BlockTrackCurved extends BlockTrackSeperated {
 
                 double r = F.distanceTo(D);
 
-                int angD = 0;
-                int angE = 45;
+                int angD = angles[horizontal.getIndex() - 2][positive ? 1 : 0][0];
+                int angE = angles[horizontal.getIndex() - 2][positive ? 1 : 0][1];
 
                 TrackPathStraight pathAD = new TrackPathStraight(A, D, creator);
                 TrackPath2DArc pathDE = TrackPath2DArc.createDegrees(creator, F, r, angD, angE);
-                // TrackPathStraight pathDE = new TrackPathStraight(D, E, creator);
                 TrackPathStraight pathEB = new TrackPathStraight(E, B, creator);
 
-                TrackPathComposite<TrackPathStraight, TrackPath2DArc, TrackPathStraight> composite;
-                composite = new TrackPathComposite<>(creator, pathAD, pathDE, pathEB);
+                TrackPathTriComposite<TrackPathStraight, TrackPath2DArc, TrackPathStraight> composite;
+                composite = new TrackPathTriComposite<>(creator, pathAD, pathDE, pathEB);
                 trackPaths.put(horizontal, positive, composite);
             }
         }

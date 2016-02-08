@@ -5,7 +5,7 @@ import net.minecraft.util.Vec3;
 import alexiil.mods.traincraft.api.MCObjectUtils;
 
 public class MathUtil {
-    public static final double DEFAULT_MATH_LIMIT = 1e-10;
+    public static final double DEFAULT_MATH_LIMIT = 1e-5;
 
     public static double[] toArray(Vec3 v) {
         return new double[] { v.xCoord, v.yCoord, v.zCoord };
