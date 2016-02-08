@@ -7,6 +7,8 @@ import net.minecraft.entity.DataWatcher.WatchableObject;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 
+import alexiil.mods.traincraft.lib.MathUtil;
+
 public class MCObjectUtils {
     public static int hash(Vec3 vec) {
         if (vec == null) return 0;
@@ -38,7 +40,7 @@ public static int hash(Object... array) {
     }
 
     public static boolean equals(Vec3 a, Vec3 b) {
-        return a.xCoord == b.xCoord && a.yCoord == b.yCoord && a.zCoord == b.zCoord;
+        return MathUtil.roughlyEquals(a.xCoord, b.xCoord) && MathUtil.roughlyEquals(a.yCoord, b.yCoord) && MathUtil.roughlyEquals(a.zCoord, b.zCoord);
     }
 
     public static BlockPos getWatchableObjectBlockPos(DataWatcher watcher, int id) {
