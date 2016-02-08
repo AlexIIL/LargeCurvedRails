@@ -119,4 +119,9 @@ public class BlockTrackAscending extends BlockTrackSeperated {
     public boolean shouldSideBeRendered(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
         return true;
     }
+
+    @Override
+    public List<BlockPos> getSlaveOffsets(IBlockState state) {
+        return slaveOffsets(path(state));
+    }
 }

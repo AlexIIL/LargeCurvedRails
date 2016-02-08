@@ -111,7 +111,7 @@ public class BlockTrackPointer extends BlockAbstractTrack {
                 throw new IllegalPathException(tried);
             }
         }
-        return null;
+        throw new IllegalPathException(tried);
     }
 
     @SuppressWarnings("serial")

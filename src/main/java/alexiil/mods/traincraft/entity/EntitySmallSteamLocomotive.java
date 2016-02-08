@@ -2,7 +2,6 @@ package alexiil.mods.traincraft.entity;
 
 import java.util.Collections;
 
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
@@ -10,27 +9,22 @@ import alexiil.mods.traincraft.api.component.IComponent;
 import alexiil.mods.traincraft.component.ComponentSmallSteamLocomotive;
 import alexiil.mods.traincraft.component.ComponentSmallWheel;
 
-public class EntitySmallSteamLocomotive extends EntityRollingStockBase {
-    private static final IComponent mainComponent;
+public class EntitySmallSteamLocomotive extends EntityRollingStockPowered {
+    private static final IComponent steamMainComponent;
 
     static {
         ComponentTrackFollower wheel1 = new ComponentSmallWheel(null, -0.3, 0);
         ComponentTrackFollower wheel2 = new ComponentSmallWheel(null, 0.3, 1);
-        mainComponent = new ComponentSmallSteamLocomotive(null, wheel1, wheel2, Collections.emptyList(), 0.5);
+        steamMainComponent = new ComponentSmallSteamLocomotive(null, wheel1, wheel2, Collections.emptyList(), 0.5);
     }
 
     public EntitySmallSteamLocomotive(World world) {
-        super(world, mainComponent);
-    }
-
-    @Override
-    public double maxBrakingForce() {
-        return 10;// TODO: Experiment!
+        super(world, steamMainComponent);
     }
 
     @Override
     public int weight() {
-        return 500 /* + items() */;
+        return 300 /* + items() */;
     }
 
     @Override
@@ -39,12 +33,12 @@ public class EntitySmallSteamLocomotive extends EntityRollingStockBase {
     }
 
     @Override
-    public double engineOutput() {
-        return 100;
+    public double maxSpeed() {
+        return 7;
     }
 
     @Override
-    public AxisAlignedBB getCollisionBoundingBox() {
-        return super.getCollisionBoundingBox();
+    public double maxEnginePower() {
+        return 600;
     }
 }

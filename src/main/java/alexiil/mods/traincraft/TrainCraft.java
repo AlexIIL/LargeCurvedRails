@@ -27,7 +27,7 @@ public class TrainCraft {
         TrainCraftAPI.WORLD_CACHE = TrainWorldCache.INSTANCE;
         TrainCraftAPI.MOVEMENT_MANAGER = TrainMovementManager.INSTANCE;
 
-        TCBlocks.preInit(event);
+        TCBlocks.preInit();
         TCItems.preInit();
         TCTabs.preInit();
         Proxy.proxy.preInit(event);
@@ -39,6 +39,7 @@ public class TrainCraft {
         TrainRegistry.registerTrain(EntityRollingStockCart.class, "minecart_wooden", 0);
         TrainRegistry.registerTrain(EntitySmallSteamLocomotive.class, "stream_locomotive_small", 1);
 
+        TCItems.init();
         TCRecipies.init();
 
         Proxy.proxy.init(event);

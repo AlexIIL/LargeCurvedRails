@@ -112,6 +112,8 @@ public class ProxyClient extends Proxy {
     public void renderWorld(RenderWorldLastEvent event) {
         if (!Minecraft.getMinecraft().gameSettings.showDebugInfo) return;
         if (Minecraft.getMinecraft().theWorld == null || Minecraft.getMinecraft().thePlayer == null) return;
+        Minecraft.getMinecraft().mcProfiler.startSection("traincraft_debug");
+
         BlockPos around = new BlockPos(Minecraft.getMinecraft().thePlayer.getPositionVector());
         World world = Minecraft.getMinecraft().theWorld;
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
@@ -177,5 +179,7 @@ public class ProxyClient extends Proxy {
         GL11.glLineWidth(2);
         GlStateManager.enableDepth();
         GlStateManager.enableTexture2D();
+
+        Minecraft.getMinecraft().mcProfiler.endSection();
     }
 }

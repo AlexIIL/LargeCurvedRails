@@ -25,7 +25,7 @@ public class EntityRollingStockCart extends EntityRollingStockBase {
 
     @Override
     public double maxBrakingForce() {
-        return 10;// TODO: Experiment!
+        return 10;
     }
 
     @Override

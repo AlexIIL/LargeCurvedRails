@@ -1,27 +1,28 @@
 package alexiil.mods.traincraft.block;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Locale;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockPlanks;
+import net.minecraft.block.BlockStone;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyHelper;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.TrainCraft;
-import alexiil.mods.traincraft.block.BlockTrackAscendingPointer.BlockShownSet.BlockShown;
+import alexiil.mods.traincraft.tile.TileTrackAscendingPointer;
 
 public class BlockTrackAscendingPointer extends BlockTrackPointer {
-    public final BlockShownSet materialTypeProp;
+    public static final IProperty<EnumMaterialType> PROPERTY_MATERIAL_TYPE = PropertyEnum.create("material", EnumMaterialType.class);
 
-    public BlockTrackAscendingPointer(BlockShownSet blocksShown) {
-        super(blocksShown);
-        materialTypeProp = blocksShown;
+    public BlockTrackAscendingPointer() {
+        super(PROPERTY_MATERIAL_TYPE);
     }
 
     @Override
@@ -40,113 +41,53 @@ public class BlockTrackAscendingPointer extends BlockTrackPointer {
     }
 
     public IBlockState getSupportingMaterial(IBlockAccess access, BlockPos pos, IBlockState state) {
-        return state.getValue(materialTypeProp).state;
+        if (!hasTileEntity(state)) return state.getValue(PROPERTY_MATERIAL_TYPE).state;
+        TileEntity tile = access.getTileEntity(pos);
+        if (tile instanceof TileTrackAscendingPointer) return ((TileTrackAscendingPointer) tile).getMaterialState();
+        return null;
     }
 
-    public static class BlockShownSet extends PropertyHelper<BlockShown> {
-        private final List<BlockShown> shown = new ArrayList<>();
+    @Override
+    public TileEntity createTileEntity(World world, IBlockState state) {
+        if (hasTileEntity(state)) return new TileTrackAscendingPointer();
+        return null;
+    }
 
-        // BNF:
-        // states ::= <singlestate>|<singlestate><states>
-        // singlestate ::= IBlockState|Block|<definingarray>
-        // definingarray ::= Block,Class<Enum>|Block<enumvalue>
-        // enumvalue ::= Enum|Enum<enumvalue>
-        public BlockShownSet(Object... states) {
-            super("material", BlockShown.class);
-            if (states.length <= 0) throw new IllegalArgumentException("Too few blocks(" + states.length + "), need at least 1!");
-            if (states.length > 16) throw new IllegalArgumentException("Too many blocks(" + states.length + "), only 16 allowed (max)");
-            for (Object state : states) {
-                if (state instanceof IBlockState) {
-                    shown.add(new BlockShown((IBlockState) state));
-                } else if (state instanceof Block) {
-                    shown.add(new BlockShown(((Block) state).getDefaultState()));
-                } else if (state instanceof Object[]) {
-                    Object[] arr = (Object[]) state;
-                    if (arr.length <= 1) throw new IllegalStateException("You must have at least 2 objects!");
-                    if (!(arr[0] instanceof Block)) throw new IllegalStateException("The first array element must be a block!");
-                    Block b = (Block) arr[0];
-                    if (arr[1] instanceof Class) {
-                        Class c = (Class) arr[1];
-                        if (!c.isEnum()) throw new IllegalStateException("Must be a class of an enum!");
-                        boolean added = false;
-                        for (IProperty p : b.getDefaultState().getPropertyNames()) {
-                            if (p.getValueClass().isAssignableFrom(c)) {
-                                for (Object value : c.getEnumConstants()) {
-                                    IBlockState state2 = withPropertyUnsafe(b.getDefaultState(), p, value);
-                                    shown.add(new BlockShown(state2));
-                                }
-                                added = true;
-                                break;
-                            }
-                        }
-                        if (!added) throw new IllegalArgumentException("Did not find the corresponding class type!");
-                    } else {
-                        for (int i = 1; i < arr.length; i++) {
-                            Object value = arr[i];
-                            for (IProperty p : b.getDefaultState().getPropertyNames()) {
-                                if (p.getValueClass().isAssignableFrom(value.getClass())) {
-                                    IBlockState state2 = withPropertyUnsafe(b.getDefaultState(), p, value);
-                                    shown.add(new BlockShown(state2));
-                                    value = null;
-                                    break;
-                                }
-                            }
-                            if (value != null) throw new IllegalStateException("Did not find a property for the value " + value);
-                        }
-                    }
-                } else throw new IllegalArgumentException("Unknown class type!");
-            }
-        }
+    @Override
+    public boolean hasTileEntity(IBlockState state) {
+        return state.getValue(PROPERTY_MATERIAL_TYPE) == EnumMaterialType.OTHER;
+    }
 
-        private static IBlockState withPropertyUnsafe(IBlockState state, IProperty property, Object value) {
-            return withPropertyUnsafeInternal(state, property, value);
-        }
+    public enum EnumMaterialType implements IStringSerializable {
+        // @formatter:off
+        /** 0 */ COBBLESTONE (Blocks.cobblestone.getDefaultState()),
+        /** 1 */ ANDERSITE   (Blocks.stone.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE)),
+        /** 2 */ DIORITE     (Blocks.stone.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE)),
+        /** 3 */ GRANITE     (Blocks.stone.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE)),
+        /** 4 */ OAK         (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.OAK)),
+        /** 5 */ SPRUCE      (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.SPRUCE)),
+        /** 6 */ BIRCH       (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.BIRCH)),
+        /** 7 */ JUNGLE      (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.JUNGLE)),
+        /** 8 */ ACACIA      (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.ACACIA)),
+        /** 9 */ DARK_OAK    (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.DARK_OAK)),
+        /** A */ UNUSED_A    (null),
+        /** B */ UNUSED_B    (null),
+        /** C */ UNUSED_C    (null),
+        /** D */ UNUSED_D    (null),
+        /** E */ UNUSED_E    (null),
+        /** F */ OTHER       (Blocks.cobblestone.getDefaultState());
+        // @formatter:on
 
-        private static <T extends Comparable<T>, V extends T> IBlockState withPropertyUnsafeInternal(IBlockState state, IProperty<T> property,
-                Object value) {
-            return state.withProperty(property, (V) value);
+        public final IBlockState state;
+
+        EnumMaterialType(IBlockState state) {
+            this.state = state;
         }
 
         @Override
-        public Collection<BlockShown> getAllowedValues() {
-            return shown;
+        public String getName() {
+            return name().toLowerCase(Locale.ROOT);
         }
 
-        @Override
-        public String getName(BlockShown value) {
-            return value.name;
-        }
-
-        public class BlockShown implements IStringSerializable, Comparable<BlockShown> {
-            public final IBlockState state;
-            private final String name;
-
-            public BlockShown(IBlockState state) {
-                this.state = state;
-                if (state == null) {
-                    name = "__UNUSED__#" + (shown.size() - 1);
-                } else {
-                    name = state.toString();
-                }
-                TrainCraft.trainCraftLog.info("Created a new block shown (" + name + ") for set #" + System.identityHashCode(BlockShownSet.this));
-            }
-
-            @Override
-            public int compareTo(BlockShown o) {
-                if (o == null) return 0;
-                if (shown.indexOf(o) == -1) return 0;
-                return shown.indexOf(this) - shown.indexOf(o);
-            }
-
-            @Override
-            public String getName() {
-                return name;
-            }
-
-            @Override
-            public String toString() {
-                return name;
-            }
-        }
     }
 }

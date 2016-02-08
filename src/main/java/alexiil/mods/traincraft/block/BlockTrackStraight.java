@@ -3,10 +3,12 @@ package alexiil.mods.traincraft.block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -15,6 +17,7 @@ import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
 import alexiil.mods.traincraft.entity.EntityRollingStockCart;
 import alexiil.mods.traincraft.entity.EntitySmallSteamLocomotive;
+import alexiil.mods.traincraft.item.TCItems;
 
 public class BlockTrackStraight extends BlockAbstractTrack {
     private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, TRACK_HEIGHT, 1);
@@ -29,6 +32,15 @@ public class BlockTrackStraight extends BlockAbstractTrack {
         EnumFacing entFacing = placer.getHorizontalFacing();
         if (entFacing.getAxis() == Axis.X) return getDefaultState().withProperty(TRACK_DIRECTION, EnumDirection.EAST_WEST);
         else return getDefaultState().withProperty(TRACK_DIRECTION, EnumDirection.NORTH_SOUTH);
+    }
+
+    @Override
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player) {
+        IBlockState state = world.getBlockState(pos);
+        EnumDirection dir = state.getValue(TRACK_DIRECTION);
+        if (dir.from.getAxis() == dir.to.getAxis()) {
+            return new ItemStack(TCItems.TRACK_STRAIGHT_AXIS.getItem());
+        } else return new ItemStack(TCItems.TRACK_STRAIGHT_DIAG.getItem());
     }
 
     @Override

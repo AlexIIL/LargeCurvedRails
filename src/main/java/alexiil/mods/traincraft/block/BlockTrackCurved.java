@@ -1,6 +1,9 @@
 package alexiil.mods.traincraft.block;
 
+import java.util.*;
+
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Table;
 
 import net.minecraft.block.properties.PropertyBool;
@@ -16,8 +19,8 @@ import net.minecraft.world.World;
 import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPath2DArc;
-import alexiil.mods.traincraft.api.TrackPathTriComposite;
 import alexiil.mods.traincraft.api.TrackPathStraight;
+import alexiil.mods.traincraft.api.TrackPathTriComposite;
 import alexiil.mods.traincraft.lib.MathUtil;
 
 public class BlockTrackCurved extends BlockTrackSeperated {
@@ -28,8 +31,8 @@ public class BlockTrackCurved extends BlockTrackSeperated {
 
     private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, TRACK_HEIGHT, 1);
 
-    // private final Table<EnumFacing, Boolean, TrackPathComposite<TrackPath2DArc, TrackPathStraight>> trackPaths;
-    private final Table<EnumFacing, Boolean, ITrackPath> trackPaths;
+    private final Table<EnumFacing, Boolean, TrackPathTriComposite<TrackPathStraight, TrackPath2DArc, TrackPathStraight>> trackPaths;
+    private final Map<IBlockState, List<BlockPos>> slaveMap = new HashMap<>();
 
     public BlockTrackCurved(int width) {
         super(PROPERTY_FACING, PROPERTY_DIRECTION);
@@ -112,6 +115,32 @@ public class BlockTrackCurved extends BlockTrackSeperated {
                 trackPaths.put(horizontal, positive, composite);
             }
         }
+
+        for (IBlockState state : stateToInt.keySet()) {
+            TrackPathTriComposite<TrackPathStraight, TrackPath2DArc, TrackPathStraight> composite;
+            composite = path(state.getValue(PROPERTY_DIRECTION), state.getValue(PROPERTY_FACING));
+            Set<BlockPos> slaves = new HashSet<>();
+            // Calculate slaves
+            for (int i = 0; i < composite.length() * 5; i++) {
+                double offset = i;
+                offset += 0.5;
+                offset /= composite.length();
+                Vec3 pos = composite.interpolate(offset);
+                Vec3 dir = composite.direction(offset);
+                dir = MathUtil.cross(dir, new Vec3(0, 1, 0)).normalize();
+
+                slaves.add(new BlockPos(pos.add(MathUtil.scale(dir, 0.2))));
+                slaves.add(new BlockPos(pos.add(MathUtil.scale(dir, -0.2))));
+            }
+            slaves.remove(new BlockPos(composite.end().add(MathUtil.scale(composite.direction(1), 0.1))));
+
+            TrainCraft.trainCraftLog.info("\n\n\n");
+            TrainCraft.trainCraftLog.info("Slaves for " + state + "@" + width);
+            for (BlockPos o : slaves) {
+                TrainCraft.trainCraftLog.info("  - " + o);
+            }
+            slaveMap.put(state, ImmutableList.copyOf(slaves));
+        }
     }
 
     private static Vec3 perp(Vec3 vec) {
@@ -144,13 +173,17 @@ public class BlockTrackCurved extends BlockTrackSeperated {
         return new ITrackPath[] { path(positive, mainDirection).offset(pos) };
     }
 
-    public /* TrackPathComposite<TrackPath2DArc, TrackPathStraight> */ITrackPath path(boolean positive, EnumFacing mainDirection) {
+    public TrackPathTriComposite<TrackPathStraight, TrackPath2DArc, TrackPathStraight> path(boolean positive, EnumFacing mainDirection) {
         return trackPaths.get(mainDirection, positive);
     }
 
     @Override
     public boolean isSlave(IBlockAccess access, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState) {
-        /* FIXME: Do a better check to actually make sure that the given block really is included in the path! */
-        return true;
+        return slaveMap.get(masterState).contains(slavePos.subtract(masterPos));
+    }
+
+    @Override
+    public List<BlockPos> getSlaveOffsets(IBlockState state) {
+        return slaveMap.get(state);
     }
 }

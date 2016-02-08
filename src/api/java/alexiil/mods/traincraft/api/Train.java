@@ -228,7 +228,7 @@ public class Train {
 
         double resistance = parts.stream().mapToDouble(p -> p.resistance()).sum();
 
-        double brakes = parts.stream().mapToDouble(p -> (p.isBraking()) ? p.maxBrakingForce() + Math.abs(p.engineOutput()) : 0).sum();
+        double brakes = parts.stream().mapToDouble(p -> (p.isBraking()) ? p.maxBrakingForce() : 0).sum();
 
         double totalResistance = resistance + brakes;
 

@@ -1,5 +1,7 @@
 package alexiil.mods.traincraft.block;
 
+import java.util.List;
+
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
@@ -12,4 +14,6 @@ public abstract class BlockTrackSeperated extends BlockAbstractTrack {
 
     /** Tests to see if the given block is a slave to this master block. */
     public abstract boolean isSlave(IBlockAccess access, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState);
+
+    public abstract List<BlockPos> getSlaveOffsets(IBlockState state);
 }
