@@ -14,13 +14,13 @@ public enum TCBlocks {
      * diagonal directions (NorthEast, SouthEast, SouthWest, NorthWest). */
     STRAIGHT_TRACK(() -> new BlockTrackStraight()),
     /** Track that curves from two straight sections. This is the smallest variant */
-    CURVED_TRACK_2_WIDE(() -> new BlockTrackCurved(2)),
+    CURVED_TRACK_2_WIDE(() -> new BlockTrackCurved(1.5, 3.5)),
     /** Track that curves from two straight sections. */
-    CURVED_TRACK_3_WIDE(() -> new BlockTrackCurved(3)),
+    CURVED_TRACK_3_WIDE(() -> new BlockTrackCurved(2, 5)),
     /** Track that curves from two straight sections. */
-    CURVED_TRACK_4_WIDE(() -> new BlockTrackCurved(4)),
+    CURVED_TRACK_4_WIDE(() -> new BlockTrackCurved(2.5, 6.5)),
     /** Track that curves from two straight sections. */
-    CURVED_TRACK_8_WIDE(() -> new BlockTrackCurved(8)),
+    CURVED_TRACK_5_WIDE(() -> new BlockTrackCurved(3, 8)),
     /** Meta-track that points along many pointers to the actual track piece. */
     POINTER_TRACK(() -> new BlockTrackPointer()),
     /** Track that ascends in a direction. */

@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -110,12 +111,13 @@ public class ProxyClient extends Proxy {
     @SubscribeEvent
     public void renderWorld(RenderWorldLastEvent event) {
         if (!Minecraft.getMinecraft().gameSettings.showDebugInfo) return;
-        if (Minecraft.getMinecraft().theWorld == null || Minecraft.getMinecraft().thePlayer == null) return;
-        Minecraft.getMinecraft().mcProfiler.startSection("traincraft_debug");
+        if (Minecraft.getMinecraft().theWorld == null || Minecraft.getMinecraft().thePlayer == null || MinecraftServer.getServer() == null) return;
 
         BlockPos around = new BlockPos(Minecraft.getMinecraft().thePlayer.getPositionVector());
-        World world = Minecraft.getMinecraft().theWorld;
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        World world = MinecraftServer.getServer().worldServerForDimension(Minecraft.getMinecraft().theWorld.provider.getDimensionId());
+        if (world == null) return;
+        Minecraft.getMinecraft().mcProfiler.startSection("traincraft_debug");
 
         List<ITrackPath> drawn = new ArrayList<>();
 

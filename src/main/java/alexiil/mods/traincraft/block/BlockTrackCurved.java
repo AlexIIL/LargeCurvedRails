@@ -34,9 +34,9 @@ public class BlockTrackCurved extends BlockTrackSeperated {
     private final Table<EnumFacing, Boolean, TrackPathTriComposite<TrackPathStraight, TrackPath2DArc, TrackPathStraight>> trackPaths;
     private final Map<IBlockState, List<BlockPos>> slaveMap = new HashMap<>();
 
-    public BlockTrackCurved(int width) {
+    public BlockTrackCurved(double width, double length) {
         super(PROPERTY_FACING, PROPERTY_DIRECTION);
-        if (width < 2) throw new IllegalArgumentException("Must be at least 2 wide!");
+        if (width < 1.5) throw new IllegalArgumentException("Must be at least 2 wide!");
         trackPaths = HashBasedTable.create();
         TrainCraft.trainCraftLog.info("Curved track with a width of " + width);
 
@@ -53,14 +53,12 @@ public class BlockTrackCurved extends BlockTrackSeperated {
             Axis axis = horizontal.getAxis();
             int thing = (int) (horizontal.getAxisDirection().getOffset() * -0.5 + 0.5);
             Vec3 startPoint = new Vec3(axis == Axis.Z ? 0.5 : thing, TRACK_HEIGHT, axis == Axis.X ? 0.5 : thing);
-            double length = width * 2 - 0.5;// TODO: test values!
 
             for (boolean positive : new boolean[] { false, true }) {
                 Vec3 A = startPoint;
                 Vec3 aDir = new Vec3(horizontal.getFrontOffsetX(), 0, horizontal.getFrontOffsetZ());
 
-                double offset = width - 0.5;
-                if (!positive) offset *= -1;
+                double offset = width * (positive ? 1 : -1);
                 Vec3 B = A.addVector(//
                         axis == Axis.X ? horizontal.getFrontOffsetX() * length : offset,//
                         0,// Never change the Y

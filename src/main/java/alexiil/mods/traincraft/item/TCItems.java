@@ -29,7 +29,7 @@ public enum TCItems {
     TRACK_CURVED_2(() -> new ItemTrackCurved(TCBlocks.CURVED_TRACK_2_WIDE.getBlock()), () -> TCTabs.TRAINCRAFT),
     TRACK_CURVED_3(() -> new ItemTrackCurved(TCBlocks.CURVED_TRACK_3_WIDE.getBlock()), () -> TCTabs.TRAINCRAFT),
     TRACK_CURVED_4(() -> new ItemTrackCurved(TCBlocks.CURVED_TRACK_4_WIDE.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_8(() -> new ItemTrackCurved(TCBlocks.CURVED_TRACK_8_WIDE.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_5(() -> new ItemTrackCurved(TCBlocks.CURVED_TRACK_5_WIDE.getBlock()), () -> TCTabs.TRAINCRAFT),
     /* Trains */
     TRAIN_SMALL_STEAM_LOCOMOTIVE(() -> new ItemTrainLocomotiveSteamSmall(), () -> TCTabs.TRAINCRAFT),
     /* Rolling stock */

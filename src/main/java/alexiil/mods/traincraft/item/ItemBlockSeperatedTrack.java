@@ -43,7 +43,7 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
     }
 
     private static EnumOffset calculateOffsetTo(BlockPos from, List<BlockPos> via, BlockPos to) {
-        double bestOffsetL = 100;
+        double bestOffsetL = Double.MAX_VALUE;
         EnumOffset bestOffset = null;
 
         for (BlockPos p : via) {
