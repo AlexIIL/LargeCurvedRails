@@ -2,6 +2,10 @@ package alexiil.mods.traincraft.entity;
 
 import java.util.List;
 
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Point3d;
+import javax.vecmath.Point3f;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,6 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import alexiil.mods.traincraft.api.*;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.client.model.MatrixUtil;
 
 public abstract class EntityRollingStockBase extends Entity implements IRollingStock {
     private static final int DATA_WATCHER_SPEED = 5;
@@ -54,8 +59,41 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
 
     @Override
     public AxisAlignedBB getEntityBoundingBox() {
-        return mainComponent.getBoundingBox().offset(mainComponent.getTrackPos().xCoord, mainComponent.getTrackPos().yCoord, mainComponent
-                .getTrackPos().zCoord);
+        AxisAlignedBB aabb = mainComponent.getBoundingBox();
+        aabb = rotate(aabb, mainComponent().getTrackDirection());
+        return aabb.offset(mainComponent.getTrackPos().xCoord, mainComponent.getTrackPos().yCoord, mainComponent.getTrackPos().zCoord);
+    }
+
+    /** Rotates the given bounding box from poiting towards (0, 0, 1) to the given direction. */
+    private static AxisAlignedBB rotate(AxisAlignedBB aabb, Vec3 dir) {
+        Matrix4f matrix = MatrixUtil.rotateTo(dir);
+        Vec3 min = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+        Vec3 max = new Vec3(-Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE);
+        boolean[] arr = { false, true };
+        for (boolean x : arr) {
+            for (boolean y : arr) {
+                for (boolean z : arr) {
+                    Point3d pd = new Point3d(//
+                            x ? aabb.minX : aabb.maxX,//
+                            y ? aabb.minY : aabb.maxY,//
+                            z ? aabb.minZ : aabb.maxZ //
+                    );
+                    Point3f pf = new Point3f(pd);
+                    matrix.transform(pf);
+                    min = new Vec3(//
+                            Math.min(min.xCoord, pf.x),//
+                            Math.min(min.yCoord, pf.y),//
+                            Math.min(min.zCoord, pf.z) //
+                    );
+                    max = new Vec3(//
+                            Math.max(max.xCoord, pf.x),//
+                            Math.max(max.yCoord, pf.y),//
+                            Math.max(max.zCoord, pf.z) //
+                    );
+                }
+            }
+        }
+        return new AxisAlignedBB(min.xCoord, min.yCoord, min.zCoord, max.xCoord, max.yCoord, max.zCoord);
     }
 
     @Override

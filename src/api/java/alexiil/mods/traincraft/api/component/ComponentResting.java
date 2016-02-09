@@ -17,11 +17,13 @@ public abstract class ComponentResting implements IComponent {
     private IComponent parent;
     protected final IComponent childFront, childBack;
     protected final ImmutableList<IComponent> childMiddle;
+    protected final ImmutableList<IComponentInner> innerComponents;
     protected final double frontBack;
 
     private final boolean isBogie;
 
-    public ComponentResting(IRollingStock stock, IComponent childFront, IComponent childBack, List<IComponent> childMiddle, double frontBack) {
+    public ComponentResting(IRollingStock stock, IComponent childFront, IComponent childBack, List<IComponent> childMiddle,
+            List<IComponentInner> innerComponents, double frontBack) {
         this.stock = stock;
         if (childFront == null) throw new NullPointerException("childFront");
         this.childFront = childFront;
@@ -38,6 +40,14 @@ public abstract class ComponentResting implements IComponent {
             c.setParent(this);
         });
         this.childMiddle = builder.build();
+
+        ImmutableList.Builder<IComponentInner> builder2 = ImmutableList.builder();
+        innerComponents.forEach(c -> {
+            if (c == null) throw new NullPointerException("innerComponents.[?]");
+            builder2.add(c);
+            c.setParent(this);
+        });
+        this.innerComponents = builder2.build();
 
         isBogie = false;
     }
@@ -88,10 +98,10 @@ public abstract class ComponentResting implements IComponent {
 
     @Override
     public final AxisAlignedBB getBoundingBox() {
-        AxisAlignedBB front = childFront.getBoundingBox().offset(childFront.originOffset(), 0, 0);
+        AxisAlignedBB front = childFront.getBoundingBox().offset(0, 0, childFront.originOffset());
         // Use an array as a pointer to the internal AABB- this avoids the AABB being final
-        AxisAlignedBB[] back = { childBack.getBoundingBox().offset(childBack.originOffset(), 0, 0) };
-        childMiddle.forEach(c -> back[0] = back[0].union(c.getBoundingBox().offset(c.originOffset(), 0, 0)));
+        AxisAlignedBB[] back = { childBack.getBoundingBox().offset(0, 0, childBack.originOffset()) };
+        childMiddle.forEach(c -> back[0] = back[0].union(c.getBoundingBox().offset(0, 0, c.originOffset())));
         return front.union(back[0]).union(box());
     }
 
@@ -111,7 +121,7 @@ public abstract class ComponentResting implements IComponent {
         return front.add(back);
     }
 
-    private static Vec3 scale(Vec3 v, double s) {
+    public static Vec3 scale(Vec3 v, double s) {
         return new Vec3(v.xCoord * s, v.yCoord * s, v.zCoord * s);
     }
 
@@ -120,5 +130,10 @@ public abstract class ComponentResting implements IComponent {
         Vec3 front = childFront.getTrackPos(partialTicks);
         Vec3 back = childBack.getTrackPos(partialTicks);
         return back.subtract(front).normalize();
+    }
+
+    @Override
+    public List<IComponentInner> innerComponents() {
+        return innerComponents;
     }
 }

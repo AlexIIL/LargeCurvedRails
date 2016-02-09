@@ -134,11 +134,6 @@ public class BlockTrackCurved extends BlockTrackSeperated {
             }
             slaves.remove(new BlockPos(composite.end().add(MathUtil.scale(composite.direction(1), 0.1))));
 
-            TrainCraft.trainCraftLog.info("\n\n\n");
-            TrainCraft.trainCraftLog.info("Slaves for " + state + "@" + width);
-            for (BlockPos o : slaves) {
-                TrainCraft.trainCraftLog.info("  - " + o);
-            }
             slaveMap.put(state, ImmutableList.copyOf(slaves));
         }
     }

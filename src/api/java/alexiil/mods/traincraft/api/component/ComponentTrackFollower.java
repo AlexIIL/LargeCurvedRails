@@ -1,5 +1,8 @@
 package alexiil.mods.traincraft.api.component;
 
+import java.util.Collections;
+import java.util.List;
+
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
@@ -73,6 +76,11 @@ public abstract class ComponentTrackFollower implements IComponent {
         if (currentPath == null) return lookVec;
         if (partialTicks == 0) return lookVec = currentPath.direction(progress / currentPath.length());
         return lookVec = currentPath.direction((progress + partialTicks * stock.speed() / 20) / currentPath.length());
+    }
+
+    @Override
+    public List<IComponentInner> innerComponents() {
+        return Collections.emptyList();
     }
 
     @Override

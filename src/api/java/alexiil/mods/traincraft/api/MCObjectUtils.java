@@ -15,17 +15,18 @@ public class MCObjectUtils {
         return Objects.hash(vec.xCoord, vec.yCoord, vec.zCoord);
     }
 
-    public static int hash(Vec3... array){
-    if (array == null) return 0;
+    public static int hash(Vec3[] array) {
+        if (array == null) return 0;
 
-    int result = 1;
+        int result = 1;
 
-    for (Vec3 element : array)
-        result = 31 * result + (element == null ? 0 : hash(element));
+        for (Vec3 element : array)
+            result = 31 * result + (element == null ? 0 : hash(element));
 
-    return result;}
+        return result;
+    }
 
-public static int hash(Object... array) {
+    public static int hash(Object... array) {
         if (array == null) return 0;
 
         int result = 1;

@@ -46,8 +46,7 @@ public class ProxyClient extends Proxy {
         OBJLoader.instance.addDomain("traincraft");
         for (TCBlocks b : TCBlocks.values()) {
             Block block = b.getBlock();
-            if (block instanceof BlockAbstractTrack
-            /* || block instanceof BlockTrackPointer || block instanceof BlockTrackAscending */) {
+            if (block instanceof BlockAbstractTrack) {
                 ModelLoader.setCustomStateMapper(b.getBlock(), VoidStateMapper.INSTANCE);
             }
         }

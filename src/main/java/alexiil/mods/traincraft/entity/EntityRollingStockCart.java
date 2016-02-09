@@ -11,16 +11,19 @@ import alexiil.mods.traincraft.component.ComponentSmallWheel;
 
 /** Designates a simple rolling stock with no movement capabilites by itself */
 public class EntityRollingStockCart extends EntityRollingStockBase {
-    private static final IComponent mainComponent;
+    private static final IComponent cartComponent;
 
     static {
         ComponentTrackFollower wheel1 = new ComponentSmallWheel(null, -0.25, 0);
         ComponentTrackFollower wheel2 = new ComponentSmallWheel(null, 0.25, 1);
-        mainComponent = new ComponentCart(null, wheel1, wheel2, Collections.emptyList(), 0.5);
+        // IComponentInner openChest = null;
+        cartComponent = new ComponentCart(null, wheel1, wheel2, Collections.emptyList(), Collections.emptyList()
+        // ImmutableList.of(openChest)
+        , 0.5);
     }
 
     public EntityRollingStockCart(World world) {
-        super(world, mainComponent);
+        super(world, cartComponent);
     }
 
     @Override

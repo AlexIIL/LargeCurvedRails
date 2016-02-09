@@ -1,7 +1,5 @@
 package alexiil.mods.traincraft.api.component;
 
-import java.util.List;
-
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.renderer.GlStateManager;
@@ -11,38 +9,43 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.AlignmentFailureException;
 import alexiil.mods.traincraft.api.IRollingStock;
-import alexiil.mods.traincraft.api.ITrackPath;
 
-public interface IComponent {
-    IRollingStock stock();
-
+/** A component that is held by an {@link IComponent}. This might represent a seat, a chimney producing steam or perhaps
+ * a chest or tank containing items or others. */
+public interface IComponentInner {
     double originOffset();
 
     void tick();
 
-    default Vec3 getTrackPos() {
-        return getTrackPos(0);
+    default Vec3 trackPos() {
+        return trackPos(0);
     }
 
-    Vec3 getTrackPos(float partialTicks);
-
-    default Vec3 getTrackDirection() {
-        return getTrackDirection(0);
+    default Vec3 trackPos(float partialTicks) {
+        IComponent parent = parent();
+        Vec3 parPos = parent.getTrackPos(partialTicks);
+        Vec3 offset = ComponentResting.scale(trackDirection(partialTicks), originOffset());
+        return parPos.add(offset);
     }
 
-    Vec3 getTrackDirection(float partialTicks);
+    default Vec3 trackDirection() {
+        return trackDirection(0);
+    }
+
+    default Vec3 trackDirection(float partialTicks) {
+        return parent().getTrackDirection(partialTicks);
+    }
 
     @SideOnly(Side.CLIENT)
     void render(IRollingStock stock, float partialTicks);
 
     @SideOnly(Side.CLIENT)
     default void preRenderOffsets(IRollingStock stock, float partialTicks) {
-        Vec3 actualPos = getTrackPos(partialTicks);
+        Vec3 actualPos = trackPos(partialTicks);
         GlStateManager.translate(actualPos.xCoord, actualPos.yCoord, actualPos.zCoord);
 
-        Vec3 lookVec = rotatingComponent().getTrackDirection(partialTicks);
+        Vec3 lookVec = trackDirection(partialTicks);
 
         double tan = Math.atan2(lookVec.xCoord, lookVec.zCoord);
         // The tan is in radians but OpenGL uses degrees
@@ -51,24 +54,11 @@ public interface IComponent {
         GL11.glRotated(Math.asin(-lookVec.yCoord) * 180 / Math.PI, 1, 0, 0);
     }
 
-    default IComponent rotatingComponent() {
-        if (parent() == null) return this;
-        return parent();
-    }
-
     IComponent parent();
 
     void setParent(IComponent parent);
 
-    IComponent createNew(IRollingStock stock);
-
-    void alignTo(ITrackPath around, double meters) throws AlignmentFailureException;
-
-    double frictionCoefficient();
-
-    double frontArea();
+    IComponentInner createNew(IRollingStock stock);
 
     AxisAlignedBB getBoundingBox();
-
-    List<IComponentInner> innerComponents();
 }

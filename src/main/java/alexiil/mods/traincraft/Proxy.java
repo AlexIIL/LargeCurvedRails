@@ -16,6 +16,8 @@ public abstract class Proxy {
     public void preInit(FMLPreInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
         GameRegistry.registerTileEntity(TileTrackAscendingPointer.class, "traincraft:tile.track.ascending_pointer");
+        // GameRegistry.registerTileEntity(TileTrackMultiple.class, "traincraft:tile.track.multiple");
+        // GameRegistry.registerTileEntity(TileTrackMultiplePointer.class, "traincraft:tile.track.multiple_pointer");
     }
 
     public void init(FMLInitializationEvent event) {}

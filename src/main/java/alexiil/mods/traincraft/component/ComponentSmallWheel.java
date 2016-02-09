@@ -87,6 +87,6 @@ public class ComponentSmallWheel extends ComponentTrackFollower {
 
     @Override
     public AxisAlignedBB getBoundingBox() {
-        return new AxisAlignedBB(0, 0, -wheelRadius, 1, wheelRadius * 2, wheelRadius);
+        return new AxisAlignedBB(-0.5, 0, -wheelRadius, 0.5, wheelRadius * 2, wheelRadius);
     }
 }

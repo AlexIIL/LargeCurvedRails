@@ -8,7 +8,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.ITrackPath;
-import alexiil.mods.traincraft.tile.TileTrackExtraData;
+import alexiil.mods.traincraft.tile.TileTrackMultiple;
 
 public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntityProvider {
     @Override
@@ -18,6 +18,6 @@ public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntit
 
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
-        return new TileTrackExtraData();
+        return new TileTrackMultiple();
     }
 }

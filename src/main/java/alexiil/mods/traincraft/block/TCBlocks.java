@@ -30,8 +30,9 @@ public enum TCBlocks {
     ASCENDING_TRACK_8_LONG(() -> new BlockTrackAscending(8)),
     ASCENDING_TRACK_12_LONG(() -> new BlockTrackAscending(12)),
     ASCENDING_TRACK_POINTER(() -> new BlockTrackAscendingPointer()),
-    TRACK_MULTIPLE_POINTER(() -> new BlockTrackMultiplePointer()),
-    TRACK_MULTIPLE(() -> new BlockTrackMultiple());
+    // TRACK_MULTIPLE_POINTER(() -> new BlockTrackMultiplePointer()),
+    // TRACK_MULTIPLE(() -> new BlockTrackMultiple()),
+    ;
 
     private final Supplier<Block> supplier;
     private final Class<? extends ItemBlock> itemBlock;

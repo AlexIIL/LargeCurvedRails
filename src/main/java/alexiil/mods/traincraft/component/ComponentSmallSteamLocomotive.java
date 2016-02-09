@@ -14,6 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.component.ComponentResting;
 import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.component.IComponentInner;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 
 public class ComponentSmallSteamLocomotive extends ComponentResting {
@@ -21,8 +22,8 @@ public class ComponentSmallSteamLocomotive extends ComponentResting {
     private static final ResourceLocation textureLocation = new ResourceLocation("traincraft:trains/steam_small");
 
     public ComponentSmallSteamLocomotive(IRollingStock stock, IComponent childFront, IComponent childBack, List<IComponent> childMiddle,
-            double frontBack) {
-        super(stock, childFront, childBack, childMiddle, frontBack);
+            List<IComponentInner> inners, double frontBack) {
+        super(stock, childFront, childBack, childMiddle, inners, frontBack);
     }
 
     @Override
@@ -52,11 +53,12 @@ public class ComponentSmallSteamLocomotive extends ComponentResting {
     @Override
     public IComponent createNew(IRollingStock stock) {
         List<IComponent> middle = childMiddle.stream().map(c -> c.createNew(stock)).collect(Collectors.toList());
-        return new ComponentSmallSteamLocomotive(stock, childFront.createNew(stock), childBack.createNew(stock), middle, frontBack);
+        List<IComponentInner> inners = innerComponents.stream().map(c -> c.createNew(stock)).collect(Collectors.toList());
+        return new ComponentSmallSteamLocomotive(stock, childFront.createNew(stock), childBack.createNew(stock), middle, inners, frontBack);
     }
 
     @Override
     protected AxisAlignedBB box() {
-        return new AxisAlignedBB(-1, 0.2, 0, 1, 1.25, 1);
+        return new AxisAlignedBB(-0.5, 0.2, -0.5, 0.5, 1, 0.5);
     }
 }
