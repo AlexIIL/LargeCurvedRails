@@ -10,7 +10,7 @@ import net.minecraft.world.World;
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.tile.TileTrackMultiplePointer;
 
-public class BlockTrackMultiplePointer extends BlockAbstractTrack implements ITileEntityProvider {
+public class BlockTrackPointerMultiple extends BlockAbstractTrack implements ITileEntityProvider {
     @Override
     public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
         return null;

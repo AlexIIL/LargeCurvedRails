@@ -10,27 +10,29 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public enum TCBlocks {
-    /** Bog standard straight track. Goes in any of the 4 minecraft directions (North, East, South, West) and all
-     * diagonal directions (NorthEast, SouthEast, SouthWest, NorthWest). */
-    STRAIGHT_TRACK(() -> new BlockTrackStraight()),
-    /** Track that curves from two straight sections. This is the smallest variant */
-    CURVED_TRACK_2_WIDE(() -> new BlockTrackCurved(1.5, 3.5)),
-    /** Track that curves from two straight sections. */
-    CURVED_TRACK_3_WIDE(() -> new BlockTrackCurved(2, 5)),
-    /** Track that curves from two straight sections. */
-    CURVED_TRACK_4_WIDE(() -> new BlockTrackCurved(2.5, 6.5)),
-    /** Track that curves from two straight sections. */
-    CURVED_TRACK_5_WIDE(() -> new BlockTrackCurved(3, 8)),
-    /** Meta-track that points along many pointers to the actual track piece. */
-    POINTER_TRACK(() -> new BlockTrackPointer()),
-    /** Track that ascends in a direction. */
-    ASCENDING_TRACK_3_LONG(() -> new BlockTrackAscending(3)),
-    ASCENDING_TRACK_4_LONG(() -> new BlockTrackAscending(4)),
-    ASCENDING_TRACK_6_LONG(() -> new BlockTrackAscending(6)),
-    ASCENDING_TRACK_8_LONG(() -> new BlockTrackAscending(8)),
-    ASCENDING_TRACK_12_LONG(() -> new BlockTrackAscending(12)),
-    ASCENDING_TRACK_POINTER(() -> new BlockTrackAscendingPointer()),
-    // TRACK_MULTIPLE_POINTER(() -> new BlockTrackMultiplePointer()),
+    TRACK_STRAIGHT(() -> new BlockTrackStraight()),
+    /* 45 degree turns */
+    TRACK_CURVED_HALF_3_RADIUS(() -> new BlockTrackCurvedHalf(1, 2)),
+    TRACK_CURVED_HALF_5_RADIUS(() -> new BlockTrackCurvedHalf(1.5, 3.5)),
+    TRACK_CURVED_HALF_7_RADIUS(() -> new BlockTrackCurvedHalf(2, 5)),
+    TRACK_CURVED_HALF_9_RADIUS(() -> new BlockTrackCurvedHalf(2.5, 6.5)),
+    TRACK_CURVED_HALF_11_RADIUS(() -> new BlockTrackCurvedHalf(3, 8)),
+    /* 90 degree turns */
+    TRACK_CURVED_FULL_3_RADIUS(() -> new BlockTrackCurvedFull(3.5)),
+    TRACK_CURVED_FULL_5_RADIUS(() -> new BlockTrackCurvedFull(5.5)),
+    TRACK_CURVED_FULL_7_RADIUS(() -> new BlockTrackCurvedFull(7.5)),
+    TRACK_CURVED_FULL_9_RADIUS(() -> new BlockTrackCurvedFull(9.5)),
+    TRACK_CURVED_FULL_11_RADIUS(() -> new BlockTrackCurvedFull(11.5)),
+    /* Ascending tracks */
+    TRACK_ASCENDING_3_LONG(() -> new BlockTrackAscending(3)),
+    TRACK_ASCENDING_4_LONG(() -> new BlockTrackAscending(4)),
+    TRACK_ASCENDING_6_LONG(() -> new BlockTrackAscending(6)),
+    TRACK_ASCENDING_8_LONG(() -> new BlockTrackAscending(8)),
+    TRACK_ASCENDING_12_LONG(() -> new BlockTrackAscending(12)),
+    /* Pointers */
+    TRACK_POINTER(() -> new BlockTrackPointer()),
+    TRACK_POINTER_ASCENDING(() -> new BlockTrackPointerAscending()),
+    // TRACK_POINTER_MULTIPLE(() -> new BlockTrackMultiplePointer()),
     // TRACK_MULTIPLE(() -> new BlockTrackMultiple()),
     ;
 

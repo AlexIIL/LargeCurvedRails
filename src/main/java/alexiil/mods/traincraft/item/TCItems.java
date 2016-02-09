@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 
-import net.minecraftforge.client.ItemModelMesherForge;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import alexiil.mods.traincraft.TCTabs;
@@ -14,22 +13,23 @@ import alexiil.mods.traincraft.block.TCBlocks;
 
 public enum TCItems {
     /* Tracks */
-    TRACK_STRAIGHT_AXIS(() -> new ItemTrackStraight(TCBlocks.STRAIGHT_TRACK.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_STRAIGHT_DIAG(() -> new ItemTrackDiagonal(TCBlocks.STRAIGHT_TRACK.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_ASCENDING_AXIS_3(() -> new ItemTrackAscendingAxis(TCBlocks.ASCENDING_TRACK_3_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_ASCENDING_AXIS_4(() -> new ItemTrackAscendingAxis(TCBlocks.ASCENDING_TRACK_4_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_ASCENDING_AXIS_6(() -> new ItemTrackAscendingAxis(TCBlocks.ASCENDING_TRACK_6_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_ASCENDING_AXIS_8(() -> new ItemTrackAscendingAxis(TCBlocks.ASCENDING_TRACK_8_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_ASCENDING_AXIS_12(() -> new ItemTrackAscendingAxis(TCBlocks.ASCENDING_TRACK_12_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_STRAIGHT_AXIS(() -> new ItemTrackStraight(TCBlocks.TRACK_STRAIGHT.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_STRAIGHT_DIAG(() -> new ItemTrackDiagonal(TCBlocks.TRACK_STRAIGHT.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_ASCENDING_AXIS_3(() -> new ItemTrackAscendingAxis(TCBlocks.TRACK_ASCENDING_3_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_ASCENDING_AXIS_4(() -> new ItemTrackAscendingAxis(TCBlocks.TRACK_ASCENDING_4_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_ASCENDING_AXIS_6(() -> new ItemTrackAscendingAxis(TCBlocks.TRACK_ASCENDING_6_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_ASCENDING_AXIS_8(() -> new ItemTrackAscendingAxis(TCBlocks.TRACK_ASCENDING_8_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_ASCENDING_AXIS_12(() -> new ItemTrackAscendingAxis(TCBlocks.TRACK_ASCENDING_12_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
     TRACK_ASCENDING_DIAG_3(() -> null, () -> TCTabs.TRAINCRAFT),
     TRACK_ASCENDING_DIAG_4(() -> null, () -> TCTabs.TRAINCRAFT),
     TRACK_ASCENDING_DIAG_6(() -> null, () -> TCTabs.TRAINCRAFT),
     TRACK_ASCENDING_DIAG_8(() -> null, () -> TCTabs.TRAINCRAFT),
     TRACK_ASCENDING_DIAG_12(() -> null, () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_2(() -> new ItemTrackCurved(TCBlocks.CURVED_TRACK_2_WIDE.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_3(() -> new ItemTrackCurved(TCBlocks.CURVED_TRACK_3_WIDE.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_4(() -> new ItemTrackCurved(TCBlocks.CURVED_TRACK_4_WIDE.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_5(() -> new ItemTrackCurved(TCBlocks.CURVED_TRACK_5_WIDE.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_HALF_3(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_3_RADIUS, TCBlocks.TRACK_CURVED_FULL_3_RADIUS), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_HALF_5(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_5_RADIUS, TCBlocks.TRACK_CURVED_FULL_5_RADIUS), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_HALF_7(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_7_RADIUS, TCBlocks.TRACK_CURVED_FULL_7_RADIUS), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_HALF_9(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_9_RADIUS, TCBlocks.TRACK_CURVED_FULL_9_RADIUS), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_HALF_11(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_11_RADIUS, TCBlocks.TRACK_CURVED_FULL_11_RADIUS), () -> TCTabs.TRAINCRAFT),
     /* Trains */
     TRAIN_SMALL_STEAM_LOCOMOTIVE(() -> new ItemTrainLocomotiveSteamSmall(), () -> TCTabs.TRAINCRAFT),
     /* Rolling stock */
@@ -45,26 +45,6 @@ public enum TCItems {
         this.supplier = itemSupplier;
         this.tabSupplier = tabSupplier;
     }
-    
-    
-    
-    
-    
-    
-    
-    // For some reason items don't get the texture. Hmm.
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
     public static void preInit() {
         for (TCItems enumItem : values()) {

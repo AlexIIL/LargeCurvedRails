@@ -48,7 +48,7 @@ public class ItemTrackAscendingAxis extends ItemBlockSeperatedTrack<BlockTrackAs
     }
 
     protected static IBlockState getMaterialState(ItemStack stack) {
-        return TCBlocks.ASCENDING_TRACK_POINTER.getBlock().getStateFromMeta(stack.getItemDamage());
+        return TCBlocks.TRACK_POINTER_ASCENDING.getBlock().getStateFromMeta(stack.getItemDamage());
     }
 
     @Override

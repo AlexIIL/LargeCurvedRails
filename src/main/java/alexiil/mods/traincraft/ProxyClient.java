@@ -67,9 +67,9 @@ public class ProxyClient extends Proxy {
         for (TCBlocks b : TCBlocks.values()) {
             ModelResourceLocation mrl = new ModelResourceLocation("traincraft:" + b.name().toLowerCase(Locale.ROOT));
 
-            if (b.getBlock() instanceof BlockTrackCurved) {
-                BlockTrackCurved curved = (BlockTrackCurved) b.getBlock();
-                bake.modelRegistry.putObject(mrl, new TrackCurvedBlockModel(curved));
+            if (b.getBlock() instanceof BlockTrackCurvedHalf) {
+                BlockTrackCurvedHalf curved = (BlockTrackCurvedHalf) b.getBlock();
+                bake.modelRegistry.putObject(mrl, new TrackCurvedHalfBlockModel(curved));
             }
 
             if (b.getBlock() instanceof BlockTrackPointer) {
@@ -83,6 +83,11 @@ public class ProxyClient extends Proxy {
 
             if (b.getBlock() instanceof BlockTrackStraight) {
                 bake.modelRegistry.putObject(mrl, new TrackStraightBlockModel());
+            }
+
+            if (b.getBlock() instanceof BlockTrackCurvedFull) {
+                BlockTrackCurvedFull curved = (BlockTrackCurvedFull) b.getBlock();
+                bake.modelRegistry.putObject(mrl, new TrackCurvedFullBlockModel(curved));
             }
         }
 

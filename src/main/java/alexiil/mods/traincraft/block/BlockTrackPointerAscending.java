@@ -18,10 +18,10 @@ import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.tile.TileTrackAscendingPointer;
 
-public class BlockTrackAscendingPointer extends BlockTrackPointer {
+public class BlockTrackPointerAscending extends BlockTrackPointer {
     public static final IProperty<EnumMaterialType> PROPERTY_MATERIAL_TYPE = PropertyEnum.create("material", EnumMaterialType.class);
 
-    public BlockTrackAscendingPointer() {
+    public BlockTrackPointerAscending() {
         super(PROPERTY_MATERIAL_TYPE);
     }
 

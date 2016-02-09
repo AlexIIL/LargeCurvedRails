@@ -103,8 +103,8 @@ public class BlockTrackAscending extends BlockTrackSeperated {
     private static IBlockState getSupportingMaterial(IBlockState state, IBlockAccess world, BlockPos pos) {
         for (EnumFacing face : EnumFacing.HORIZONTALS) {
             IBlockState offset = world.getBlockState(pos.offset(face));
-            if (offset.getBlock() instanceof BlockTrackAscendingPointer) {
-                BlockTrackAscendingPointer pointer = (BlockTrackAscendingPointer) offset.getBlock();
+            if (offset.getBlock() instanceof BlockTrackPointerAscending) {
+                BlockTrackPointerAscending pointer = (BlockTrackPointerAscending) offset.getBlock();
                 return pointer.getSupportingMaterial(world, pos, offset);
             }
         }

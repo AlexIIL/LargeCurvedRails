@@ -16,14 +16,13 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.TrackPath2DArc;
 import alexiil.mods.traincraft.api.TrackPathStraight;
 import alexiil.mods.traincraft.api.TrackPathTriComposite;
 import alexiil.mods.traincraft.lib.MathUtil;
 
-public class BlockTrackCurved extends BlockTrackSeperated {
+public class BlockTrackCurvedHalf extends BlockTrackSeperated {
     /** Designates whether this track goes in a positive direction after this or a negative direction: if
      * {@link #PROPERTY_FACING} was {@link EnumFacing#NORTH} (-Z) then if this was true this would curve into positive X
      * values. (So it would got NORTH_TO_NORTH_EAST */
@@ -34,11 +33,9 @@ public class BlockTrackCurved extends BlockTrackSeperated {
     private final Table<EnumFacing, Boolean, TrackPathTriComposite<TrackPathStraight, TrackPath2DArc, TrackPathStraight>> trackPaths;
     private final Map<IBlockState, List<BlockPos>> slaveMap = new HashMap<>();
 
-    public BlockTrackCurved(double width, double length) {
+    public BlockTrackCurvedHalf(double width, double length) {
         super(PROPERTY_FACING, PROPERTY_DIRECTION);
-        if (width < 1.5) throw new IllegalArgumentException("Must be at least 2 wide!");
         trackPaths = HashBasedTable.create();
-        TrainCraft.trainCraftLog.info("Curved track with a width of " + width);
 
         int[][][] angles = {//
             { { 360, 315 }, { 180, 225 } },// North
@@ -70,8 +67,6 @@ public class BlockTrackCurved extends BlockTrackSeperated {
                         0,//
                         axis == Axis.Z ? 0 : pOffset //
                 );
-
-                TrainCraft.trainCraftLog.info(width + "##" + horizontal + ", " + positive + " bDir = " + bDir);
 
                 /* Calculate a path from A to B, where A is the start point heading in ^A, and B is the end point
                  * heading in ^B.
