@@ -8,20 +8,14 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.block.BlockTrackCurvedFull;
 import alexiil.mods.traincraft.block.BlockTrackCurvedHalf;
 import alexiil.mods.traincraft.block.TCBlocks;
+import alexiil.mods.traincraft.track.TrackJoiner;
 
 public class ItemTrackCurved extends ItemBlockSeperatedTrack<BlockTrackCurvedHalf> {
-    private final BlockTrackCurvedFull rightAngle;
 
-    public ItemTrackCurved(TCBlocks block, TCBlocks rightAngle) {
-        this((BlockTrackCurvedHalf) block.getBlock(), (BlockTrackCurvedFull) rightAngle.getBlock());
-    }
-
-    public ItemTrackCurved(BlockTrackCurvedHalf block, BlockTrackCurvedFull rightAngle) {
-        super(block);
-        this.rightAngle = rightAngle;
+    public ItemTrackCurved(TCBlocks block) {
+        super((BlockTrackCurvedHalf) block.getBlock());
     }
 
     @Override
@@ -52,7 +46,7 @@ public class ItemTrackCurved extends ItemBlockSeperatedTrack<BlockTrackCurvedHal
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ,
             IBlockState newState) {
         if (super.placeBlockAt(stack, player, world, pos, side, hitX, hitY, hitZ, newState)) {
-            // Check if we can join
+            if (!world.isRemote) TrackJoiner.INSTANCE.tryJoin(world, pos);
             return true;
         } else return false;
     }

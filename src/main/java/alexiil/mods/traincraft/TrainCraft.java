@@ -41,6 +41,7 @@ public class TrainCraft {
 
         TCItems.init();
         TCRecipies.init();
+        // TrackJoiner.INSTANCE.init();
 
         Proxy.proxy.init(event);
     }

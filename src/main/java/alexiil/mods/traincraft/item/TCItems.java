@@ -25,11 +25,11 @@ public enum TCItems {
     TRACK_ASCENDING_DIAG_6(() -> null, () -> TCTabs.TRAINCRAFT),
     TRACK_ASCENDING_DIAG_8(() -> null, () -> TCTabs.TRAINCRAFT),
     TRACK_ASCENDING_DIAG_12(() -> null, () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_HALF_3(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_3_RADIUS, TCBlocks.TRACK_CURVED_FULL_3_RADIUS), () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_HALF_5(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_5_RADIUS, TCBlocks.TRACK_CURVED_FULL_5_RADIUS), () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_HALF_7(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_7_RADIUS, TCBlocks.TRACK_CURVED_FULL_7_RADIUS), () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_HALF_9(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_9_RADIUS, TCBlocks.TRACK_CURVED_FULL_9_RADIUS), () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_HALF_11(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_11_RADIUS, TCBlocks.TRACK_CURVED_FULL_11_RADIUS), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_HALF_3(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_3_RADIUS), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_HALF_5(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_5_RADIUS), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_HALF_7(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_7_RADIUS), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_HALF_9(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_9_RADIUS), () -> TCTabs.TRAINCRAFT),
+    TRACK_CURVED_HALF_11(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_11_RADIUS), () -> TCTabs.TRAINCRAFT),
     /* Trains */
     TRAIN_SMALL_STEAM_LOCOMOTIVE(() -> new ItemTrainLocomotiveSteamSmall(), () -> TCTabs.TRAINCRAFT),
     /* Rolling stock */
