@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.train;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -15,19 +15,20 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.IRollingStock.Face;
+import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.component.IComponent;
 import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
+import alexiil.mods.traincraft.api.train.IRollingStock.Face;
 
-public class Train {
+public class StockPathFinder {
     public final UUID uuid;
     public final Map<ITrackPath, PathNode> paths = new HashMap<>();
     public final ImmutableList<IRollingStock> parts;
     private final Deque<PathNode> pathNodes = new LinkedList<>();
     private long lastTick = -1;
 
-    public Train(IRollingStock stock) {
+    public StockPathFinder(IRollingStock stock) {
         this(stock, getTrack(stock));
     }
 
@@ -36,7 +37,7 @@ public class Train {
         return null;
     }
 
-    public Train(IRollingStock stock, ITrackPath path) {
+    public StockPathFinder(IRollingStock stock, ITrackPath path) {
         if (stock == null) throw new NullPointerException("stock");
         if (!(stock instanceof Entity)) throw new IllegalArgumentException(stock.getClass() + " was not an instanceof Entity!");
         uuid = UUID.randomUUID();
@@ -45,27 +46,27 @@ public class Train {
         paths.put(path, new PathNode(path));
     }
 
-    private Train(List<IRollingStock> stocks) {
+    private StockPathFinder(List<IRollingStock> stocks) {
         uuid = UUID.randomUUID();
         parts = ImmutableList.copyOf(stocks);
         parts.forEach(p -> p.setTrain(this));
     }
 
     /** Constructor used on the server (or integrated server) for loading trains from a save file. */
-    Train(UUID uuid, List<IRollingStock> stock) {
+    StockPathFinder(UUID uuid, List<IRollingStock> stock) {
         this.uuid = uuid;
         parts = ImmutableList.copyOf(stock);
         parts.forEach(p -> p.setTrain(this));
     }
 
-    public static Train readFromNBT(NBTTagCompound nbt, World world) {
+    public static StockPathFinder readFromNBT(NBTTagCompound nbt, World world) {
         long uuidMost = nbt.getLong("UUIDMost");
         long uuidLeast = nbt.getLong("UUIDLeast");
         UUID uuid = new UUID(uuidMost, uuidLeast);
 
         List<IRollingStock> stock = new ArrayList<>();
 
-        Train t = new Train(uuid, stock);
+        StockPathFinder t = new StockPathFinder(uuid, stock);
 
         return t;
     }
@@ -118,14 +119,14 @@ public class Train {
     //
     // ###########################
 
-    public void addInFront(Train train) {
+    public void addInFront(StockPathFinder stockPathFinder) {
         List<IRollingStock> whole = new ArrayList<>();
-        whole.addAll(train.parts());
+        whole.addAll(stockPathFinder.parts());
         whole.addAll(parts);
-        Train newTrain = new Train(whole);
+        StockPathFinder newTrain = new StockPathFinder(whole);
         TrainCraftAPI.WORLD_CACHE.createTrain(newTrain);
 
-        TrainCraftAPI.WORLD_CACHE.deleteTrainIfUnused(train);
+        TrainCraftAPI.WORLD_CACHE.deleteTrainIfUnused(stockPathFinder);
         TrainCraftAPI.WORLD_CACHE.deleteTrainIfUnused(this);
     }
 
@@ -133,8 +134,8 @@ public class Train {
         addInFront(stock.getTrain());
     }
 
-    public void addBehind(Train train) {
-        train.addInFront(this);
+    public void addBehind(StockPathFinder stockPathFinder) {
+        stockPathFinder.addInFront(this);
     }
 
     public void addBehind(IRollingStock stock) {
@@ -148,15 +149,15 @@ public class Train {
 
         List<IRollingStock> before = parts.subList(0, index);
         List<IRollingStock> after = parts.subList(index, 0);
-        TrainCraftAPI.WORLD_CACHE.createTrain(new Train(before));
-        TrainCraftAPI.WORLD_CACHE.createTrain(new Train(after));
+        TrainCraftAPI.WORLD_CACHE.createTrain(new StockPathFinder(before));
+        TrainCraftAPI.WORLD_CACHE.createTrain(new StockPathFinder(after));
         TrainCraftAPI.WORLD_CACHE.deleteTrainIfUnused(this);
     }
 
     /** Disconnects all rolling stock from this train. */
     public void disband() {
         parts.forEach(p -> {
-            Train t = new Train(p);
+            StockPathFinder t = new StockPathFinder(p);
             p.setTrain(t);
             TrainCraftAPI.WORLD_CACHE.createTrain(t);
         });
@@ -168,9 +169,10 @@ public class Train {
     // Speed changes
     //
     // ###########################
-
+    
     /** Applies an amount of momentum to all components of the train. Also rebances all momentum around to make the
      * speeds equal. */
+    @Deprecated // Use Connector instead
     public void applyMomentum(double newtons) {
         double totalMomentum = parts().stream().mapToDouble(s -> s.momentum()).sum();
         totalMomentum += newtons;
@@ -179,6 +181,7 @@ public class Train {
         parts().forEach(s -> s.setSpeed(speed));
     }
 
+    @Deprecated // Use Connector instead
     public void applyBrakes(double maxNewtons) {
         double momentum = parts.stream().mapToDouble(p -> p.momentum()).sum();
         double speed = parts.get(0).speed();
@@ -193,6 +196,7 @@ public class Train {
     /** Ticks this train. For simplicity this is called by all of the {@link IRollingStock} stocks that exist
      * 
      * @param caller */
+    @Deprecated // Use Connector instead
     public void tick(IRollingStock caller) {
         /* This ensures that this only ticks once per tick, and the first rolling stock to call this will have it ready
          * for them to use. */
@@ -208,6 +212,7 @@ public class Train {
         }
     }
 
+    @Deprecated // Use Connector instead
     private void computeMomentumChanges(IRollingStock caller) {
         // First rebalance all the momentum around if not all of the speeds are equal
         double speed = caller.speed();

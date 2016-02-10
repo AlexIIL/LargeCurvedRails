@@ -3,10 +3,11 @@ package alexiil.mods.traincraft.entity;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.train.Connector.ConnectorFactory;
 
 public abstract class EntityRollingStockPowered extends EntityRollingStockBase {
-    public EntityRollingStockPowered(World world, IComponent component) {
-        super(world, component);
+    public EntityRollingStockPowered(World world, IComponent component, ConnectorFactory front, ConnectorFactory back) {
+        super(world, component, front, back);
     }
 
     @Override
@@ -26,4 +27,10 @@ public abstract class EntityRollingStockPowered extends EntityRollingStockBase {
 
     /** @return The maximum number of newtons that the engine can output. */
     public abstract double maxEnginePower();
+
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+        if (!worldObj.isRemote) connectorBack.pullAll(engineOutput() / 20.0);
+    }
 }

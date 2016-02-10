@@ -1,9 +1,10 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.train;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Vec3;
 
 import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.track.ITrackPath;
 
 /** Denotes a train part (that MUST BE an instanceof {@link Entity}) that can usually conenct to other rolling stocks to
  * form a train. */
@@ -25,9 +26,9 @@ public interface IRollingStock {
     }
 
     /** @return The train object that contains this rolling stock. */
-    Train getTrain();
+    StockPathFinder getTrain();
 
-    void setTrain(Train train);
+    void setTrain(StockPathFinder stockPathFinder);
 
     /** @return The weight of this stock, in kilograms */
     int weight();
@@ -51,7 +52,7 @@ public interface IRollingStock {
 
     /** Sets the speed DIRECTLY to this rolling stock.
      * 
-     * This is a callback function for {@link Train#applyMomentum(double)}, you should NEVER call this yourself. */
+     * This is a callback function for {@link StockPathFinder#applyMomentum(double)}, you should NEVER call this yourself. */
     void setSpeed(double newSpeed);
 
     /** @return the maximum newtons that this rolling stock can brake with. You should probably experiment to find a
@@ -77,7 +78,7 @@ public interface IRollingStock {
     double resistance();
 
     /** Should calculate the current amount of newtons of power this rolling stock is putting out. This will be
-     * automatically used by {@link Train#tick(IRollingStock)} to model everything properly.
+     * automatically used by {@link StockPathFinder#tick(IRollingStock)} to model everything properly.
      * 
      * @param face The direction to test against.
      * 
@@ -121,9 +122,11 @@ public interface IRollingStock {
     IComponent mainComponent();
 
     /** Gets the current position this rolling stock considers itself to be in. This is used by
-     * {@link Train#requestNextTrackPath(IRollingStock, ITrackPath)} if the given path is null or is not contained by
+     * {@link StockPathFinder#requestNextTrackPath(IRollingStock, ITrackPath)} if the given path is null or is not contained by
      * the train in order to find a path to follow. */
     Vec3 getPathPosition();
 
     Vec3 getPathDirection(Face direction);
+
+    Connector getConnector(Face direction);
 }

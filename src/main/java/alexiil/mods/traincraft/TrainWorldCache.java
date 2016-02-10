@@ -13,8 +13,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import alexiil.mods.traincraft.api.ITrainWorldCache;
-import alexiil.mods.traincraft.api.Train;
+import alexiil.mods.traincraft.api.train.ITrainWorldCache;
+import alexiil.mods.traincraft.api.train.StockPathFinder;
 
 public enum TrainWorldCache implements ITrainWorldCache {
     INSTANCE;
@@ -57,15 +57,15 @@ public enum TrainWorldCache implements ITrainWorldCache {
     // }
 
     @Override
-    public void createTrain(Train train) {
+    public void createTrain(StockPathFinder stockPathFinder) {
         // This should NEVER fail- trains cannot be empty, and all rolling stocks are implicitly entities.
-        Entity ent = (Entity) train.parts().get(0);
+        Entity ent = (Entity) stockPathFinder.parts().get(0);
         World world = ent.getEntityWorld();
         if (world == null) throw new NullPointerException("train.randomStock.world was null!");
         // if (world.isRemote) return;
         // if (true) return;
         int dimId = world.provider.getDimensionId();
-        TrainCraft.trainCraftLog.info("TrainWorldCache::createTrain | Created uuid " + train.uuid);
+        TrainCraft.trainCraftLog.info("TrainWorldCache::createTrain | Created uuid " + stockPathFinder.uuid);
         TrainSavedData tsd = trainMap.get(dimId);
         if (tsd == null) throw new IllegalStateException("Tried to load a train from dimension id " + dimId
             + " but there was not a loaded world for it!");
@@ -73,8 +73,8 @@ public enum TrainWorldCache implements ITrainWorldCache {
     }
 
     @Override
-    public void deleteTrainIfUnused(Train train) {
-        Entity ent = (Entity) train.parts().get(0);
+    public void deleteTrainIfUnused(StockPathFinder stockPathFinder) {
+        Entity ent = (Entity) stockPathFinder.parts().get(0);
         World world = ent.getEntityWorld();
         if (world == null) throw new NullPointerException("train.randomStock.world was null!");
         // if (world.isRemote) return;
@@ -88,7 +88,7 @@ public enum TrainWorldCache implements ITrainWorldCache {
     }
 
     public static class TrainSavedData extends WorldSavedData {
-        private final Map<UUID, Train> trains = new HashMap<>();
+        private final Map<UUID, StockPathFinder> stockPathFinders = new HashMap<>();
 
         public TrainSavedData(String name) {
             super(name);

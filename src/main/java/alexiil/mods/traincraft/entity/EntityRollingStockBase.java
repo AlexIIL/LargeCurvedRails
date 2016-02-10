@@ -17,15 +17,17 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.AlignmentFailureException;
-import alexiil.mods.traincraft.api.IRollingStock;
-import alexiil.mods.traincraft.api.Train;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponent;
 import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.RayTraceTrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
+import alexiil.mods.traincraft.api.train.AlignmentFailureException;
+import alexiil.mods.traincraft.api.train.Connector;
+import alexiil.mods.traincraft.api.train.Connector.ConnectorFactory;
+import alexiil.mods.traincraft.api.train.IRollingStock;
+import alexiil.mods.traincraft.api.train.StockPathFinder;
 import alexiil.mods.traincraft.client.model.MatrixUtil;
 import alexiil.mods.traincraft.lib.MathUtil;
 
@@ -37,9 +39,9 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     private static final double MAX_SPEED = 20;
 
     public final IComponent mainComponent;
+    protected final Connector connectorFront, connectorBack;
 
-    private Train train = new Train(this);
-
+    private StockPathFinder stockPathFinder = new StockPathFinder(this);
     private Vec3 lookVec = new Vec3(0, 0, 1);
 
     /** Speed (in meters per tick). This will always have the same sign as all other stocks in this train, and will be
@@ -48,9 +50,11 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     /** The way this stock is facing relative to the train it is joined to. */
     private Face face = Face.FRONT;
 
-    public EntityRollingStockBase(World worldIn, IComponent component) {
+    public EntityRollingStockBase(World worldIn, IComponent component, ConnectorFactory front, ConnectorFactory back) {
         super(worldIn);
         this.mainComponent = component.createNew(this);
+        this.connectorFront = new Connector(this, front);
+        this.connectorBack = new Connector(this, back);
     }
 
     @Override
@@ -128,13 +132,13 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     }
 
     @Override
-    public Train getTrain() {
-        return train;
+    public StockPathFinder getTrain() {
+        return stockPathFinder;
     }
 
     @Override
-    public void setTrain(Train train) {
-        this.train = train;
+    public void setTrain(StockPathFinder stockPathFinder) {
+        this.stockPathFinder = stockPathFinder;
     }
 
     @Override
@@ -195,7 +199,6 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     @Override
     public void onUpdate() {
         super.onUpdate();
-        getTrain().tick(this);
         mainComponent.tick();
         Vec3 pos = getPathPosition();
         setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
@@ -206,6 +209,9 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
             if (speedMPT < 0) face = Face.BACK;
             else face = Face.FRONT;
         } else { // Server
+            connectorBack.slowAll(resistance() / 20.0);
+            connectorBack.pullAll(-inclination() * weight() / 20.0);
+
             dataWatcher.updateObject(DATA_WATCHER_SPEED, (float) speedMPT);
 
             List<Entity> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, getEntityBoundingBox().expand(0.2, 0.0D, 0.2));
@@ -246,7 +252,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     @Override
     protected void writeEntityToNBT(NBTTagCompound tagCompound) {}
 
-    public void alignFromPlayer(Vec3 lookDir, Vec3 lookPoint, boolean isFake) throws AlignmentFailureException {
+    public boolean alignFromPlayer(Vec3 lookDir, Vec3 lookPoint, boolean simulate) throws AlignmentFailureException {
         MovingObjectPosition pos = worldObj.rayTraceBlocks(lookPoint, lookPoint.add(MathUtil.scale(lookDir, 4)), false);
         if (pos == null) throw new AlignmentFailureException();
         if (pos.typeOfHit == MovingObjectType.BLOCK) {
@@ -269,22 +275,31 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
             }
             if (best == null) throw new AlignmentFailureException();
             // if (best.distance > 0.4) throw new AlignmentFailureException();
-            alignToPath(best.path, best.interp, isFake);
+            return alignToPath(best.path, best.interp, simulate);
         } else {
             throw new AlignmentFailureException();
         }
     }
 
-    public void alignToPath(ITrackPath path, double interp, boolean isFake) throws AlignmentFailureException {
+    public boolean alignToPath(ITrackPath path, double interp, boolean simulate) throws AlignmentFailureException {
         getTrain().disband();
-        Train old = getTrain();
-        setTrain(new Train(this, path));
-        if (!isFake) {
+        StockPathFinder old = getTrain();
+        setTrain(new StockPathFinder(this, path));
+        if (!simulate) {
             TrainCraftAPI.WORLD_CACHE.createTrain(getTrain());
             TrainCraftAPI.WORLD_CACHE.deleteTrainIfUnused(old);
         }
-        mainComponent.alignTo(path, path.length() * interp);
+        mainComponent.alignTo(path, path.length() * interp, simulate);
         Vec3 vec = getPathPosition();
         setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
+
+        boolean connected = connectorFront.attemptJoinAround(simulate);
+        connected |= connectorBack.attemptJoinAround(simulate);
+        return connected;
+    }
+
+    @Override
+    public Connector getConnector(Face direction) {
+        return direction == Face.FRONT ? connectorFront : connectorBack;
     }
 }

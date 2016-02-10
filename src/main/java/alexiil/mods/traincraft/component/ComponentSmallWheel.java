@@ -13,9 +13,9 @@ import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.train.IRollingStock;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 
 public class ComponentSmallWheel extends ComponentTrackFollower {

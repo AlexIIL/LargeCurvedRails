@@ -1,5 +1,6 @@
 package alexiil.mods.traincraft.api.component;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
@@ -11,9 +12,9 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.AlignmentFailureException;
-import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.train.AlignmentFailureException;
+import alexiil.mods.traincraft.api.train.IRollingStock;
 
 public interface IComponent {
     IRollingStock stock();
@@ -60,9 +61,11 @@ public interface IComponent {
 
     void setParent(IComponent parent);
 
+    List<IComponent> children();
+
     IComponent createNew(IRollingStock stock);
 
-    void alignTo(ITrackPath around, double meters) throws AlignmentFailureException;
+    void alignTo(ITrackPath around, double meters, boolean simulate) throws AlignmentFailureException;
 
     double frictionCoefficient();
 

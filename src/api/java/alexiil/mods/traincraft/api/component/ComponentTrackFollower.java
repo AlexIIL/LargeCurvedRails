@@ -9,13 +9,13 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.AlignmentFailureException;
-import alexiil.mods.traincraft.api.IRollingStock;
-import alexiil.mods.traincraft.api.IRollingStock.Face;
 import alexiil.mods.traincraft.api.MCObjectUtils;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
+import alexiil.mods.traincraft.api.train.AlignmentFailureException;
+import alexiil.mods.traincraft.api.train.IRollingStock;
+import alexiil.mods.traincraft.api.train.IRollingStock.Face;
 
 public abstract class ComponentTrackFollower implements IComponent {
     // Each component uses: [ int (flag), float (progress), blockpos (track), int (track index)]
@@ -60,6 +60,11 @@ public abstract class ComponentTrackFollower implements IComponent {
     }
 
     @Override
+    public List<IComponent> children() {
+        return Collections.emptyList();
+    }
+
+    @Override
     public double originOffset() {
         return constructorOffset;
     }
@@ -89,7 +94,7 @@ public abstract class ComponentTrackFollower implements IComponent {
     }
 
     @Override
-    public void alignTo(ITrackPath around, double meters) throws AlignmentFailureException {
+    public void alignTo(ITrackPath around, double meters, boolean simulate) throws AlignmentFailureException {
         around = stock.getTrain().offsetPath(around, meters);
         if (around == null) throw new AlignmentFailureException();
         currentPath = around;

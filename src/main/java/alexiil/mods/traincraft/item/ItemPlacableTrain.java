@@ -8,9 +8,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.AlignmentFailureException;
 import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
+import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
 
 public abstract class ItemPlacableTrain extends Item {

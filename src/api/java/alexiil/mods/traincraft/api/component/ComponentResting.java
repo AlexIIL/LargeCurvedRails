@@ -7,16 +7,16 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
-import alexiil.mods.traincraft.api.AlignmentFailureException;
-import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.train.AlignmentFailureException;
+import alexiil.mods.traincraft.api.train.IRollingStock;
 
 /** A component that rests ontop of other components, ultimatly resting on {@link ComponentTrackFollower}. */
 public abstract class ComponentResting implements IComponent {
     private final IRollingStock stock;
     private IComponent parent;
     protected final IComponent childFront, childBack;
-    protected final ImmutableList<IComponent> childMiddle;
+    protected final ImmutableList<IComponent> childMiddle, allChildren;
     protected final ImmutableList<IComponentInner> innerComponents;
     protected final double frontBack;
 
@@ -50,6 +50,12 @@ public abstract class ComponentResting implements IComponent {
         this.innerComponents = builder2.build();
 
         isBogie = false;
+
+        ImmutableList.Builder<IComponent> builder3 = ImmutableList.builder();
+        builder3.add(childFront);
+        builder3.addAll(childMiddle);
+        builder3.add(childBack);
+        this.allChildren = builder3.build();
     }
 
     @Override
@@ -60,6 +66,11 @@ public abstract class ComponentResting implements IComponent {
     @Override
     public void setParent(IComponent parent) {
         this.parent = parent;
+    }
+
+    @Override
+    public List<IComponent> children() {
+        return allChildren;
     }
 
     @Override
@@ -89,11 +100,11 @@ public abstract class ComponentResting implements IComponent {
     }
 
     @Override
-    public void alignTo(ITrackPath around, double offset) throws AlignmentFailureException {
-        childFront.alignTo(around, offset + childFront.originOffset());
-        childBack.alignTo(around, offset + childBack.originOffset());
+    public void alignTo(ITrackPath around, double offset, boolean simulate) throws AlignmentFailureException {
+        childFront.alignTo(around, offset + childFront.originOffset(), false);
+        childBack.alignTo(around, offset + childBack.originOffset(), false);
         for (IComponent comp : childMiddle)
-            comp.alignTo(around, offset + comp.originOffset());
+            comp.alignTo(around, offset + comp.originOffset(), false);
     }
 
     @Override

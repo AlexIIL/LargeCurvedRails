@@ -9,7 +9,7 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.IRollingStock;
+import alexiil.mods.traincraft.api.train.IRollingStock;
 
 /** A component that is held by an {@link IComponent}. This might represent a seat, a chimney producing steam or perhaps
  * a chest or tank containing items or others. */

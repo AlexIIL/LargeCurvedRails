@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.train;
 
 /** Indicates that a component failed to align properly to some tracks. */
 public class AlignmentFailureException extends Exception {

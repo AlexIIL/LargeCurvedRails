@@ -33,9 +33,9 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import alexiil.mods.traincraft.api.AlignmentFailureException;
 import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
+import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.block.*;
 import alexiil.mods.traincraft.client.model.*;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
@@ -144,10 +144,9 @@ public class ProxyClient extends Proxy {
             Vec3 lookVec = player.getLook(event.partialTicks).normalize();
             Vec3 lookFrom = player.getPositionEyes(event.partialTicks);
             try {
-                rollingStock.alignFromPlayer(lookVec, lookFrom, true);
-                // Vec3 renderOffset = new Vec3(0, 0, 0).subtract(player.getPositionEyes(event.partialTicks));
-                // renderOffset = renderOffset.addVector(0, player.getEyeHeight(), 0);
-                // GL11.glTranslated(renderOffset.xCoord, renderOffset.yCoord, renderOffset.zCoord);
+                if (rollingStock.alignFromPlayer(lookVec, lookFrom, true)) {
+                    RenderRollingStockBase.setColour(0, 1, 0);
+                }
             } catch (AlignmentFailureException afe) {
                 // Re-create it so it doesn't partially mess up
                 rollingStock = place.createRollingStock(player.worldObj);
@@ -157,8 +156,7 @@ public class ProxyClient extends Proxy {
                 if (mop != null) lookingAt = mop.hitVec;
                 if (lookingAt == null) lookingAt = maxLook;
                 RenderRollingStockBase.setColour(1, 0, 0);
-                Vec3 renderOffset = lookingAt/* .subtract(player.getPositionEyes(event.partialTicks)) */;
-                // renderOffset = renderOffset.addVector(0, player.getEyeHeight(), 0);
+                Vec3 renderOffset = lookingAt;
                 GL11.glTranslated(renderOffset.xCoord, renderOffset.yCoord, renderOffset.zCoord);
             }
 
