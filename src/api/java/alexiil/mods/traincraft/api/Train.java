@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,6 +16,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.IRollingStock.Face;
+import alexiil.mods.traincraft.api.component.IComponent;
 import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
 
@@ -22,6 +24,7 @@ public class Train {
     public final UUID uuid;
     public final Map<ITrackPath, PathNode> paths = new HashMap<>();
     public final ImmutableList<IRollingStock> parts;
+    private final Deque<PathNode> pathNodes = new LinkedList<>();
     private long lastTick = -1;
 
     public Train(IRollingStock stock) {
@@ -344,24 +347,30 @@ public class Train {
         return meters;
     }
 
-    public void usePath(ITrackPath path) {
-        paths.get(path).uses++;
+    public void usePath(ITrackPath path, IComponent user) {
+        paths.get(path).uses.add(user);
     }
 
-    public void releasePath(ITrackPath path) {
+    public void releasePath(ITrackPath path,  IComponent user) {
         PathNode node = paths.get(path);
-        node.uses--;
-        while (node.forward == null && node.back != null) {
-            if (node.uses > 0) break;
-            paths.get(node.back).forward = null;
+        node.uses.remove(user);
+
+        if (node.uses.size() != 0) return;
+
+        if (node.forward == null) {
+            // GC this node
+            ITrackPath back = node.back;
+            if (back == null) return;
+            PathNode n = paths.get(back);
+            n.forward = null;
             paths.remove(path);
-            node = paths.get(node.back);
-        }
-        while (node.back == null && node.forward != null) {
-            if (node.uses > 0) break;
-            paths.get(node.forward).back = null;
+        } else if (node.back == null) {
+            // GC this node
+            ITrackPath forward = node.forward;
+            if (forward == null) return;
+            PathNode n = paths.get(forward);
+            n.back = null;
             paths.remove(path);
-            node = paths.get(node.forward);
         }
     }
 
@@ -371,10 +380,10 @@ public class Train {
         return uuid + ", " + (parts != null ? parts.subList(0, Math.min(parts.size(), maxLen)) : null) + ", " + lastTick;
     }
 
-    public static class PathNode {
+    public static class PathNode {// TODO: Convert this to a proper linked list. Or just fix the broken behaviour above.
         public final ITrackPath thisPath;
         public ITrackPath forward, back;
-        public int uses = 0;
+        public final Set<IComponent> uses = Sets.newIdentityHashSet();
 
         public PathNode(ITrackPath thisPath) {
             this.thisPath = thisPath;

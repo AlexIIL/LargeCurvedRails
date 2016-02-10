@@ -9,8 +9,11 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.*;
+import alexiil.mods.traincraft.api.AlignmentFailureException;
+import alexiil.mods.traincraft.api.IRollingStock;
 import alexiil.mods.traincraft.api.IRollingStock.Face;
+import alexiil.mods.traincraft.api.MCObjectUtils;
+import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
 
@@ -90,6 +93,7 @@ public abstract class ComponentTrackFollower implements IComponent {
         around = stock.getTrain().offsetPath(around, meters);
         if (around == null) throw new AlignmentFailureException();
         currentPath = around;
+        stock().getTrain().usePath(currentPath, this);
         meters = stock.getTrain().offsetMeters(around, meters);
         progress = meters;
 
@@ -167,8 +171,8 @@ public abstract class ComponentTrackFollower implements IComponent {
                 if (old != currentPath) {
                     progress = stock().getTrain().offsetMeters(old, progress);
                     if (currentPath != null) {
-                        stock.getTrain().usePath(currentPath);
-                        stock.getTrain().releasePath(old);
+                        stock.getTrain().usePath(currentPath, this);
+                        stock.getTrain().releasePath(old, this);
                     }
                 }
             }

@@ -22,7 +22,7 @@ public abstract class ItemPlacableTrain extends Item {
         EntityRollingStockBase entity = createRollingStock(world);
         try {
             Vec3 lookVec = player.getLookVec().normalize();
-            Vec3 lookFrom = new Vec3(player.posX, player.posY, player.posZ);
+            Vec3 lookFrom = new Vec3(player.posX, player.posY + player.getEyeHeight(), player.posZ);
             entity.alignFromPlayer(lookVec, lookFrom, false);
             if (!world.isRemote) world.spawnEntityInWorld(entity);
         } catch (AlignmentFailureException afe) {

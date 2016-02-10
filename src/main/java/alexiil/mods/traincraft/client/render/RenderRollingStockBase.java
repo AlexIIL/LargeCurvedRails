@@ -125,6 +125,7 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
         z = -interpPlayerPos.zCoord;
 
         GlStateManager.color(1, 1, 1);
+        GlStateManager.translate(x, y, z);
 
         RenderHelper.disableStandardItemLighting();
 

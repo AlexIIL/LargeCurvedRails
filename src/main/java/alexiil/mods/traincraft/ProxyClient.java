@@ -142,24 +142,23 @@ public class ProxyClient extends Proxy {
         if (rollingStock != null) {
             GL11.glPushMatrix();
             Vec3 lookVec = player.getLook(event.partialTicks).normalize();
-            // FIXME: For some reason rendering is borked
             Vec3 lookFrom = player.getPositionEyes(event.partialTicks);
             try {
                 rollingStock.alignFromPlayer(lookVec, lookFrom, true);
-                Vec3 renderOffset = new Vec3(0, 0, 0).subtract(player.getPositionEyes(event.partialTicks));
-                renderOffset = renderOffset.addVector(0, player.getEyeHeight(), 0);
-                GL11.glTranslated(renderOffset.xCoord, renderOffset.yCoord, renderOffset.zCoord);
+                // Vec3 renderOffset = new Vec3(0, 0, 0).subtract(player.getPositionEyes(event.partialTicks));
+                // renderOffset = renderOffset.addVector(0, player.getEyeHeight(), 0);
+                // GL11.glTranslated(renderOffset.xCoord, renderOffset.yCoord, renderOffset.zCoord);
             } catch (AlignmentFailureException afe) {
                 // Re-create it so it doesn't partially mess up
                 rollingStock = place.createRollingStock(player.worldObj);
-                Vec3 maxLook = lookFrom.add(MathUtil.scale(lookVec, 5));
+                Vec3 maxLook = lookFrom.add(MathUtil.scale(lookVec, 4));
                 MovingObjectPosition mop = player.worldObj.rayTraceBlocks(lookFrom, maxLook);
                 Vec3 lookingAt = null;
                 if (mop != null) lookingAt = mop.hitVec;
                 if (lookingAt == null) lookingAt = maxLook;
                 RenderRollingStockBase.setColour(1, 0, 0);
-                Vec3 renderOffset = lookingAt.subtract(player.getPositionEyes(event.partialTicks));
-                renderOffset = renderOffset.addVector(0, player.getEyeHeight(), 0);
+                Vec3 renderOffset = lookingAt/* .subtract(player.getPositionEyes(event.partialTicks)) */;
+                // renderOffset = renderOffset.addVector(0, player.getEyeHeight(), 0);
                 GL11.glTranslated(renderOffset.xCoord, renderOffset.yCoord, renderOffset.zCoord);
             }
 

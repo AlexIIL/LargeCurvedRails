@@ -62,13 +62,14 @@ public enum TrainWorldCache implements ITrainWorldCache {
         Entity ent = (Entity) train.parts().get(0);
         World world = ent.getEntityWorld();
         if (world == null) throw new NullPointerException("train.randomStock.world was null!");
-        if (world.isRemote) return;
+        // if (world.isRemote) return;
+        // if (true) return;
         int dimId = world.provider.getDimensionId();
         TrainCraft.trainCraftLog.info("TrainWorldCache::createTrain | Created uuid " + train.uuid);
         TrainSavedData tsd = trainMap.get(dimId);
         if (tsd == null) throw new IllegalStateException("Tried to load a train from dimension id " + dimId
             + " but there was not a loaded world for it!");
-        tsd.trains.put(train.uuid, train);
+        // tsd.trains.put(train.uuid, train);
     }
 
     @Override
@@ -76,13 +77,14 @@ public enum TrainWorldCache implements ITrainWorldCache {
         Entity ent = (Entity) train.parts().get(0);
         World world = ent.getEntityWorld();
         if (world == null) throw new NullPointerException("train.randomStock.world was null!");
-        if (world.isRemote) return;
+        // if (world.isRemote) return;
+        // if (true) return;
         int dimId = world.provider.getDimensionId();
 
         TrainSavedData tsd = trainMap.get(dimId);
         if (tsd == null) throw new IllegalStateException("Tried to delete a train from dimension id " + dimId
             + " but there was not a loaded world for it!");
-        tsd.trains.remove(train.uuid);
+        // tsd.trains.remove(train.uuid);
     }
 
     public static class TrainSavedData extends WorldSavedData {
