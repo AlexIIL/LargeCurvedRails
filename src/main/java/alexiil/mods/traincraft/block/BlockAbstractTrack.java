@@ -11,8 +11,8 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.ITrackBlock;
-import alexiil.mods.traincraft.api.TrackPathStraight;
+import alexiil.mods.traincraft.api.track.ITrackBlock;
+import alexiil.mods.traincraft.api.track.TrackPathStraight;
 
 public abstract class BlockAbstractTrack extends BlockTraincraft implements ITrackBlock {
     public static final PropertyEnum<EnumDirection> TRACK_DIRECTION = PropertyEnum.create("facing", EnumDirection.class);

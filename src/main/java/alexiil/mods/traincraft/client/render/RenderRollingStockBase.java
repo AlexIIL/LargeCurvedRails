@@ -40,6 +40,7 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
 
     private static final Map<ResourceLocation, Integer> stockModelMap = new HashMap<>();
     private static final Map<ResourceLocation, IBakedModel> stockModelBakedMap = new HashMap<>();
+    private static float r = 1, g = 1, b = 1;
 
     protected RenderRollingStockBase(RenderManager renderManager) {
         super(renderManager);
@@ -48,6 +49,12 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
     @Override
     protected ResourceLocation getEntityTexture(EntityRollingStockBase entity) {
         return null;
+    }
+
+    public static void setColour(float r, float g, float b) {
+        RenderRollingStockBase.r = r;
+        RenderRollingStockBase.g = g;
+        RenderRollingStockBase.b = b;
     }
 
     public static void clearModelMap() {
@@ -117,13 +124,18 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
         y = -interpPlayerPos.yCoord;
         z = -interpPlayerPos.zCoord;
 
-        GlStateManager.translate(x, y, z);
-
         GlStateManager.color(1, 1, 1);
 
         RenderHelper.disableStandardItemLighting();
 
-        renderManager.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+        if (r != 1 || g != 1 || b != 1) {
+            String sr = "_" + (int) (r * 0xFF);
+            String sg = "_" + (int) (g * 0xFF);
+            String sb = "_" + (int) (b * 0xFF);
+            renderManager.renderEngine.bindTexture(new ResourceLocation("traincraft:textures/misc/colour" + sr + sg + sb + ".png"));
+        } else {
+            renderManager.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+        }
 
         entity.mainComponent.render(entity, partialTicks);
 
@@ -131,5 +143,4 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
 
         GlStateManager.popMatrix();
     }
-
 }

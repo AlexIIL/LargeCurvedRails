@@ -15,12 +15,12 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 
-import alexiil.mods.traincraft.api.ITrackPath;
-import alexiil.mods.traincraft.api.TrackPathStraight;
+import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.TrackPathStraight;
 import alexiil.mods.traincraft.block.BlockAbstractTrack;
 import alexiil.mods.traincraft.block.BlockAbstractTrack.EnumDirection;
-import alexiil.mods.traincraft.block.BlockTrackAscending;
 import alexiil.mods.traincraft.client.model.Plane.Face;
+import alexiil.mods.traincraft.block.BlockTrackAscending;
 import alexiil.mods.traincraft.property.BlockStatePropWrapper;
 
 public class TrackAscendingBlockModel extends TrackGenericBlockModel {

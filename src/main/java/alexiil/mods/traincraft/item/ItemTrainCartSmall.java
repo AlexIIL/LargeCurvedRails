@@ -7,7 +7,7 @@ import alexiil.mods.traincraft.entity.EntityRollingStockCart;
 
 public class ItemTrainCartSmall extends ItemPlacableTrain {
     @Override
-    protected EntityRollingStockBase createRollingStock(World world) {
+    public EntityRollingStockBase createRollingStock(World world) {
         return new EntityRollingStockCart(world);
     }
 }

@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.track;
 
 import java.util.EnumMap;
 import java.util.HashMap;

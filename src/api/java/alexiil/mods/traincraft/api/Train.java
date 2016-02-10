@@ -15,6 +15,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.IRollingStock.Face;
+import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.TrackPathProvider;
 
 public class Train {
     public final UUID uuid;

@@ -1,9 +1,11 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.track;
 
 import java.util.Objects;
 
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
+
+import alexiil.mods.traincraft.api.MCObjectUtils;
 
 /** Designates a path between any number of points. */
 public class TrackPathStraight implements ITrackPath {

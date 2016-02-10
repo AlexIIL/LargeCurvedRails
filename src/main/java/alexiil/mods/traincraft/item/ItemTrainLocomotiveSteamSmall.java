@@ -8,7 +8,7 @@ import alexiil.mods.traincraft.entity.EntitySmallSteamLocomotive;
 public class ItemTrainLocomotiveSteamSmall extends ItemPlacableTrain {
 
     @Override
-    protected EntityRollingStockBase createRollingStock(World world) {
+    public EntityRollingStockBase createRollingStock(World world) {
         return new EntitySmallSteamLocomotive(world);
     }
 }

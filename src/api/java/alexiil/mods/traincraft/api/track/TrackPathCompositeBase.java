@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.track;
 
 import java.util.ArrayList;
 import java.util.Arrays;

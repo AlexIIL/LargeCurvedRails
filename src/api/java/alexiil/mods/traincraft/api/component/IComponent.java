@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.AlignmentFailureException;
 import alexiil.mods.traincraft.api.IRollingStock;
-import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.track.ITrackPath;
 
 public interface IComponent {
     IRollingStock stock();

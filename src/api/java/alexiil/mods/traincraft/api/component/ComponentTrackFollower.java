@@ -11,6 +11,8 @@ import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.*;
 import alexiil.mods.traincraft.api.IRollingStock.Face;
+import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.TrackPathProvider;
 
 public abstract class ComponentTrackFollower implements IComponent {
     // Each component uses: [ int (flag), float (progress), blockpos (track), int (track index)]

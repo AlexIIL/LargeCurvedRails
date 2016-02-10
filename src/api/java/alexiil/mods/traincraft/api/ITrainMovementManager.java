@@ -4,6 +4,7 @@ import net.minecraft.world.IBlockAccess;
 
 import alexiil.mods.traincraft.api.IRollingStock.Face;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
+import alexiil.mods.traincraft.api.track.ITrackPath;
 
 /** Provides a way for trains to find the next path dependant on a previous path. */
 public interface ITrainMovementManager {

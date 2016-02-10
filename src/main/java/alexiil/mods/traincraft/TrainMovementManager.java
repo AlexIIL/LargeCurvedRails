@@ -8,11 +8,11 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 
 import alexiil.mods.traincraft.api.IRollingStock.Face;
-import alexiil.mods.traincraft.api.ITrackBlock;
-import alexiil.mods.traincraft.api.ITrackPath;
 import alexiil.mods.traincraft.api.ITrainMovementManager;
-import alexiil.mods.traincraft.api.TrackPathProvider;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
+import alexiil.mods.traincraft.api.track.ITrackBlock;
+import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.TrackPathProvider;
 
 public enum TrainMovementManager implements ITrainMovementManager {
     INSTANCE;

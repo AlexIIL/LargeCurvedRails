@@ -9,7 +9,7 @@ import net.minecraft.util.Vec3;
 
 import alexiil.mods.traincraft.api.AlignmentFailureException;
 import alexiil.mods.traincraft.api.IRollingStock;
-import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.track.ITrackPath;
 
 /** A component that rests ontop of other components, ultimatly resting on {@link ComponentTrackFollower}. */
 public abstract class ComponentResting implements IComponent {

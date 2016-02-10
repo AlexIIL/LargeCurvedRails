@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.track;
 
 import java.util.Objects;
 
@@ -42,6 +42,12 @@ public class TrackPathReversed implements ITrackPath {
     @Override
     public BlockPos creatingBlock() {
         return original.creatingBlock();
+    }
+
+    @Override
+    public RayTraceTrackPath rayTrace(Vec3 point) {
+        RayTraceTrackPath rayTrace = original.rayTrace(point);
+        return new RayTraceTrackPath(this, 1 - rayTrace.interp, rayTrace.closestPoint, rayTrace.distance);
     }
 
     @Override

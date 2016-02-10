@@ -1,5 +1,6 @@
 package alexiil.mods.traincraft.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.vecmath.Matrix4f;
@@ -9,19 +10,24 @@ import javax.vecmath.Point3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.*;
+import alexiil.mods.traincraft.api.AlignmentFailureException;
+import alexiil.mods.traincraft.api.IRollingStock;
+import alexiil.mods.traincraft.api.Train;
+import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.RayTraceTrackPath;
+import alexiil.mods.traincraft.api.track.TrackPathProvider;
 import alexiil.mods.traincraft.client.model.MatrixUtil;
+import alexiil.mods.traincraft.lib.MathUtil;
 
 public abstract class EntityRollingStockBase extends Entity implements IRollingStock {
     private static final int DATA_WATCHER_SPEED = 5;
@@ -240,14 +246,44 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     @Override
     protected void writeEntityToNBT(NBTTagCompound tagCompound) {}
 
-    public void alignToBlock(BlockPos pos) throws AlignmentFailureException {
-        ITrackPath path = TrackPathProvider.getPathsAsArray(worldObj, pos, worldObj.getBlockState(pos))[0];
+    public void alignFromPlayer(Vec3 lookDir, Vec3 lookPoint, boolean isFake) throws AlignmentFailureException {
+        MovingObjectPosition pos = worldObj.rayTraceBlocks(lookPoint, lookPoint.add(MathUtil.scale(lookDir, 4)), false);
+        if (pos == null) throw new AlignmentFailureException();
+        if (pos.typeOfHit == MovingObjectType.BLOCK) {
+            Vec3 vec = pos.hitVec;
+            List<ITrackPath> paths = new ArrayList<>();
+            BlockPos center = pos.getBlockPos();
+            int radius = 2;
+            for (int x = -radius; x <= radius; x++) {
+                for (int y = -radius; y <= radius; y++) {
+                    for (int z = -radius; z <= radius; z++) {
+                        paths.addAll(TrackPathProvider.getPathsAsList(worldObj, pos.getBlockPos(), worldObj.getBlockState(center.add(x, y, z))));
+                    }
+                }
+            }
+            RayTraceTrackPath best = null;
+            for (ITrackPath p : paths) {
+                RayTraceTrackPath rayTrace = p.rayTrace(vec);
+                if (best == null) best = rayTrace;
+                else if (best.distance > rayTrace.distance) best = rayTrace;
+            }
+            if (best == null) throw new AlignmentFailureException();
+            // if (best.distance > 0.4) throw new AlignmentFailureException();
+            alignToPath(best.path, best.interp, isFake);
+        } else {
+            throw new AlignmentFailureException();
+        }
+    }
+
+    public void alignToPath(ITrackPath path, double interp, boolean isFake) throws AlignmentFailureException {
         getTrain().disband();
         Train old = getTrain();
         setTrain(new Train(this, path));
-        TrainCraftAPI.WORLD_CACHE.createTrain(getTrain());
-        TrainCraftAPI.WORLD_CACHE.deleteTrainIfUnused(old);
-        mainComponent.alignTo(path, 0);
+        if (!isFake) {
+            TrainCraftAPI.WORLD_CACHE.createTrain(getTrain());
+            TrainCraftAPI.WORLD_CACHE.deleteTrainIfUnused(old);
+        }
+        mainComponent.alignTo(path, path.length() * interp);
         Vec3 vec = getPathPosition();
         setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
     }

@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -16,8 +17,10 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
@@ -30,14 +33,17 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import alexiil.mods.traincraft.api.ITrackPath;
-import alexiil.mods.traincraft.api.TrackPathProvider;
+import alexiil.mods.traincraft.api.AlignmentFailureException;
+import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.TrackPathProvider;
 import alexiil.mods.traincraft.block.*;
 import alexiil.mods.traincraft.client.model.*;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 import alexiil.mods.traincraft.component.ComponentCart;
 import alexiil.mods.traincraft.component.ComponentSmallWheel;
 import alexiil.mods.traincraft.entity.EntityRollingStockBase;
+import alexiil.mods.traincraft.item.ItemPlacableTrain;
+import alexiil.mods.traincraft.lib.MathUtil;
 
 public class ProxyClient extends Proxy {
     @Override
@@ -115,9 +121,62 @@ public class ProxyClient extends Proxy {
 
     @SubscribeEvent
     public void renderWorld(RenderWorldLastEvent event) {
-        if (!Minecraft.getMinecraft().gameSettings.showDebugInfo) return;
-        if (Minecraft.getMinecraft().theWorld == null || Minecraft.getMinecraft().thePlayer == null || MinecraftServer.getServer() == null) return;
+        if (Minecraft.getMinecraft().theWorld == null || Minecraft.getMinecraft().thePlayer == null) return;
+        renderFakeTrain(event);
+        renderDebug(event);
+    }
 
+    private static void renderFakeTrain(RenderWorldLastEvent event) {
+        if (Minecraft.getMinecraft().getRenderManager().livingPlayer == null) return;
+
+        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        if (player.getHeldItem() == null || player.getHeldItem().stackSize == 0) return;
+        Item item = player.getHeldItem().getItem();
+        if (!(item instanceof ItemPlacableTrain)) return;
+
+        Minecraft.getMinecraft().mcProfiler.startSection("traincraft_fake_train");
+
+        ItemPlacableTrain place = (ItemPlacableTrain) item;
+
+        EntityRollingStockBase rollingStock = place.createRollingStock(player.worldObj);
+        if (rollingStock != null) {
+            GL11.glPushMatrix();
+            Vec3 lookVec = player.getLook(event.partialTicks).normalize();
+            // FIXME: For some reason rendering is borked
+            Vec3 lookFrom = player.getPositionEyes(event.partialTicks);
+            try {
+                rollingStock.alignFromPlayer(lookVec, lookFrom, true);
+                Vec3 renderOffset = new Vec3(0, 0, 0).subtract(player.getPositionEyes(event.partialTicks));
+                renderOffset = renderOffset.addVector(0, player.getEyeHeight(), 0);
+                GL11.glTranslated(renderOffset.xCoord, renderOffset.yCoord, renderOffset.zCoord);
+            } catch (AlignmentFailureException afe) {
+                // Re-create it so it doesn't partially mess up
+                rollingStock = place.createRollingStock(player.worldObj);
+                Vec3 maxLook = lookFrom.add(MathUtil.scale(lookVec, 5));
+                MovingObjectPosition mop = player.worldObj.rayTraceBlocks(lookFrom, maxLook);
+                Vec3 lookingAt = null;
+                if (mop != null) lookingAt = mop.hitVec;
+                if (lookingAt == null) lookingAt = maxLook;
+                RenderRollingStockBase.setColour(1, 0, 0);
+                Vec3 renderOffset = lookingAt.subtract(player.getPositionEyes(event.partialTicks));
+                renderOffset = renderOffset.addVector(0, player.getEyeHeight(), 0);
+                GL11.glTranslated(renderOffset.xCoord, renderOffset.yCoord, renderOffset.zCoord);
+            }
+
+            Minecraft.getMinecraft().getRenderManager().renderEntitySimple(rollingStock, event.partialTicks);
+            RenderRollingStockBase.setColour(1, 1, 1);
+
+            RenderHelper.disableStandardItemLighting();
+
+            GL11.glPopMatrix();
+        }
+
+        Minecraft.getMinecraft().mcProfiler.endSection();
+    }
+
+    private static void renderDebug(RenderWorldLastEvent event) {
+        if (MinecraftServer.getServer() == null) return;
+        if (!Minecraft.getMinecraft().gameSettings.showDebugInfo) return;
         BlockPos around = new BlockPos(Minecraft.getMinecraft().thePlayer.getPositionVector());
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         World world = MinecraftServer.getServer().worldServerForDimension(Minecraft.getMinecraft().theWorld.provider.getDimensionId());

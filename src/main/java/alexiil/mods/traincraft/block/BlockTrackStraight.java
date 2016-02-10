@@ -12,11 +12,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.AlignmentFailureException;
-import alexiil.mods.traincraft.api.ITrackPath;
-import alexiil.mods.traincraft.entity.EntityRollingStockBase;
-import alexiil.mods.traincraft.entity.EntityRollingStockCart;
-import alexiil.mods.traincraft.entity.EntitySmallSteamLocomotive;
+import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.item.TCItems;
 
 public class BlockTrackStraight extends BlockAbstractTrack {
@@ -41,25 +37,6 @@ public class BlockTrackStraight extends BlockAbstractTrack {
         if (dir.from.getAxis() == dir.to.getAxis()) {
             return new ItemStack(TCItems.TRACK_STRAIGHT_AXIS.getItem());
         } else return new ItemStack(TCItems.TRACK_STRAIGHT_DIAG.getItem());
-    }
-
-    @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY,
-            float hitZ) {
-        // Temp
-        if (world.isRemote) return true;
-        EntityRollingStockBase entity;
-        if (player.isSneaking()) entity = new EntitySmallSteamLocomotive(world);
-        else entity = new EntityRollingStockCart(world);
-        try {
-            entity.alignToBlock(pos);
-            world.spawnEntityInWorld(entity);
-        } catch (AlignmentFailureException e) {
-            // In the future this will display a notification to the player that something went wrong, but for the
-            // moment we will leave it as-is
-            return false;
-        }
-        return true;
     }
 
     @Override

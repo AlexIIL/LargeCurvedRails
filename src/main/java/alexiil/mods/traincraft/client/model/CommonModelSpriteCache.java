@@ -19,7 +19,7 @@ import net.minecraftforge.client.model.obj.OBJLoader;
 
 import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.TrainRegistry;
-import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.client.model.MutableQuad.Vertex;
 import alexiil.mods.traincraft.lib.MathUtil;
 

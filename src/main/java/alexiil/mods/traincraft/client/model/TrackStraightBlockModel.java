@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 
-import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.block.BlockAbstractTrack;
 import alexiil.mods.traincraft.block.BlockAbstractTrack.EnumDirection;
 

@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.track;
 
 import org.lwjgl.opengl.GL11;
 
@@ -9,6 +9,8 @@ import net.minecraft.util.Vec3;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import alexiil.mods.traincraft.TrainCraft;
 
 public interface ITrackPath {
     /** Gets a Vec3 position that has been interpolated between
@@ -71,4 +73,43 @@ public interface ITrackPath {
      *            {@link GL11#GL_LINES} */
     @SideOnly(Side.CLIENT)
     default void renderInfo(WorldRenderer wr) {}
+
+    default RayTraceTrackPath rayTrace(Vec3 point) {
+        double ia = 0, ib = 1;
+        double da = 0, db = 0, dBest = Double.MAX_VALUE;
+        double id = 0.5;
+
+        RayTraceTrackPath best = null;
+        // Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
+        for (int i = 1; i < 10; i++) {
+            Vec3 a = interpolate(ia);
+            Vec3 b = interpolate(ib);
+            da = a.squareDistanceTo(point);
+            db = b.squareDistanceTo(point);
+            if (da < db) {
+                if (best == null || da < dBest) {
+                    dBest = da;
+                    // We work out the square root at the end to get the actual distance
+                    best = new RayTraceTrackPath(this, ia, a, da);
+                    ib -= id;
+                } else if (dBest < da) {
+                    // Um... wtf? lets just ignore that...
+                    ib -= id;
+                }
+            } else if (db < da) {
+                if (best == null || db < dBest) {
+                    dBest = db;
+                    // We work out the square root at the end to get the actual distance
+                    best = new RayTraceTrackPath(this, ib, b, db);
+                    ia += id;
+                } else if (dBest < da) {
+                    // Um... wtf? lets just ignore that...
+                    ia += id;
+                }
+            }
+            id /= 2.0;
+        }
+        if (best == null) return null;
+        return new RayTraceTrackPath(this, best.interp, best.closestPoint, Math.sqrt(best.distance));
+    }
 }

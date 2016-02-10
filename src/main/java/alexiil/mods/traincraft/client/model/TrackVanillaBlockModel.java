@@ -12,8 +12,8 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 
-import alexiil.mods.traincraft.api.ITrackPath;
-import alexiil.mods.traincraft.api.TrackPathProvider;
+import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.TrackPathProvider;
 import alexiil.mods.traincraft.client.model.CommonModelSpriteCache.GenerateRailsArguments;
 
 public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {

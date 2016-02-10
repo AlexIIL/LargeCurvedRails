@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.track;
 
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;

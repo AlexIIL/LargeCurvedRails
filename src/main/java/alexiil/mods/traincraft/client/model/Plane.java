@@ -61,6 +61,10 @@ public class Plane {
             this.end = end;
         }
 
+        public static Line createLongLine(Vec3 start, Vec3 direction) {
+            return new Line(start, scale(direction, 1024));
+        }
+
         public Vec3 interpolate(double interp) {
             return scale(start, 1 - interp).add(scale(end, interp));
         }

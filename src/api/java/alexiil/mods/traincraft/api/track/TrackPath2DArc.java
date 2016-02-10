@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.track;
 
 import java.util.Objects;
 
@@ -9,6 +9,8 @@ import net.minecraft.util.Vec3;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import alexiil.mods.traincraft.api.MCObjectUtils;
 
 public class TrackPath2DArc implements ITrackPath {
     private final BlockPos creator;

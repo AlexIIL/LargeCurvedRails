@@ -14,7 +14,7 @@ import net.minecraft.client.resources.model.IBakedModel;
 
 import net.minecraftforge.client.model.ISmartBlockModel;
 
-import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.lib.BlockStateKeyWrapper;
 
 public abstract class TrackGenericBlockModel extends PerspAwareModelBase implements ISmartBlockModel {

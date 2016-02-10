@@ -62,6 +62,7 @@ public enum TrainWorldCache implements ITrainWorldCache {
         Entity ent = (Entity) train.parts().get(0);
         World world = ent.getEntityWorld();
         if (world == null) throw new NullPointerException("train.randomStock.world was null!");
+        if (world.isRemote) return;
         int dimId = world.provider.getDimensionId();
         TrainCraft.trainCraftLog.info("TrainWorldCache::createTrain | Created uuid " + train.uuid);
         TrainSavedData tsd = trainMap.get(dimId);
@@ -75,6 +76,7 @@ public enum TrainWorldCache implements ITrainWorldCache {
         Entity ent = (Entity) train.parts().get(0);
         World world = ent.getEntityWorld();
         if (world == null) throw new NullPointerException("train.randomStock.world was null!");
+        if (world.isRemote) return;
         int dimId = world.provider.getDimensionId();
 
         TrainSavedData tsd = trainMap.get(dimId);

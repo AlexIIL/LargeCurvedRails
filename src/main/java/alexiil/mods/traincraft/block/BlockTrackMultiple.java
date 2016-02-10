@@ -7,7 +7,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.tile.TileTrackMultiple;
 
 public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntityProvider {

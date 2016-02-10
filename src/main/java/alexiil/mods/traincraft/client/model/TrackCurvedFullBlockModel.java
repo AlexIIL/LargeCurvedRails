@@ -3,7 +3,7 @@ package alexiil.mods.traincraft.client.model;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 
-import alexiil.mods.traincraft.api.ITrackPath;
+import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.block.BlockTrackCurvedFull;
 import alexiil.mods.traincraft.block.BlockTrackCurvedHalf;
 
