@@ -45,12 +45,6 @@ public class TrackPathReversed implements ITrackPath {
     }
 
     @Override
-    public RayTraceTrackPath rayTrace(Vec3 point) {
-        RayTraceTrackPath rayTrace = original.rayTrace(point);
-        return new RayTraceTrackPath(this, 1 - rayTrace.interp, rayTrace.closestPoint, rayTrace.distance);
-    }
-
-    @Override
     public int hashCode() {
         return Objects.hashCode(original);
     }

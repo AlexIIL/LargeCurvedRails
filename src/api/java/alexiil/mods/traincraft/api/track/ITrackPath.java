@@ -10,7 +10,7 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.TrainCraft;
+import alexiil.mods.traincraft.lib.MathUtil;
 
 public interface ITrackPath {
     /** Gets a Vec3 position that has been interpolated between
@@ -74,18 +74,20 @@ public interface ITrackPath {
     @SideOnly(Side.CLIENT)
     default void renderInfo(WorldRenderer wr) {}
 
-    default RayTraceTrackPath rayTrace(Vec3 point) {
+    default RayTraceTrackPath rayTrace(Vec3 start, Vec3 direction) {
         double ia = 0, ib = 1;
         double da = 0, db = 0, dBest = Double.MAX_VALUE;
         double id = 0.5;
+        Vec3 va, vb;
 
         RayTraceTrackPath best = null;
-        // Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
-        for (int i = 1; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             Vec3 a = interpolate(ia);
             Vec3 b = interpolate(ib);
-            da = a.squareDistanceTo(point);
-            db = b.squareDistanceTo(point);
+            va= closestPointOnLineToPoint(a, start, direction);
+            vb= closestPointOnLineToPoint(b, start, direction);
+            da = a.squareDistanceTo(va);
+            db = b.squareDistanceTo(vb);
             if (da < db) {
                 if (best == null || da < dBest) {
                     dBest = da;
@@ -96,7 +98,7 @@ public interface ITrackPath {
                     // Um... wtf? lets just ignore that...
                     ib -= id;
                 }
-            } else if (db < da) {
+            } else /* if (db < da) */ {
                 if (best == null || db < dBest) {
                     dBest = db;
                     // We work out the square root at the end to get the actual distance
@@ -111,5 +113,21 @@ public interface ITrackPath {
         }
         if (best == null) return null;
         return new RayTraceTrackPath(this, best.interp, best.closestPoint, Math.sqrt(best.distance));
+    }
+
+    public static Vec3 closestPointOnLineToPoint(Vec3 point, Vec3 linePoint, Vec3 lineVector) {
+        Vec3 v = lineVector.normalize();
+        Vec3 p1 = linePoint;
+        // point from
+        Vec3 p2 = point;
+        //                (P2-P1)dot(v)
+        // Pr = P1 + ------------- * v
+        //                      v
+
+        // Its maths. Its allowed to deviate from normal naming rules.
+        Vec3 p2_minus_p1 = p2.subtract(p1);
+        double _dot_v = MathUtil.dot(p2_minus_p1, v);
+        Vec3 _scale_v = MathUtil.scale(v, _dot_v);
+        return p1.add(_scale_v);
     }
 }

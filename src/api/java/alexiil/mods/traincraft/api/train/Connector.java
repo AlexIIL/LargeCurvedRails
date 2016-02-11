@@ -58,6 +58,7 @@ public class Connector {
         return false;
     }
 
+    // This is probably wrong
     public void slowAll(double maxNewtons) {
         Set<IRollingStock> parts = Sets.newIdentityHashSet();
         parts.add(stock);
@@ -79,6 +80,7 @@ public class Connector {
             parts.forEach(s -> s.setSpeed(0));
         } else {
             int totalWeight = parts.stream().mapToInt(s -> s.weight()).sum();
+            if (momentum < 0) maxNewtons *= -1;
             double newSpeed = (momentum - maxNewtons) / totalWeight;
             parts.forEach(s -> s.setSpeed(newSpeed));
         }

@@ -24,7 +24,6 @@ public class TrainCraft {
     public void preInit(FMLPreInitializationEvent event) {
         trainCraftLog = event.getModLog();
 
-        TrainCraftAPI.WORLD_CACHE = TrainWorldCache.INSTANCE;
         TrainCraftAPI.MOVEMENT_MANAGER = TrainMovementManager.INSTANCE;
 
         TCBlocks.preInit();

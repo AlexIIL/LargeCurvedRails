@@ -11,13 +11,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponent;
 import alexiil.mods.traincraft.api.track.ITrackPath;
@@ -41,7 +39,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     public final IComponent mainComponent;
     protected final Connector connectorFront, connectorBack;
 
-    private StockPathFinder stockPathFinder = new StockPathFinder(this);
+    private StockPathFinder pathFinder = new StockPathFinder(this);
     private Vec3 lookVec = new Vec3(0, 0, 1);
 
     /** Speed (in meters per tick). This will always have the same sign as all other stocks in this train, and will be
@@ -127,18 +125,13 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     }
 
     @Override
+    public StockPathFinder pathFinder() {
+        return pathFinder;
+    }
+
+    @Override
     public IComponent mainComponent() {
         return mainComponent;
-    }
-
-    @Override
-    public StockPathFinder getTrain() {
-        return stockPathFinder;
-    }
-
-    @Override
-    public void setTrain(StockPathFinder stockPathFinder) {
-        this.stockPathFinder = stockPathFinder;
     }
 
     @Override
@@ -174,7 +167,6 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
 
     @Override
     public void setSpeed(double newSpeed) {
-        // if (face == Face.BACK) newSpeed = -newSpeed;
         if (newSpeed > MAX_SPEED) newSpeed = MAX_SPEED;
         if (newSpeed < -MAX_SPEED) newSpeed = -MAX_SPEED;
         this.speedMPT = newSpeed / 20;
@@ -255,40 +247,30 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     public boolean alignFromPlayer(Vec3 lookDir, Vec3 lookPoint, boolean simulate) throws AlignmentFailureException {
         MovingObjectPosition pos = worldObj.rayTraceBlocks(lookPoint, lookPoint.add(MathUtil.scale(lookDir, 4)), false);
         if (pos == null) throw new AlignmentFailureException();
-        if (pos.typeOfHit == MovingObjectType.BLOCK) {
-            Vec3 vec = pos.hitVec;
-            List<ITrackPath> paths = new ArrayList<>();
-            BlockPos center = pos.getBlockPos();
-            int radius = 2;
-            for (int x = -radius; x <= radius; x++) {
-                for (int y = -radius; y <= radius; y++) {
-                    for (int z = -radius; z <= radius; z++) {
-                        paths.addAll(TrackPathProvider.getPathsAsList(worldObj, pos.getBlockPos(), worldObj.getBlockState(center.add(x, y, z))));
-                    }
+        List<ITrackPath> paths = new ArrayList<>();
+        BlockPos center = new BlockPos(pos.hitVec);
+        int radius = 2;
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                for (int z = -radius; z <= radius; z++) {
+                    BlockPos pos2 = center.add(x, y, z);
+                    paths.addAll(TrackPathProvider.getPathsAsList(worldObj, pos2, worldObj.getBlockState(pos2)));
                 }
             }
-            RayTraceTrackPath best = null;
-            for (ITrackPath p : paths) {
-                RayTraceTrackPath rayTrace = p.rayTrace(vec);
-                if (best == null) best = rayTrace;
-                else if (best.distance > rayTrace.distance) best = rayTrace;
-            }
-            if (best == null) throw new AlignmentFailureException();
-            // if (best.distance > 0.4) throw new AlignmentFailureException();
-            return alignToPath(best.path, best.interp, simulate);
-        } else {
-            throw new AlignmentFailureException();
         }
+        RayTraceTrackPath best = null;
+        for (ITrackPath p : paths) {
+            RayTraceTrackPath rayTrace = p.rayTrace(lookPoint, lookDir);
+            if (best == null) best = rayTrace;
+            else if (best.distance > rayTrace.distance) best = rayTrace;
+        }
+        if (best == null) throw new AlignmentFailureException();
+        // if (best.distance > 0.4) throw new AlignmentFailureException();
+        return alignToPath(best.path, best.interp, simulate);
     }
 
     public boolean alignToPath(ITrackPath path, double interp, boolean simulate) throws AlignmentFailureException {
-        getTrain().disband();
-        StockPathFinder old = getTrain();
-        setTrain(new StockPathFinder(this, path));
-        if (!simulate) {
-            TrainCraftAPI.WORLD_CACHE.createTrain(getTrain());
-            TrainCraftAPI.WORLD_CACHE.deleteTrainIfUnused(old);
-        }
+        pathFinder = new StockPathFinder(this, path);
         mainComponent.alignTo(path, path.length() * interp, simulate);
         Vec3 vec = getPathPosition();
         setPosition(vec.xCoord, vec.yCoord, vec.zCoord);

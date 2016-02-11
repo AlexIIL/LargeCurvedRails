@@ -25,11 +25,6 @@ public interface IRollingStock {
         }
     }
 
-    /** @return The train object that contains this rolling stock. */
-    StockPathFinder getTrain();
-
-    void setTrain(StockPathFinder stockPathFinder);
-
     /** @return The weight of this stock, in kilograms */
     int weight();
 
@@ -42,17 +37,10 @@ public interface IRollingStock {
         return speed() * weight();
     }
 
-    /** If {@link #momentum()} returns a value greater than 0
-     * 
-     * @param newtons The number of newtons to apply immediatly
-     * @param face The face to apply the momentum to. */
-    default void applyMomentum(double newtons) {
-        getTrain().applyMomentum(newtons);
-    }
-
     /** Sets the speed DIRECTLY to this rolling stock.
      * 
-     * This is a callback function for {@link StockPathFinder#applyMomentum(double)}, you should NEVER call this yourself. */
+     * This is a callback function for {@link StockPathFinder#applyMomentum(double)}, you should NEVER call this
+     * yourself. */
     void setSpeed(double newSpeed);
 
     /** @return the maximum newtons that this rolling stock can brake with. You should probably experiment to find a
@@ -94,36 +82,13 @@ public interface IRollingStock {
      *         words run the look vector y component through {@link Math#asin(double)}) */
     double inclination();
 
-    /** @param maxNewtons The maximum number of newtons to apply
-     * @return The number of newtons left over from applying the brakes (can be used for checking how much wear needs to
-     *         be apllied etc) */
-    default double applyBrakes(double maxNewtons) {
-        // Make max mewtons positive or zero
-        maxNewtons = Math.abs(maxNewtons);
-        // Get the amount of momentum going forwards
-        double forwardsMomentum = momentum();
-        if (forwardsMomentum < 0) {
-            // Invert the momentum so we can use comparison easily.
-            forwardsMomentum = -forwardsMomentum;
-        }
-        /* If we have more momentum than braking power then apply the maximum braking power (and return 0 because we
-         * used it all up) */
-        if (forwardsMomentum > maxNewtons) {
-            applyMomentum(maxNewtons);
-            return 0;
-        } else {
-            // Apply our own momentum against us.
-            applyMomentum(forwardsMomentum);
-            // And return whatever we didn't use up.
-            return maxNewtons - forwardsMomentum;
-        }
-    }
+    StockPathFinder pathFinder();
 
     IComponent mainComponent();
 
     /** Gets the current position this rolling stock considers itself to be in. This is used by
-     * {@link StockPathFinder#requestNextTrackPath(IRollingStock, ITrackPath)} if the given path is null or is not contained by
-     * the train in order to find a path to follow. */
+     * {@link StockPathFinder#requestNextTrackPath(IRollingStock, ITrackPath)} if the given path is null or is not
+     * contained by the train in order to find a path to follow. */
     Vec3 getPathPosition();
 
     Vec3 getPathDirection(Face direction);

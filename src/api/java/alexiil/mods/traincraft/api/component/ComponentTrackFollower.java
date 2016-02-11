@@ -95,11 +95,11 @@ public abstract class ComponentTrackFollower implements IComponent {
 
     @Override
     public void alignTo(ITrackPath around, double meters, boolean simulate) throws AlignmentFailureException {
-        around = stock.getTrain().offsetPath(around, meters);
+        around = stock.pathFinder().offsetPath(around, meters);
         if (around == null) throw new AlignmentFailureException();
         currentPath = around;
-        stock().getTrain().usePath(currentPath, this);
-        meters = stock.getTrain().offsetMeters(around, meters);
+        stock().pathFinder().usePath(currentPath, this);
+        meters = stock.pathFinder().offsetMeters(around, meters);
         progress = meters;
 
         Entity ent = (Entity) stock;
@@ -152,9 +152,9 @@ public abstract class ComponentTrackFollower implements IComponent {
             } else if (currentPath != null) {
                 // Only update it ourselves if we have gone a tick without seeing the server data
                 progress += distanceMoved;
-                currentPath = stock().getTrain().offsetPath(currentPath, progress);
+                currentPath = stock().pathFinder().offsetPath(currentPath, progress);
                 if (currentPath != null) {
-                    progress = stock().getTrain().offsetMeters(currentPath, progress);
+                    progress = stock().pathFinder().offsetMeters(currentPath, progress);
 
                     double length = currentPath.length();
                     lastPlace = currentPath.interpolate(progress / length);
@@ -172,12 +172,12 @@ public abstract class ComponentTrackFollower implements IComponent {
             if (currentPath != null) {
                 progress += distanceMoved;
                 ITrackPath old = currentPath;
-                currentPath = stock().getTrain().offsetPath(currentPath, progress);
+                currentPath = stock().pathFinder().offsetPath(currentPath, progress);
                 if (old != currentPath) {
-                    progress = stock().getTrain().offsetMeters(old, progress);
+                    progress = stock().pathFinder().offsetMeters(old, progress);
                     if (currentPath != null) {
-                        stock.getTrain().usePath(currentPath, this);
-                        stock.getTrain().releasePath(old, this);
+                        stock.pathFinder().usePath(currentPath, this);
+                        stock.pathFinder().releasePath(old, this);
                     }
                 }
             }
