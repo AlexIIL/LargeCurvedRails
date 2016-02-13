@@ -84,30 +84,20 @@ public interface ITrackPath {
         for (int i = 0; i < 10; i++) {
             Vec3 a = interpolate(ia);
             Vec3 b = interpolate(ib);
-            va= closestPointOnLineToPoint(a, start, direction);
-            vb= closestPointOnLineToPoint(b, start, direction);
+            va = closestPointOnLineToPoint(a, start, direction);
+            vb = closestPointOnLineToPoint(b, start, direction);
             da = a.squareDistanceTo(va);
             db = b.squareDistanceTo(vb);
             if (da < db) {
-                if (best == null || da < dBest) {
-                    dBest = da;
-                    // We work out the square root at the end to get the actual distance
-                    best = new RayTraceTrackPath(this, ia, a, da);
-                    ib -= id;
-                } else if (dBest < da) {
-                    // Um... wtf? lets just ignore that...
-                    ib -= id;
-                }
+                dBest = da;
+                // We work out the square root at the end to get the actual distance
+                best = new RayTraceTrackPath(this, ia, a, da);
+                ib -= id;
             } else /* if (db < da) */ {
-                if (best == null || db < dBest) {
-                    dBest = db;
-                    // We work out the square root at the end to get the actual distance
-                    best = new RayTraceTrackPath(this, ib, b, db);
-                    ia += id;
-                } else if (dBest < da) {
-                    // Um... wtf? lets just ignore that...
-                    ia += id;
-                }
+                dBest = db;
+                // We work out the square root at the end to get the actual distance
+                best = new RayTraceTrackPath(this, ib, b, db);
+                ia += id;
             }
             id /= 2.0;
         }
@@ -120,9 +110,9 @@ public interface ITrackPath {
         Vec3 p1 = linePoint;
         // point from
         Vec3 p2 = point;
-        //                (P2-P1)dot(v)
+        // (P2-P1)dot(v)
         // Pr = P1 + ------------- * v
-        //                      v
+        // v
 
         // Its maths. Its allowed to deviate from normal naming rules.
         Vec3 p2_minus_p1 = p2.subtract(p1);
