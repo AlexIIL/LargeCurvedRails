@@ -1,10 +1,9 @@
 package alexiil.mods.traincraft.api.train;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Set;
-
-import com.google.common.collect.Sets;
+import java.util.Map;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
@@ -20,6 +19,8 @@ public class Connector {
     private final IComponent component;
     private final double offset;
     private Connector joinedTo = null;
+    /** True if this connector is fastened to the other connector, false if it is just pushing it . */
+    private boolean joinedStrongly = false;
 
     public Connector(IRollingStock stock, ConnectorFactory factory) {
         this.stock = stock;
@@ -38,6 +39,9 @@ public class Connector {
         if (!simulate) {
             joinedTo = to;
             to.joinedTo = this;
+
+            joinedStrongly = true;
+            to.joinedStrongly = true;
         }
         return true;
     }
@@ -58,55 +62,67 @@ public class Connector {
         return false;
     }
 
-    // This is probably wrong
-    public void slowAll(double maxNewtons) {
-        Set<IRollingStock> parts = Sets.newIdentityHashSet();
-        parts.add(stock);
-        boolean added = true;
-        while (added) {
-            List<IRollingStock> s = new ArrayList<>();
-            for (IRollingStock test : parts) {
-                Connector c = test.getConnector(Face.FRONT).joinedTo;
-                if (c != null) s.add(c.stock);
-                c = test.getConnector(Face.BACK).joinedTo;
-                if (c != null) s.add(c.stock);
-            }
-            added = parts.addAll(s);
-        }
+    private Connector getOther() {
+        if (stock.getConnector(Face.BACK) == this) return stock.getConnector(Face.FRONT);
+        else return stock.getConnector(Face.BACK);
+    }
 
-        double momentum = parts.stream().mapToDouble(p -> p.momentum()).sum();
-        maxNewtons = Math.abs(maxNewtons);
-        if (Math.abs(momentum) <= maxNewtons) {
-            parts.forEach(s -> s.setSpeed(0));
-        } else {
-            int totalWeight = parts.stream().mapToInt(s -> s.weight()).sum();
-            if (momentum < 0) maxNewtons *= -1;
-            double newSpeed = (momentum - maxNewtons) / totalWeight;
-            parts.forEach(s -> s.setSpeed(newSpeed));
+    private static void addPushedStock(Map<IRollingStock, Boolean> set, Connector from) {
+        Connector next = from.joinedTo;
+        while (next != null) {
+            Boolean before = set.put(next.stock, next.stock.getConnector(Face.FRONT) == next ? true : false);
+            if (before == null) break;
+            next = next.getOther().joinedTo;
         }
     }
 
-    public void pullAll(double newtons) {
-        Set<IRollingStock> allStock = Sets.newIdentityHashSet();
-        allStock.add(stock);
-        boolean added = true;
-        while (added) {
-            List<IRollingStock> s = new ArrayList<>();
-            for (IRollingStock test : allStock) {
-                Connector c = test.getConnector(Face.FRONT).joinedTo;
-                if (c != null) s.add(c.stock);
-                c = test.getConnector(Face.BACK).joinedTo;
-                if (c != null) s.add(c.stock);
-            }
-            added = allStock.addAll(s);
+    private static void addPulledStock(Map<IRollingStock, Boolean> set, Connector from) {
+        Connector next = from.joinedTo;
+        while (next != null) {
+            Boolean before = set.put(next.stock, next.stock.getConnector(Face.BACK) == next ? true : false);
+            if (before == null) break;
+            next = next.getOther().joinedTo;
         }
-        allStock.remove(null);
+    }
 
-        double totalMomentum = allStock.stream().mapToDouble(s -> s.momentum()).sum();
-        totalMomentum += newtons;
-        int totalWeight = allStock.stream().mapToInt(s -> s.weight()).sum();
-        double speed = totalMomentum / totalWeight;
-        allStock.forEach(s -> s.setSpeed(speed));
+    /** Applies some momentum to this connector, going in a particular direction. If newtons is negative then the
+     * direction will be reversed. */
+    public void applyMomentum(double newtons, Face direction) {
+        // if (newtons < 0) direction = direction.opposite();
+        Map<IRollingStock, Boolean> map = new IdentityHashMap<>();
+        map.put(stock, true);
+
+        addPushedStock(map, stock.getConnector(direction));
+        addPulledStock(map, stock.getConnector(direction.opposite()));
+
+        double momentum = map.entrySet().stream().mapToDouble(e -> e.getKey().momentum() * (e.getValue() ? 1 : -1)).sum();
+        if (direction == Face.FRONT) momentum += newtons;
+        else momentum -= newtons;
+        int totalWeight = map.keySet().stream().mapToInt(s -> s.weight()).sum();
+        double speed = momentum / totalWeight;
+
+        map.entrySet().forEach(e -> e.getKey().setSpeed(speed * (e.getValue() ? 1 : -1)));
+    }
+
+    /** Removes some momentum from this connector. */
+    public void slowAll(double newtons) {
+        Face direction = stock.getConnector(Face.FRONT) == this ? Face.FRONT : Face.BACK;
+        Map<IRollingStock, Boolean> map = new IdentityHashMap<>();
+        map.put(stock, false);
+
+        addPushedStock(map, stock.getConnector(direction.opposite()));
+        addPulledStock(map, stock.getConnector(direction));
+
+        double momentum = map.entrySet().stream().mapToDouble(e -> e.getKey().momentum() * (e.getValue() ? 1 : -1)).sum();
+        if (momentum <= 0) {
+            if (newtons <= momentum) momentum = 0;
+            else momentum += newtons;
+        } else if (newtons >= momentum) momentum = 0;
+        else momentum -= newtons;
+        int totalWeight = map.keySet().stream().mapToInt(s -> s.weight()).sum();
+        double speed = momentum / totalWeight;
+
+        map.entrySet().forEach(e -> e.getKey().setSpeed(speed * (e.getValue() ? 1 : -1)));
     }
 
     public static class ConnectorFactory {

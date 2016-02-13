@@ -31,6 +31,6 @@ public abstract class EntityRollingStockPowered extends EntityRollingStockBase {
     @Override
     public void onUpdate() {
         super.onUpdate();
-        if (!worldObj.isRemote) connectorBack.pullAll(engineOutput() / 20.0);
+        if (!worldObj.isRemote) connectorFront.applyMomentum(engineOutput() / 20.0, Face.FRONT);
     }
 }
