@@ -43,7 +43,7 @@ public class EntitySmallSteamLocomotive extends EntityRollingStockPowered {
 
     @Override
     public double maxSpeed() {
-        return 7;
+        return 4;
     }
 
     @Override

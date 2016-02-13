@@ -70,17 +70,19 @@ public class Connector {
     private static void addPushedStock(Map<IRollingStock, Boolean> set, Connector from) {
         Connector next = from.joinedTo;
         while (next != null) {
-            Boolean before = set.put(next.stock, next.stock.getConnector(Face.FRONT) == next ? true : false);
-            if (before == null) break;
+            boolean right = next.stock.getConnector(Face.BACK) == next ? true : false;
+            Boolean before = set.put(next.stock, right);
+            if (before != null) break;
             next = next.getOther().joinedTo;
         }
     }
 
     private static void addPulledStock(Map<IRollingStock, Boolean> set, Connector from) {
         Connector next = from.joinedTo;
-        while (next != null) {
-            Boolean before = set.put(next.stock, next.stock.getConnector(Face.BACK) == next ? true : false);
-            if (before == null) break;
+        while (next != null && next.joinedStrongly) {
+            boolean right = next.stock.getConnector(Face.FRONT) == next ? true : false;
+            Boolean before = set.put(next.stock, right);
+            if (before != null) break;
             next = next.getOther().joinedTo;
         }
     }
@@ -117,8 +119,10 @@ public class Connector {
         if (momentum <= 0) {
             if (newtons <= momentum) momentum = 0;
             else momentum += newtons;
-        } else if (newtons >= momentum) momentum = 0;
-        else momentum -= newtons;
+        } else {
+            if (newtons >= momentum) momentum = 0;
+            else momentum -= newtons;
+        }
         int totalWeight = map.keySet().stream().mapToInt(s -> s.weight()).sum();
         double speed = momentum / totalWeight;
 

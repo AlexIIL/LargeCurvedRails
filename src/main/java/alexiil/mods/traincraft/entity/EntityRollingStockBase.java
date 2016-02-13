@@ -202,7 +202,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
             else face = Face.FRONT;
         } else { // Server
             connectorFront.applyMomentum(-inclination() * weight() / 20.0, Face.FRONT);
-            connectorFront.slowAll(resistance() / 20.0);
+             connectorFront.slowAll(resistance() / 20.0);
 
             dataWatcher.updateObject(DATA_WATCHER_SPEED, (float) speedMPT);
 

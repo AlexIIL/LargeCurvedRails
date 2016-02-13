@@ -76,7 +76,7 @@ public interface ITrackPath {
 
     default RayTraceTrackPath rayTrace(Vec3 start, Vec3 direction) {
         double ia = 0, ib = 1;
-        double da = 0, db = 0, dBest = Double.MAX_VALUE;
+        double da = 0, db = 0;
         double id = 0.5;
         Vec3 va, vb;
 
@@ -89,12 +89,10 @@ public interface ITrackPath {
             da = a.squareDistanceTo(va);
             db = b.squareDistanceTo(vb);
             if (da < db) {
-                dBest = da;
                 // We work out the square root at the end to get the actual distance
                 best = new RayTraceTrackPath(this, ia, a, da);
                 ib -= id;
             } else /* if (db < da) */ {
-                dBest = db;
                 // We work out the square root at the end to get the actual distance
                 best = new RayTraceTrackPath(this, ib, b, db);
                 ia += id;
@@ -108,11 +106,7 @@ public interface ITrackPath {
     public static Vec3 closestPointOnLineToPoint(Vec3 point, Vec3 linePoint, Vec3 lineVector) {
         Vec3 v = lineVector.normalize();
         Vec3 p1 = linePoint;
-        // point from
         Vec3 p2 = point;
-        // (P2-P1)dot(v)
-        // Pr = P1 + ------------- * v
-        // v
 
         // Its maths. Its allowed to deviate from normal naming rules.
         Vec3 p2_minus_p1 = p2.subtract(p1);
