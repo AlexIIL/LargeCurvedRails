@@ -20,7 +20,7 @@ public class Connector {
     private final double offset;
     private Connector joinedTo = null;
     /** True if this connector is fastened to the other connector, false if it is just pushing it . */
-    private boolean joinedStrongly = false;
+    private boolean joinedStrongly = true;
 
     public Connector(IRollingStock stock, ConnectorFactory factory) {
         this.stock = stock;
@@ -31,7 +31,6 @@ public class Connector {
     public boolean attemptJoin(Connector to, boolean simulate) {
         if (joinedTo != null) return false;
         if (to.joinedTo != null) return false;
-        // Firstly verify track paths
         Vec3 joinPos = component.getTrackPos().add(MathUtil.scale(component.getTrackDirection(), offset));
         Vec3 otherPos = to.component.getTrackPos().add(MathUtil.scale(to.component.getTrackDirection(), to.offset));
         double dist = joinPos.distanceTo(otherPos);
@@ -47,7 +46,6 @@ public class Connector {
     }
 
     public boolean attemptJoinAround(boolean simulate) {
-        // Just search through all entities
         Entity rollingStock = ((Entity) stock);
         World world = rollingStock.worldObj;
         if (world == null) throw new NullPointerException("world");
@@ -108,7 +106,7 @@ public class Connector {
 
     /** Removes some momentum from this connector. */
     public void slowAll(double newtons) {
-        Face direction = stock.getConnector(Face.FRONT) == this ? Face.FRONT : Face.BACK;
+        Face direction = stock.momentum() > 0 ? Face.FRONT : Face.BACK;
         Map<IRollingStock, Boolean> map = new IdentityHashMap<>();
         map.put(stock, false);
 
@@ -137,7 +135,7 @@ public class Connector {
             this.offset = offset;
             this.maxNewtons = maxNewtons;
             List<Boolean> lst = new ArrayList<>();
-            while (component.parent() != null) {
+            if (component != null) while (component.parent() != null) {
                 IComponent parent = component.parent();
                 List<IComponent> children = parent.children();
                 if (children.size() == 0) throw new IllegalStateException("");

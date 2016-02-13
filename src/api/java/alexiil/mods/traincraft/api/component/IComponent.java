@@ -1,6 +1,5 @@
 package alexiil.mods.traincraft.api.component;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
