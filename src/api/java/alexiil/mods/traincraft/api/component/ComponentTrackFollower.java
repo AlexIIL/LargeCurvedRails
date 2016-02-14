@@ -17,7 +17,7 @@ import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 import alexiil.mods.traincraft.api.train.IRollingStock.Face;
 
-public abstract class ComponentTrackFollower implements IComponent {
+public abstract class ComponentTrackFollower implements IComponentOuter {
     // Each component uses: [ int (flag), float (progress), blockpos (track), int (track index)]
     public static final int DATA_WATCHER_COMPONENT_START = 6;
     public static final int DATA_WATCHER_COMPONENT_STRIDE = 4;
@@ -31,7 +31,7 @@ public abstract class ComponentTrackFollower implements IComponent {
     private static final int FLAG_PATH_REVERSED = 2;
 
     private final IRollingStock stock;
-    private IComponent parent;
+    private IComponentOuter parent;
 
     private ITrackPath currentPath;
     /** The progress accross the current path, in meters. */
@@ -50,17 +50,17 @@ public abstract class ComponentTrackFollower implements IComponent {
     }
 
     @Override
-    public IComponent parent() {
+    public IComponentOuter parent() {
         return parent;
     }
 
     @Override
-    public void setParent(IComponent parent) {
+    public void setParent(IComponentOuter parent) {
         this.parent = parent;
     }
 
     @Override
-    public List<IComponent> children() {
+    public List<IComponentOuter> children() {
         return Collections.emptyList();
     }
 
@@ -203,5 +203,12 @@ public abstract class ComponentTrackFollower implements IComponent {
 
     private void requestNextPath(DataWatcher dataWatcher, World world) {
         currentPath = TrainCraftAPI.MOVEMENT_MANAGER.closest(this, Face.FRONT);
+    }
+    
+    public abstract double frictionCoefficient();
+    
+    @Override
+    public double resistance() {
+        return 0;
     }
 }

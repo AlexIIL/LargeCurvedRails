@@ -8,16 +8,18 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
+import alexiil.mods.traincraft.api.train.IRollingStock;
+
 public abstract class InnerItemStorage extends AbstractComponentInner {
     private final IItemHandler itemHandler;
 
-    public InnerItemStorage(double originOffset, AxisAlignedBB boundingBox, IItemHandler handler) {
-        super(originOffset, boundingBox);
+    public InnerItemStorage(IRollingStock stock, double originOffset, AxisAlignedBB boundingBox, IItemHandler handler) {
+        super(stock, originOffset, boundingBox);
         itemHandler = handler;
     }
 
-    public InnerItemStorage(double originOffset, AxisAlignedBB boundingBox, int maxStacks) {
-        this(originOffset, boundingBox, new ItemStackHandler(maxStacks));
+    public InnerItemStorage(IRollingStock stock, double originOffset, AxisAlignedBB boundingBox, int maxStacks) {
+        this(stock, originOffset, boundingBox, new ItemStackHandler(maxStacks));
     }
 
     @Override
@@ -32,4 +34,12 @@ public abstract class InnerItemStorage extends AbstractComponentInner {
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
         return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
     }
+
+    @Override
+    public int weight() {
+        return 0;
+    }
+
+    @Override
+    public void tick() {}
 }

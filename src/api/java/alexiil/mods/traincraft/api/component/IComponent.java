@@ -1,10 +1,5 @@
 package alexiil.mods.traincraft.api.component;
 
-import java.util.List;
-
-import org.lwjgl.opengl.GL11;
-
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
@@ -13,9 +8,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.track.ITrackPath;
-import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.api.train.IRollingStock;
+import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
 
 public interface IComponent {
     IRollingStock stock();
@@ -40,53 +34,26 @@ public interface IComponent {
     void render(IRollingStock stock, float partialTicks);
 
     @SideOnly(Side.CLIENT)
-    default void preRenderOffsets(IRollingStock stock, float partialTicks) {
-        Vec3 actualPos = getTrackPos(partialTicks);
-        GlStateManager.translate(actualPos.xCoord, actualPos.yCoord, actualPos.zCoord);
+    void preRenderOffsets(IRollingStock stock, float partialTicks);
 
-        Vec3 lookVec = rotatingComponent().getTrackDirection(partialTicks);
+    IComponentOuter parent();
 
-        double tan = Math.atan2(lookVec.xCoord, lookVec.zCoord);
-        // The tan is in radians but OpenGL uses degrees
-        GL11.glRotated(tan * (180 / Math.PI), 0, 1, 0);
-
-        GL11.glRotated(Math.asin(-lookVec.yCoord) * 180 / Math.PI, 1, 0, 0);
-    }
-
-    default IComponent rotatingComponent() {
-        if (parent() == null) return this;
-        return parent();
-    }
-
-    IComponent parent();
-
-    void setParent(IComponent parent);
-
-    List<IComponent> children();
-
-    IComponent createNew(IRollingStock stock);
-
-    void alignTo(ITrackPath around, double meters, boolean simulate) throws AlignmentFailureException;
-
-    double frictionCoefficient();
-
-    double frontArea();
+    void setParent(IComponentOuter parent);
 
     AxisAlignedBB getBoundingBox();
 
-    List<IComponentInner> innerComponents();
+    <T> T getCapability(Capability<T> capability, EnumFacing facing);
 
-    default <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-        for (IComponentInner inner : innerComponents()) {
-            if (inner.hasCapability(capability, facing)) return inner.getCapability(capability, facing);
-        }
-        return null;
-    }
+    boolean hasCapability(Capability<?> capability, EnumFacing facing);
 
-    default boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-        for (IComponentInner inner : innerComponents()) {
-            if (inner.hasCapability(capability, facing)) return true;
-        }
-        return false;
+    int weight();
+
+    /** Should calculate the current amount of newtons of power this rolling stock is putting out. This will be
+     * automatically used by {@link EntityGenericRollingStock#onUpdate()} to model everything properly. This should NOT
+     * take into account the current speed.
+     * 
+     * @return The current power output of this locamotive (may be 0 in most cases if this is not a locamotive) */
+    default double maxEngineOutput() {
+        return 0;
     }
 }

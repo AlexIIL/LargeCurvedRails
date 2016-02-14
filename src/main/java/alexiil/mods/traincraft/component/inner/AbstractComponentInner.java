@@ -2,17 +2,20 @@ package alexiil.mods.traincraft.component.inner;
 
 import net.minecraft.util.AxisAlignedBB;
 
-import alexiil.mods.traincraft.api.component.IComponent;
 import alexiil.mods.traincraft.api.component.IComponentInner;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
+import alexiil.mods.traincraft.api.train.IRollingStock;
 
 public abstract class AbstractComponentInner implements IComponentInner {
     private final double originOffset;
     private final AxisAlignedBB boundingBox;
-    private IComponent parent;
+    private final IRollingStock stock;
+    private IComponentOuter parent;
 
-    public AbstractComponentInner(double originOffset, AxisAlignedBB boundingBox) {
+    public AbstractComponentInner(IRollingStock stock, double originOffset, AxisAlignedBB boundingBox) {
         this.originOffset = originOffset;
         this.boundingBox = boundingBox;
+        this.stock = stock;
     }
 
     @Override
@@ -21,12 +24,17 @@ public abstract class AbstractComponentInner implements IComponentInner {
     }
 
     @Override
-    public IComponent parent() {
+    public IRollingStock stock() {
+        return stock;
+    }
+
+    @Override
+    public IComponentOuter parent() {
         return parent;
     }
 
     @Override
-    public void setParent(IComponent parent) {
+    public void setParent(IComponentOuter parent) {
         this.parent = parent;
     }
 

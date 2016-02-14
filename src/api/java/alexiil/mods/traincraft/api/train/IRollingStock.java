@@ -3,7 +3,7 @@ package alexiil.mods.traincraft.api.train;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Vec3;
 
-import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.track.ITrackPath;
 
 /** Denotes a train part (that MUST BE an instanceof {@link Entity}) that can usually conenct to other rolling stocks to
@@ -39,52 +39,12 @@ public interface IRollingStock {
 
     /** Sets the speed DIRECTLY to this rolling stock.
      * 
-     * This is a callback function for {@link StockPathFinder#applyMomentum(double)}, you should NEVER call this
-     * yourself. */
+     * This is a callback function for {@link Connector#applyMomentum(double)}, you should NEVER call this yourself. */
     void setSpeed(double newSpeed);
-
-    /** @return the maximum newtons that this rolling stock can brake with. You should probably experiment to find a
-     *         good value. */
-    double maxBrakingForce();
-
-    boolean isBraking();
-
-    /** The current resistance that this stock applies per second. Usually this will be
-     * <p>
-     * <code>
-     * C * {@link #weight()} *  1 - {@link Math#abs(double)} ( {@link #inclination()} )  + frontArea * {@link #speed()} )
-     * </code>
-     * <p>
-     * The value for C generally depends on the type and number of wheels you have, for example 0.08 for wooden based
-     * wheels and 0.001 for steel based ones. Other materials will vary.
-     * 
-     * The value for frontArea should generally be the actual area of the stock, which should be smaller if the front is
-     * aerodynamic.
-     * 
-     * @see <a href="https://en.wikipedia.org/wiki/Rolling_resistance">https://en.wikipedia.org/wiki/Rolling_resistance
-     *      </a> */
-    double resistance();
-
-    /** Should calculate the current amount of newtons of power this rolling stock is putting out. This will be
-     * automatically used by {@link StockPathFinder#tick(IRollingStock)} to model everything properly.
-     * 
-     * @param face The direction to test against.
-     * 
-     * @return The current power output of this locamotive (may be 0 in most cases if this is not a locamotive) */
-    double engineOutput();
-
-    /** @param face The face to test against (So if this was going forwards down a hill, then if a value of
-     *            {@link Face#FRONT} was passed this would return a negative value)
-     * 
-     * @return The current inclination (between -1 and 1) for how much the train is positioned vertically. A value of -1
-     *         indicates that the train is going vertically down, and a value of 1 indicates the train is going
-     *         vertically upwards. If the train is on a 45 degree slope upwards then this should return 0.5. (in other
-     *         words run the look vector y component through {@link Math#asin(double)}) */
-    double inclination();
 
     StockPathFinder pathFinder();
 
-    IComponent mainComponent();
+    IComponentOuter mainComponent();
 
     /** Gets the current position this rolling stock considers itself to be in. This is used by
      * {@link StockPathFinder#requestNextTrackPath(IRollingStock, ITrackPath)} if the given path is null or is not

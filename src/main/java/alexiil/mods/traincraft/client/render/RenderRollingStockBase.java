@@ -26,14 +26,14 @@ import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 
 import alexiil.mods.traincraft.TrainRegistry;
-import alexiil.mods.traincraft.entity.EntityRollingStockBase;
+import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
 
-public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
-    public enum Factory implements IRenderFactory<EntityRollingStockBase> {
+public class RenderRollingStockBase extends Render<EntityGenericRollingStock> {
+    public enum Factory implements IRenderFactory<EntityGenericRollingStock> {
         INSTANCE;
 
         @Override
-        public Render<? super EntityRollingStockBase> createRenderFor(RenderManager manager) {
+        public Render<? super EntityGenericRollingStock> createRenderFor(RenderManager manager) {
             return new RenderRollingStockBase(manager);
         }
     }
@@ -41,20 +41,26 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
     private static final Map<ResourceLocation, Integer> stockModelMap = new HashMap<>();
     private static final Map<ResourceLocation, IBakedModel> stockModelBakedMap = new HashMap<>();
     private static float r = 1, g = 1, b = 1;
+    private static boolean customColour = false;
 
     protected RenderRollingStockBase(RenderManager renderManager) {
         super(renderManager);
     }
 
     @Override
-    protected ResourceLocation getEntityTexture(EntityRollingStockBase entity) {
+    protected ResourceLocation getEntityTexture(EntityGenericRollingStock entity) {
         return null;
     }
 
-    public static void setColour(float r, float g, float b) {
+    public static void enableCustomColour(float r, float g, float b) {
         RenderRollingStockBase.r = r;
         RenderRollingStockBase.g = g;
         RenderRollingStockBase.b = b;
+        customColour = true;
+    }
+
+    public static void disableCustomColour() {
+        customColour = false;
     }
 
     public static void clearModelMap() {
@@ -109,7 +115,7 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
     }
 
     @Override
-    public void doRender(EntityRollingStockBase entity, double x, double y, double z, float entityYaw, float partialTicks) {
+    public void doRender(EntityGenericRollingStock entity, double x, double y, double z, float entityYaw, float partialTicks) {
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
         GlStateManager.pushMatrix();
 
@@ -129,7 +135,7 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
 
         RenderHelper.disableStandardItemLighting();
 
-        if (r != 1 || g != 1 || b != 1) {
+        if (customColour) {
             String sr = "_" + (int) (r * 0xFF);
             String sg = "_" + (int) (g * 0xFF);
             String sb = "_" + (int) (b * 0xFF);
@@ -138,7 +144,7 @@ public class RenderRollingStockBase extends Render<EntityRollingStockBase> {
             renderManager.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
         }
 
-        entity.mainComponent.render(entity, partialTicks);
+        entity.mainComponent().render(entity, partialTicks);
 
         RenderHelper.enableStandardItemLighting();
 

@@ -5,13 +5,13 @@ import java.util.Collections;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
-import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.train.Connector.ConnectorFactory;
 import alexiil.mods.traincraft.component.ComponentSmallSteamLocomotive;
 import alexiil.mods.traincraft.component.ComponentSmallWheel;
 
 public class EntitySmallSteamLocomotive extends EntityRollingStockPowered {
-    private static final IComponent steamComponent;
+    private static final IComponentOuter steamComponent;
     private static final ConnectorFactory frontConnector, backConnector;
 
     static {

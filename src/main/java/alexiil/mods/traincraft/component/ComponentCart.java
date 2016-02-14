@@ -1,7 +1,6 @@
 package alexiil.mods.traincraft.component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.AxisAlignedBB;
@@ -12,8 +11,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.component.ComponentResting;
-import alexiil.mods.traincraft.api.component.IComponent;
 import alexiil.mods.traincraft.api.component.IComponentInner;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 
@@ -21,8 +20,8 @@ public class ComponentCart extends ComponentResting {
     private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/cart.obj");
     private static final ResourceLocation textureLocation = new ResourceLocation("traincraft:trains/cart");
 
-    public ComponentCart(IRollingStock stock, IComponent childFront, IComponent childBack, List<IComponent> childMiddle, List<IComponentInner> inners,
-            double frontBack) {
+    public ComponentCart(IRollingStock stock, IComponentOuter childFront, IComponentOuter childBack, List<IComponentOuter> childMiddle,
+            List<IComponentInner> inners, double frontBack) {
         super(stock, childFront, childBack, childMiddle, inners, frontBack);
     }
 
@@ -39,8 +38,7 @@ public class ComponentCart extends ComponentResting {
     @Override
     @SideOnly(Side.CLIENT)
     public void render(IRollingStock stock, float partialTicks) {
-        childFront.render(stock, partialTicks);
-        childBack.render(stock, partialTicks);
+        super.render(stock, partialTicks);
 
         GlStateManager.pushMatrix();
         preRenderOffsets(stock, partialTicks);
@@ -51,14 +49,22 @@ public class ComponentCart extends ComponentResting {
     }
 
     @Override
-    public IComponent createNew(IRollingStock stock) {
-        List<IComponent> middle = childMiddle.stream().map(c -> c.createNew(stock)).collect(Collectors.toList());
-        List<IComponentInner> inners = innerComponents.stream().map(c -> c.createNew(stock)).collect(Collectors.toList());
-        return new ComponentCart(stock, childFront.createNew(stock), childBack.createNew(stock), middle, inners, frontBack);
+    protected AxisAlignedBB box() {
+        return new AxisAlignedBB(-0.5, 0.2, -0.5, 0.5, 1, 0.5);
     }
 
     @Override
-    protected AxisAlignedBB box() {
-        return new AxisAlignedBB(-0.5, 0.2, -0.5, 0.5, 1, 0.5);
+    public int weight() {
+        return 100;
+    }
+
+    @Override
+    public double maxBrakingForce() {
+        return 10;
+    }
+
+    @Override
+    public boolean isBraking() {
+        return false;
     }
 }

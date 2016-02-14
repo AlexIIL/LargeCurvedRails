@@ -16,23 +16,22 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.entity.EntityRollingStockBase;
+import alexiil.mods.traincraft.api.train.IRollingStockType;
+import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
 
 public enum TrainRegistry {
     INSTANCE;
 
-    private static final Map<Class<? extends EntityRollingStockBase>, EntityRollingStockBase> trains = new HashMap<>();
+    private final Map<ResourceLocation, IRollingStockType> trains = new HashMap<>();
 
-    public static void registerTrain(Class<? extends EntityRollingStockBase> stock, String modUniqueName, int modSpecificId)
-            throws IllegalArgumentException {
-        try {
-            EntityRollingStockBase base = stock.getConstructor(World.class).newInstance((World) null);
-            EntityRegistry.registerModEntity(stock, modUniqueName, modSpecificId, Loader.instance().activeModContainer().getMod(), 60, 64, false);
-            trains.put(stock, base);
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-            | SecurityException e) {
-            throw new IllegalArgumentException(e);
-        }
+    public void registerTrain(IRollingStockType factory) {
+        ResourceLocation uniqueId = factory.uniqueID();
+        if (trains.containsKey(uniqueId)) throw new IllegalStateException("Tried to re register the ID " + uniqueId);
+        trains.put(uniqueId, factory);
+    }
+
+    public IRollingStockType getFactory(ResourceLocation location) {
+        return trains.get(location);
     }
 
     /** NOTE: This is GOOGLE's function as forge doesn't have java 8! */

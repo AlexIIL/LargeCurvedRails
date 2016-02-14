@@ -4,7 +4,9 @@ import alexiil.mods.traincraft.api.IAddon;
 
 public class VanillaAddon implements IAddon {
     @Override
-    public void preInit() {}
+    public void preInit() {
+        
+    }
 
     @Override
     public void init() {}

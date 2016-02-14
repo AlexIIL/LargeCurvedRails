@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.component;
+package alexiil.mods.traincraft.compat.vanilla;
 
 import javax.vecmath.AxisAngle4f;
 import javax.vecmath.Matrix4f;
@@ -17,13 +17,14 @@ import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 
-public class ComponentSmallWheel extends ComponentTrackFollower {
+public class ComponentTinyWheel extends ComponentTrackFollower {
+    // Temp!
     private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/wheel_small.obj");
     private static final ResourceLocation textureLocation = new ResourceLocation("traincraft:trains/wheel_small");
     private static final double wheelRadius = 0.125;
     private double rotationAngle = 0;
 
-    public ComponentSmallWheel(IRollingStock stock, double offset, int dataWatcherOffset) {
+    public ComponentTinyWheel(IRollingStock stock, double offset, int dataWatcherOffset) {
         super(stock, offset, dataWatcherOffset);
     }
 
@@ -43,7 +44,7 @@ public class ComponentSmallWheel extends ComponentTrackFollower {
 
     @Override
     public double frictionCoefficient() {
-        return 0.04;
+        return 0.08;
     }
 
     @Override
@@ -85,17 +86,17 @@ public class ComponentSmallWheel extends ComponentTrackFollower {
     }
 
     @Override
-    public double maxBrakingForce() {
-        return 0;
-    }
-
-    @Override
     public boolean isBraking() {
         return false;
     }
 
     @Override
+    public double maxBrakingForce() {
+        return 0;
+    }
+
+    @Override
     public int weight() {
-        return 4;
+        return 2;
     }
 }

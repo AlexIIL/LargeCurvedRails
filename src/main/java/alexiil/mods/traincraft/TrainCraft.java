@@ -5,21 +5,26 @@ import org.apache.logging.log4j.Logger;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 
 import alexiil.mods.traincraft.api.AddonManager;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.block.TCBlocks;
 import alexiil.mods.traincraft.compat.TCCompat;
-import alexiil.mods.traincraft.entity.EntityRollingStockCart;
-import alexiil.mods.traincraft.entity.EntitySmallSteamLocomotive;
+import alexiil.mods.traincraft.component.RollingStockTypeCart;
+import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
 import alexiil.mods.traincraft.item.TCItems;
 import alexiil.mods.traincraft.network.MessageHandler;
 
 @Mod(modid = DefaultProps.MODID, name = "TrainCraft")
 public class TrainCraft {
+    @Instance
+    public static TrainCraft instance;
+
     public static Logger trainCraftLog;
     public static Configuration cfg;
 
@@ -35,6 +40,10 @@ public class TrainCraft {
         TCTabs.preInit();
         TCCompat.preInit();
 
+        EntityRegistry.registerModEntity(EntityGenericRollingStock.class, "", 0, instance, 60, 64, false);
+
+        TrainRegistry.INSTANCE.registerTrain(RollingStockTypeCart.INSTANCE);
+
         AddonManager.INSTANCE.preInit();
 
         Proxy.proxy.preInit(event);
@@ -43,9 +52,6 @@ public class TrainCraft {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        TrainRegistry.registerTrain(EntityRollingStockCart.class, "minecart_wooden", 0);
-        TrainRegistry.registerTrain(EntitySmallSteamLocomotive.class, "stream_locomotive_small", 1);
-
         TCItems.init();
         TCRecipies.init();
         TCCompat.init();

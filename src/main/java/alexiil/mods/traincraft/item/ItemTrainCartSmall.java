@@ -2,12 +2,12 @@ package alexiil.mods.traincraft.item;
 
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.entity.EntityRollingStockBase;
-import alexiil.mods.traincraft.entity.EntityRollingStockCart;
+import alexiil.mods.traincraft.component.RollingStockTypeCart;
+import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
 
 public class ItemTrainCartSmall extends ItemPlacableTrain {
     @Override
-    public EntityRollingStockBase createRollingStock(World world) {
-        return new EntityRollingStockCart(world);
+    public EntityGenericRollingStock createRollingStock(World world) {
+        return new EntityGenericRollingStock(world, RollingStockTypeCart.INSTANCE);
     }
 }

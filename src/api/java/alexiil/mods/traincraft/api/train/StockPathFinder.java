@@ -15,7 +15,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
 
@@ -135,11 +135,11 @@ public class StockPathFinder {
         return meters;
     }
 
-    public void usePath(ITrackPath path, IComponent user) {
+    public void usePath(ITrackPath path, IComponentOuter user) {
         paths.get(path).uses.add(user);
     }
 
-    public void releasePath(ITrackPath path,  IComponent user) {
+    public void releasePath(ITrackPath path,  IComponentOuter user) {
         PathNode node = paths.get(path);
         node.uses.remove(user);
 
@@ -165,7 +165,7 @@ public class StockPathFinder {
     public static class PathNode {// TODO: Convert this to a proper linked list. Or just fix the broken behaviour above.
         public final ITrackPath thisPath;
         public ITrackPath forward, back;
-        public final Set<IComponent> uses = Sets.newIdentityHashSet();
+        public final Set<IComponentOuter> uses = Sets.newIdentityHashSet();
 
         public PathNode(ITrackPath thisPath) {
             this.thisPath = thisPath;

@@ -10,8 +10,8 @@ import alexiil.mods.traincraft.api.train.IRollingStock;
 import alexiil.mods.traincraft.component.inner.InnerItemStorage;
 
 public class InnerVanillaChest extends InnerItemStorage {
-    public InnerVanillaChest() {
-        super(0, new AxisAlignedBB(-0.45, 0.1, -0.45, 0.45, 0.6, 0.45), 27);
+    public InnerVanillaChest(IRollingStock stock) {
+        super(stock, 0, new AxisAlignedBB(-0.45, 0.1, -0.45, 0.45, 0.6, 0.45), 27);
     }
 
     @Override
@@ -27,6 +27,6 @@ public class InnerVanillaChest extends InnerItemStorage {
 
     @Override
     public IComponentInner createNew(IRollingStock stock) {
-        return new InnerVanillaChest();
+        return new InnerVanillaChest(stock);
     }
 }

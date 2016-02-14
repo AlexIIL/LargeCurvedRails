@@ -6,11 +6,11 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.component.IComponentInner;
 
 public class EntityStockVanillaChest extends EntityStockVanilla {
-    private static final IComponent cartComponent;
+    private static final IComponentOuter cartComponent;
 
     static {
         IComponentInner chest = new InnerVanillaChest();

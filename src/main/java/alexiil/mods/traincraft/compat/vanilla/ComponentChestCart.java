@@ -2,18 +2,25 @@ package alexiil.mods.traincraft.compat.vanilla;
 
 import java.util.List;
 
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.component.ComponentResting;
-import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.component.IComponentInner;
 import alexiil.mods.traincraft.api.train.IRollingStock;
+import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 
 public class ComponentChestCart extends ComponentResting {
-    public ComponentChestCart(IRollingStock stock, IComponent childFront, IComponent childBack, List<IComponent> childMiddle,
+    private static final ResourceLocation modelLocation = new ResourceLocation("traincraft:models/trains/vanilla/cart_chest.obj");
+    private static final ResourceLocation textureLocation = new ResourceLocation("traincraft:trains/vanilla/cart_chest");
+    private static final AxisAlignedBB boundingBox = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+
+    public ComponentChestCart(IRollingStock stock, IComponentOuter childFront, IComponentOuter childBack, List<IComponentOuter> childMiddle,
             List<IComponentInner> innerComponents, double frontBack) {
         super(stock, childFront, childBack, childMiddle, innerComponents, frontBack);
     }
@@ -21,16 +28,23 @@ public class ComponentChestCart extends ComponentResting {
     @Override
     @SideOnly(Side.CLIENT)
     public void render(IRollingStock stock, float partialTicks) {
+        super.render(stock, partialTicks);
 
+        GlStateManager.pushMatrix();
+        preRenderOffsets(stock, partialTicks);
+
+        RenderRollingStockBase.renderModel(modelLocation);
+
+        GlStateManager.popMatrix();
     }
 
     @Override
-    public IComponent createNew(IRollingStock stock) {
+    public IComponentOuter createNew(IRollingStock stock) {
         return new ComponentChestCart(stock, childFront, childBack, childMiddle, innerComponents, frontBack);
     }
 
     @Override
     protected AxisAlignedBB box() {
-        return null;
+        return boundingBox;
     }
 }

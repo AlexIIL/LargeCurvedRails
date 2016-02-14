@@ -41,7 +41,7 @@ import alexiil.mods.traincraft.client.model.*;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 import alexiil.mods.traincraft.component.ComponentCart;
 import alexiil.mods.traincraft.component.ComponentSmallWheel;
-import alexiil.mods.traincraft.entity.EntityRollingStockBase;
+import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
 import alexiil.mods.traincraft.item.ItemPlacableTrain;
 import alexiil.mods.traincraft.lib.MathUtil;
 
@@ -49,7 +49,7 @@ public class ProxyClient extends Proxy {
     @Override
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
-        RenderingRegistry.registerEntityRenderingHandler(EntityRollingStockBase.class, RenderRollingStockBase.Factory.INSTANCE);
+        RenderingRegistry.registerEntityRenderingHandler(EntityGenericRollingStock.class, RenderRollingStockBase.Factory.INSTANCE);
         OBJLoader.instance.addDomain("traincraft");
         for (TCBlocks b : TCBlocks.values()) {
             Block block = b.getBlock();
@@ -113,17 +113,18 @@ public class ProxyClient extends Proxy {
     }
 
     @SubscribeEvent
-    public void textureStitchPost(TextureStitchEvent.Post event) {
-
-    }
+    public void textureStitchPost(TextureStitchEvent.Post event) {}
 
     private static final double STEP_DIST = 0.3;
 
     @SubscribeEvent
     public void renderWorld(RenderWorldLastEvent event) {
         if (Minecraft.getMinecraft().theWorld == null || Minecraft.getMinecraft().thePlayer == null) return;
+        Minecraft.getMinecraft().mcProfiler.startSection("traincraft");
         renderFakeTrain(event);
+        renderFakeItemBlock(event);
         renderDebug(event);
+        Minecraft.getMinecraft().mcProfiler.endSection();
     }
 
     private static void renderFakeTrain(RenderWorldLastEvent event) {
@@ -134,18 +135,20 @@ public class ProxyClient extends Proxy {
         Item item = player.getHeldItem().getItem();
         if (!(item instanceof ItemPlacableTrain)) return;
 
-        Minecraft.getMinecraft().mcProfiler.startSection("traincraft_fake_train");
+        Minecraft.getMinecraft().mcProfiler.startSection("fake_train");
 
         ItemPlacableTrain place = (ItemPlacableTrain) item;
 
-        EntityRollingStockBase rollingStock = place.createRollingStock(player.worldObj);
+        EntityGenericRollingStock rollingStock = place.createRollingStock(player.worldObj);
         if (rollingStock != null) {
             GL11.glPushMatrix();
             Vec3 lookVec = player.getLook(event.partialTicks).normalize();
             Vec3 lookFrom = player.getPositionEyes(event.partialTicks);
             try {
                 if (rollingStock.alignFromPlayer(lookVec, lookFrom, true)) {
-                    RenderRollingStockBase.setColour(0, 1, 0);
+                    RenderRollingStockBase.enableCustomColour(0, 1, 0);
+                } else {
+                    RenderRollingStockBase.enableCustomColour(1, 1, 1);
                 }
             } catch (AlignmentFailureException afe) {
                 // Re-create it so it doesn't partially mess up
@@ -155,13 +158,13 @@ public class ProxyClient extends Proxy {
                 Vec3 lookingAt = null;
                 if (mop != null) lookingAt = mop.hitVec;
                 if (lookingAt == null) lookingAt = maxLook;
-                RenderRollingStockBase.setColour(1, 0, 0);
+                RenderRollingStockBase.enableCustomColour(1, 0, 0);
                 Vec3 renderOffset = lookingAt;
                 GL11.glTranslated(renderOffset.xCoord, renderOffset.yCoord, renderOffset.zCoord);
             }
 
             Minecraft.getMinecraft().getRenderManager().renderEntitySimple(rollingStock, event.partialTicks);
-            RenderRollingStockBase.setColour(1, 1, 1);
+            RenderRollingStockBase.disableCustomColour();
 
             RenderHelper.disableStandardItemLighting();
 
@@ -171,6 +174,10 @@ public class ProxyClient extends Proxy {
         Minecraft.getMinecraft().mcProfiler.endSection();
     }
 
+    private static void renderFakeItemBlock(RenderWorldLastEvent event) {
+
+    }
+
     private static void renderDebug(RenderWorldLastEvent event) {
         if (MinecraftServer.getServer() == null) return;
         if (!Minecraft.getMinecraft().gameSettings.showDebugInfo) return;
@@ -178,7 +185,7 @@ public class ProxyClient extends Proxy {
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         World world = MinecraftServer.getServer().worldServerForDimension(Minecraft.getMinecraft().theWorld.provider.getDimensionId());
         if (world == null) return;
-        Minecraft.getMinecraft().mcProfiler.startSection("traincraft_debug");
+        Minecraft.getMinecraft().mcProfiler.startSection("debug");
 
         List<ITrackPath> drawn = new ArrayList<>();
 

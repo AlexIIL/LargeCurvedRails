@@ -7,13 +7,13 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
-import alexiil.mods.traincraft.entity.EntityRollingStockBase;
+import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
 
 public abstract class ItemPlacableTrain extends Item {
 
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
-        EntityRollingStockBase entity = createRollingStock(world);
+        EntityGenericRollingStock entity = createRollingStock(world);
         try {
             Vec3 lookVec = player.getLookVec().normalize();
             Vec3 lookFrom = new Vec3(player.posX, player.posY + player.getEyeHeight(), player.posZ);
@@ -27,5 +27,5 @@ public abstract class ItemPlacableTrain extends Item {
         return stack;
     }
 
-    public abstract EntityRollingStockBase createRollingStock(World world);
+    public abstract EntityGenericRollingStock createRollingStock(World world);
 }

@@ -2,12 +2,12 @@ package alexiil.mods.traincraft.entity;
 
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.train.Connector.ConnectorFactory;
 
-public abstract class EntityRollingStockPowered extends EntityRollingStockBase {
-    public EntityRollingStockPowered(World world, IComponent component, ConnectorFactory front, ConnectorFactory back) {
-        super(world, component, front, back);
+public abstract class EntityRollingStockPowered extends EntityGenericRollingStock {
+    public EntityRollingStockPowered(World world, IComponentOuter componentOuter, ConnectorFactory front, ConnectorFactory back) {
+        super(world, componentOuter, front, back);
     }
 
     @Override

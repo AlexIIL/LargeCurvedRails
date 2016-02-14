@@ -5,14 +5,14 @@ import java.util.Collections;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
-import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.train.Connector.ConnectorFactory;
 import alexiil.mods.traincraft.component.ComponentCart;
 import alexiil.mods.traincraft.component.ComponentSmallWheel;
 
 /** Designates a simple rolling stock with no movement capabilites by itself */
-public class EntityRollingStockCart extends EntityRollingStockBase {
-    private static final IComponent cartComponent;
+public class EntityRollingStockCart extends EntityGenericRollingStock {
+    private static final IComponentOuter cartComponent;
     private static final ConnectorFactory frontConnector, backConnector;
 
     static {

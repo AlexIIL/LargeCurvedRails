@@ -12,17 +12,17 @@ import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 
 /** A component that rests ontop of other components, ultimatly resting on {@link ComponentTrackFollower}. */
-public abstract class ComponentResting implements IComponent {
+public abstract class ComponentResting implements IComponentOuter {
     private final IRollingStock stock;
-    private IComponent parent;
-    protected final IComponent childFront, childBack;
-    protected final ImmutableList<IComponent> childMiddle, allChildren;
+    private IComponentOuter parent;
+    protected final IComponentOuter childFront, childBack;
+    protected final ImmutableList<IComponentOuter> childMiddle, allChildren;
     protected final ImmutableList<IComponentInner> innerComponents;
     protected final double frontBack;
 
     private final boolean isBogie;
 
-    public ComponentResting(IRollingStock stock, IComponent childFront, IComponent childBack, List<IComponent> childMiddle,
+    public ComponentResting(IRollingStock stock, IComponentOuter childFront, IComponentOuter childBack, List<IComponentOuter> childMiddle,
             List<IComponentInner> innerComponents, double frontBack) {
         this.stock = stock;
         if (childFront == null) throw new NullPointerException("childFront");
@@ -33,7 +33,7 @@ public abstract class ComponentResting implements IComponent {
         childBack.setParent(this);
         this.frontBack = frontBack;
 
-        ImmutableList.Builder<IComponent> builder = ImmutableList.builder();
+        ImmutableList.Builder<IComponentOuter> builder = ImmutableList.builder();
         childMiddle.forEach(c -> {
             if (c == null) throw new NullPointerException("childMiddle.[?]");
             builder.add(c);
@@ -51,7 +51,7 @@ public abstract class ComponentResting implements IComponent {
 
         isBogie = false;
 
-        ImmutableList.Builder<IComponent> builder3 = ImmutableList.builder();
+        ImmutableList.Builder<IComponentOuter> builder3 = ImmutableList.builder();
         builder3.add(childFront);
         builder3.addAll(childMiddle);
         builder3.add(childBack);
@@ -59,24 +59,24 @@ public abstract class ComponentResting implements IComponent {
     }
 
     @Override
-    public IComponent parent() {
+    public IComponentOuter parent() {
         return parent;
     }
 
     @Override
-    public void setParent(IComponent parent) {
+    public void setParent(IComponentOuter parent) {
         this.parent = parent;
     }
 
     @Override
-    public List<IComponent> children() {
+    public List<IComponentOuter> children() {
         return allChildren;
     }
 
     @Override
-    public IComponent rotatingComponent() {
+    public IComponentOuter rotatingComponent() {
         if (isBogie) return this;
-        return IComponent.super.rotatingComponent();
+        return IComponentOuter.super.rotatingComponent();
     }
 
     @Override
@@ -100,10 +100,20 @@ public abstract class ComponentResting implements IComponent {
     }
 
     @Override
+    public double resistance() {
+        return 0;
+    }
+
+    @Override
+    public double inclination() {
+        return getTrackDirection().yCoord;
+    }
+
+    @Override
     public void alignTo(ITrackPath around, double offset, boolean simulate) throws AlignmentFailureException {
         childFront.alignTo(around, offset + childFront.originOffset(), false);
         childBack.alignTo(around, offset + childBack.originOffset(), false);
-        for (IComponent comp : childMiddle)
+        for (IComponentOuter comp : childMiddle)
             comp.alignTo(around, offset + comp.originOffset(), false);
     }
 
@@ -113,6 +123,7 @@ public abstract class ComponentResting implements IComponent {
         // Use an array as a pointer to the internal AABB- this avoids the AABB being final
         AxisAlignedBB[] back = { childBack.getBoundingBox().offset(0, 0, childBack.originOffset()) };
         childMiddle.forEach(c -> back[0] = back[0].union(c.getBoundingBox().offset(0, 0, c.originOffset())));
+        innerComponents.forEach(c -> back[0] = back[0].union(c.getBoundingBox().offset(0, 0, c.originOffset())));
         return front.union(back[0]).union(box());
     }
 

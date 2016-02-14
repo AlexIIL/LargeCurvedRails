@@ -10,35 +10,38 @@ import javax.vecmath.Point3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import alexiil.mods.traincraft.TrainRegistry;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
-import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.RayTraceTrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
-import alexiil.mods.traincraft.api.train.AlignmentFailureException;
-import alexiil.mods.traincraft.api.train.Connector;
-import alexiil.mods.traincraft.api.train.Connector.ConnectorFactory;
-import alexiil.mods.traincraft.api.train.IRollingStock;
-import alexiil.mods.traincraft.api.train.StockPathFinder;
+import alexiil.mods.traincraft.api.train.*;
+import alexiil.mods.traincraft.api.train.IRollingStockType.ConstructedData;
 import alexiil.mods.traincraft.client.model.MatrixUtil;
 import alexiil.mods.traincraft.lib.MathUtil;
 
-public abstract class EntityRollingStockBase extends Entity implements IRollingStock {
+import io.netty.buffer.ByteBuf;
+
+public final class EntityGenericRollingStock extends Entity implements IRollingStock, IEntityAdditionalSpawnData {
     private static final int DATA_WATCHER_SPEED = 5;
 
     private static final Object[] DATA_WATCHER_COMPONENT_VARS = { Integer.valueOf(0), new Integer(0), Float.valueOf(0), new BlockPos(0, 0, 0) };
     /** Max speed of 20 meters per second */
     private static final double MAX_SPEED = 20;
 
-    public final IComponent mainComponent;
-    protected final Connector connectorFront, connectorBack;
+    private ResourceLocation type;
+    private IComponentOuter mainComponent;
+    private Connector connectorFront, connectorBack;
 
     private StockPathFinder pathFinder = new StockPathFinder(this);
     private Vec3 lookVec = new Vec3(0, 0, 1);
@@ -46,14 +49,19 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     /** Speed (in meters per tick). This will always have the same sign as all other stocks in this train, and will be
      * inverted if this joins a train going in the other direction. */
     private double speedMPT = 0;
-    /** The way this stock is facing relative to the train it is joined to. */
-    private Face face = Face.FRONT;
 
-    public EntityRollingStockBase(World worldIn, IComponent component, ConnectorFactory front, ConnectorFactory back) {
-        super(worldIn);
-        this.mainComponent = component.createNew(this);
-        this.connectorFront = new Connector(this, front);
-        this.connectorBack = new Connector(this, back);
+    public EntityGenericRollingStock(World world, IRollingStockType factory) {
+        super(world);
+        type = factory.uniqueID();
+        ConstructedData data = factory.createInstance(this);
+        mainComponent = data.outer;
+        connectorFront = data.front;
+        connectorBack = data.back;
+    }
+
+    public EntityGenericRollingStock(World world) {
+        super(world);
+        if (!world.isRemote) throw new IllegalStateException();
     }
 
     @Override
@@ -131,7 +139,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     }
 
     @Override
-    public IComponent mainComponent() {
+    public IComponentOuter mainComponent() {
         return mainComponent;
     }
 
@@ -174,12 +182,10 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
         dataWatcher.updateObject(DATA_WATCHER_SPEED, (float) speedMPT);
     }
 
-    @Override
     public double inclination() {
         return lookVec.yCoord;
     }
 
-    @Override
     public double resistance() {
         double frictionCoefficient = mainComponent.frictionCoefficient();
         double groundFriction = frictionCoefficient * weight() * (1 - Math.abs(inclination()));
@@ -199,11 +205,9 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
 
         if (getEntityWorld().isRemote) {// Client
             speedMPT = dataWatcher.getWatchableObjectFloat(DATA_WATCHER_SPEED);
-            if (speedMPT < 0) face = Face.BACK;
-            else face = Face.FRONT;
         } else { // Server
             connectorFront.applyMomentum(-inclination() * weight() / 20.0, Face.FRONT);
-            connectorFront.slowAll(resistance() / 20.0);
+            // connectorFront.slowAll(resistance() / 20.0); // broken!
 
             dataWatcher.updateObject(DATA_WATCHER_SPEED, (float) speedMPT);
 
@@ -212,7 +216,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
             if (list != null && !list.isEmpty()) {
                 for (Entity entity : list) {
                     if (entity != this.riddenByEntity && entity.canBePushed()) {
-                        if (entity instanceof EntityRollingStockBase) {
+                        if (entity instanceof IRollingStock) {
                             // applyRollingStockCollision((EntityRollingStockBase) entity);
                         } else {
                             applyEntityCollision(entity);
@@ -237,6 +241,27 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
                 dataWatcher.addObject(start + j, DATA_WATCHER_COMPONENT_VARS[j]);
             }
         }
+    }
+
+    @Override
+    public void writeSpawnData(ByteBuf buffer) {
+        PacketBuffer packet = new PacketBuffer(buffer);
+        String s = type.toString();
+        packet.writeInt(s.length());
+        packet.writeString(s);
+    }
+
+    @Override
+    public void readSpawnData(ByteBuf buffer) {
+        PacketBuffer packet = new PacketBuffer(buffer);
+        int length = packet.readInt();
+        type = new ResourceLocation(packet.readStringFromBuffer(length));
+        IRollingStockType factory = TrainRegistry.INSTANCE.getFactory(type);
+        if (factory == null) throw new IllegalStateException("");
+        ConstructedData data = factory.createInstance(this);
+        mainComponent = data.outer;
+        connectorFront = data.front;
+        connectorBack = data.back;
     }
 
     @Override
@@ -284,6 +309,11 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     @Override
     public Connector getConnector(Face direction) {
         return direction == Face.FRONT ? connectorFront : connectorBack;
+    }
+
+    @Override
+    public int weight() {
+        return mainComponent.weight();
     }
 
     @Override
