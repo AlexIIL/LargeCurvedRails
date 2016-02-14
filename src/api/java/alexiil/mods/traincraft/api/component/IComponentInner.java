@@ -4,8 +4,10 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -61,4 +63,12 @@ public interface IComponentInner {
     IComponentInner createNew(IRollingStock stock);
 
     AxisAlignedBB getBoundingBox();
+
+    default <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+        return null;
+    }
+
+    default boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+        return false;
+    }
 }

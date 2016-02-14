@@ -6,8 +6,10 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -73,4 +75,18 @@ public interface IComponent {
     AxisAlignedBB getBoundingBox();
 
     List<IComponentInner> innerComponents();
+
+    default <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+        for (IComponentInner inner : innerComponents()) {
+            if (inner.hasCapability(capability, facing)) return inner.getCapability(capability, facing);
+        }
+        return null;
+    }
+
+    default boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+        for (IComponentInner inner : innerComponents()) {
+            if (inner.hasCapability(capability, facing)) return true;
+        }
+        return false;
+    }
 }

@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -202,7 +203,7 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
             else face = Face.FRONT;
         } else { // Server
             connectorFront.applyMomentum(-inclination() * weight() / 20.0, Face.FRONT);
-             connectorFront.slowAll(resistance() / 20.0);
+            connectorFront.slowAll(resistance() / 20.0);
 
             dataWatcher.updateObject(DATA_WATCHER_SPEED, (float) speedMPT);
 
@@ -283,5 +284,17 @@ public abstract class EntityRollingStockBase extends Entity implements IRollingS
     @Override
     public Connector getConnector(Face direction) {
         return direction == Face.FRONT ? connectorFront : connectorBack;
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+        if (mainComponent.hasCapability(capability, facing)) return mainComponent.getCapability(capability, facing);
+        return super.getCapability(capability, facing);
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+        if (mainComponent.hasCapability(capability, facing)) return true;
+        return super.hasCapability(capability, facing);
     }
 }

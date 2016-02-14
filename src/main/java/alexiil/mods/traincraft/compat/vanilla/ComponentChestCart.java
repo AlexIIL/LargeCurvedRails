@@ -4,6 +4,9 @@ import java.util.List;
 
 import net.minecraft.util.AxisAlignedBB;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 import alexiil.mods.traincraft.api.component.ComponentResting;
 import alexiil.mods.traincraft.api.component.IComponent;
 import alexiil.mods.traincraft.api.component.IComponentInner;
@@ -16,8 +19,9 @@ public class ComponentChestCart extends ComponentResting {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void render(IRollingStock stock, float partialTicks) {
-        
+
     }
 
     @Override

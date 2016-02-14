@@ -2,24 +2,27 @@ package alexiil.mods.traincraft.compat.vanilla;
 
 import java.util.Collections;
 
-import net.minecraft.entity.item.EntityMinecartChest;
+import com.google.common.collect.ImmutableList;
+
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.component.IComponent;
+import alexiil.mods.traincraft.api.component.IComponentInner;
 
-public class EntityStockVanillaChest extends EntityStockVanillaWrapper<EntityMinecartChest> {
+public class EntityStockVanillaChest extends EntityStockVanilla {
     private static final IComponent cartComponent;
 
     static {
-        cartComponent = new ComponentChestCart(null, wheel1, wheel2, Collections.emptyList(), Collections.emptyList(), 0.5);
+        IComponentInner chest = new InnerVanillaChest();
+        cartComponent = new ComponentChestCart(null, defaultWheel1, defaultWheel2, Collections.emptyList(), ImmutableList.of(chest), 0.5);
     }
 
     public EntityStockVanillaChest(World world) {
-        super(world, cartComponent, new EntityMinecartChest(world));
+        super(world, cartComponent);
     }
 
     @Override
     public int weight() {
-        return 0;
+        return 100;
     }
 }
