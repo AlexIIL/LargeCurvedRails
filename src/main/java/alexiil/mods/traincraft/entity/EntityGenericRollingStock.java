@@ -186,15 +186,6 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
         return lookVec.yCoord;
     }
 
-    public double resistance() {
-        double frictionCoefficient = mainComponent.frictionCoefficient();
-        double groundFriction = frictionCoefficient * weight() * (1 - Math.abs(inclination()));
-        double frontArea = mainComponent.frontArea();
-        double airDrag = Math.abs(speed());
-        airDrag *= airDrag * frontArea;
-        return groundFriction + airDrag;
-    }
-
     @Override
     public void onUpdate() {
         super.onUpdate();
@@ -207,7 +198,7 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
             speedMPT = dataWatcher.getWatchableObjectFloat(DATA_WATCHER_SPEED);
         } else { // Server
             connectorFront.applyMomentum(-inclination() * weight() / 20.0, Face.FRONT);
-            // connectorFront.slowAll(resistance() / 20.0); // broken!
+            // connectorFront.slowAll(mainComponent.resistance() / 20.0); // broken!
 
             dataWatcher.updateObject(DATA_WATCHER_SPEED, (float) speedMPT);
 

@@ -15,7 +15,8 @@ import alexiil.mods.traincraft.api.AddonManager;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.block.TCBlocks;
 import alexiil.mods.traincraft.compat.TCCompat;
-import alexiil.mods.traincraft.component.RollingStockTypeCart;
+import alexiil.mods.traincraft.component.TypeCartSmall;
+import alexiil.mods.traincraft.component.TypeSteamSmall;
 import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
 import alexiil.mods.traincraft.item.TCItems;
 import alexiil.mods.traincraft.network.MessageHandler;
@@ -42,7 +43,8 @@ public class TrainCraft {
 
         EntityRegistry.registerModEntity(EntityGenericRollingStock.class, "", 0, instance, 60, 64, false);
 
-        TrainRegistry.INSTANCE.registerTrain(RollingStockTypeCart.INSTANCE);
+        TrainRegistry.INSTANCE.registerTrain(TypeCartSmall.INSTANCE);
+        TrainRegistry.INSTANCE.registerTrain(TypeSteamSmall.INSTANCE);
 
         AddonManager.INSTANCE.preInit();
 

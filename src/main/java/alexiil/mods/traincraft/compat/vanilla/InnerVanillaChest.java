@@ -5,7 +5,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.component.IComponentInner;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 import alexiil.mods.traincraft.component.inner.InnerItemStorage;
 
@@ -23,10 +22,5 @@ public class InnerVanillaChest extends InnerItemStorage {
     @SideOnly(Side.CLIENT)
     public void render(IRollingStock stock, float partialTicks) {
 
-    }
-
-    @Override
-    public IComponentInner createNew(IRollingStock stock) {
-        return new InnerVanillaChest(stock);
     }
 }

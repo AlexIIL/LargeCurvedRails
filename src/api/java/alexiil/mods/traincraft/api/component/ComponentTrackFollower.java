@@ -204,11 +204,16 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
     private void requestNextPath(DataWatcher dataWatcher, World world) {
         currentPath = TrainCraftAPI.MOVEMENT_MANAGER.closest(this, Face.FRONT);
     }
-    
+
     public abstract double frictionCoefficient();
-    
+
     @Override
     public double resistance() {
-        return 0;
+        double frictionCoefficient = frictionCoefficient();
+        double groundFriction = frictionCoefficient * weight() * (1 - Math.abs(inclination()));
+        double frontArea = frontArea();
+        double airDrag = Math.abs(stock().speed());
+        airDrag *= airDrag * frontArea;
+        return groundFriction + airDrag;
     }
 }

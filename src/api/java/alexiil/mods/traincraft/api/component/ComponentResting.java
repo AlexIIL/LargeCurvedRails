@@ -90,18 +90,17 @@ public abstract class ComponentResting implements IComponentOuter {
     }
 
     @Override
-    public double frictionCoefficient() {
-        return childFront.frictionCoefficient() + childBack.frictionCoefficient();
-    }
-
-    @Override
     public double frontArea() {
         return childFront.frontArea();
     }
 
     @Override
     public double resistance() {
-        return 0;
+        double frontArea = frontArea();
+        double airDrag = Math.abs(stock().speed());
+        airDrag *= airDrag * frontArea;
+        double childDrag = childFront.resistance() + childBack.resistance() + childMiddle.stream().mapToDouble(c -> c.resistance()).sum();
+        return airDrag + childDrag;
     }
 
     @Override
@@ -157,5 +156,15 @@ public abstract class ComponentResting implements IComponentOuter {
     @Override
     public List<IComponentInner> innerComponents() {
         return innerComponents;
+    }
+
+    @Override
+    public int weight() {
+        // @formatter:off
+        return childFront.weight()
+              + childMiddle.stream().mapToInt(c -> c.weight()).sum()
+              + childBack.weight()
+              + innerComponents.stream().mapToInt(c -> c.weight()).sum();
+        // @formatter:on
     }
 }

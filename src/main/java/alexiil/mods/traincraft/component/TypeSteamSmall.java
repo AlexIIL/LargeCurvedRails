@@ -18,7 +18,7 @@ import alexiil.mods.traincraft.api.train.IRollingStockType;
 import alexiil.mods.traincraft.component.inner.InnerItemStorage;
 import alexiil.mods.traincraft.item.TCItems;
 
-public enum RollingStockTypeCart implements IRollingStockType {
+public enum TypeSteamSmall implements IRollingStockType {
     INSTANCE;
 
     private static final ResourceLocation uniqueID = new ResourceLocation("traincraft:cart_small");
@@ -27,8 +27,9 @@ public enum RollingStockTypeCart implements IRollingStockType {
     public ConstructedData createInstance(IRollingStock stock) {
         ComponentTrackFollower wheel1 = new ComponentSmallWheel(stock, -0.25, 0);
         ComponentTrackFollower wheel2 = new ComponentSmallWheel(stock, 0.25, 1);
-        IComponentInner openChest = new OpenChest(stock, 0, new AxisAlignedBB(0, 0.3, 0, 0, 0.3, 0), 9);
-        IComponentOuter cartComponent = new ComponentCart(stock, wheel1, wheel2, Collections.emptyList(), ImmutableList.of(openChest), 0.5);
+        IComponentInner openChest = new OpenChest(stock, 0, new AxisAlignedBB(0, 0.3, 0, 0, 0.3, 0), 5);
+        IComponentOuter cartComponent = new ComponentSmallSteamLocomotive(stock, wheel1, wheel2, Collections.emptyList(), ImmutableList.of(openChest),
+                0.5);
         Connector front = new Connector(stock, cartComponent, 0.55);
         Connector back = new Connector(stock, cartComponent, -0.55);
         return new ConstructedData(cartComponent, front, back);

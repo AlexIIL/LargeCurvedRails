@@ -55,7 +55,7 @@ public class ComponentCart extends ComponentResting {
 
     @Override
     public int weight() {
-        return 100;
+        return 100 + super.weight();
     }
 
     @Override

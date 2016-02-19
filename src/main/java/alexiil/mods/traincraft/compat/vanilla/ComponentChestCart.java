@@ -10,8 +10,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.component.ComponentResting;
-import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.component.IComponentInner;
+import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
 
@@ -39,12 +39,22 @@ public class ComponentChestCart extends ComponentResting {
     }
 
     @Override
-    public IComponentOuter createNew(IRollingStock stock) {
-        return new ComponentChestCart(stock, childFront, childBack, childMiddle, innerComponents, frontBack);
+    protected AxisAlignedBB box() {
+        return boundingBox;
     }
 
     @Override
-    protected AxisAlignedBB box() {
-        return boundingBox;
+    public int weight() {
+        return 50 + super.weight();
+    }
+
+    @Override
+    public double maxBrakingForce() {
+        return 0;
+    }
+
+    @Override
+    public boolean isBraking() {
+        return false;
     }
 }
