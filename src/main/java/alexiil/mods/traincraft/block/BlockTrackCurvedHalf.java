@@ -16,10 +16,10 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.track.ITrackPath;
-import alexiil.mods.traincraft.api.track.TrackPath2DArc;
-import alexiil.mods.traincraft.api.track.TrackPathStraight;
-import alexiil.mods.traincraft.api.track.TrackPathTriComposite;
+import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.api.track.path.TrackPath2DArc;
+import alexiil.mods.traincraft.api.track.path.TrackPathStraight;
+import alexiil.mods.traincraft.api.track.path.TrackPathTriComposite;
 import alexiil.mods.traincraft.lib.MathUtil;
 
 public class BlockTrackCurvedHalf extends BlockTrackSeperated {

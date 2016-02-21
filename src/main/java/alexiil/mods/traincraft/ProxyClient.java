@@ -33,8 +33,8 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
+import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.block.*;
 import alexiil.mods.traincraft.client.model.*;

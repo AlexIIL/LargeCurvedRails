@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
-import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 

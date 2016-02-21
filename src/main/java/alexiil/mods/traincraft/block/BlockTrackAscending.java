@@ -22,8 +22,8 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.track.ITrackPath;
-import alexiil.mods.traincraft.api.track.TrackPathStraight;
+import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.api.track.path.TrackPathStraight;
 import alexiil.mods.traincraft.property.BlockStatePropWrapper;
 import alexiil.mods.traincraft.property.TrainCraftExtendedProperty;
 

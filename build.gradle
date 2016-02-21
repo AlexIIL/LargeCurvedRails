@@ -32,8 +32,19 @@ archivesBaseName = "traincraft" // the name that all artifacts will use as a bas
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+//repositories {
+//  ivy {
+//    name "BuildCraft"
+//    layout "pattern", {
+//    	artifactPattern "https://github.com/AlexIIL/BC-Temp-releases/releases/download/[revision]/buildcraft-[revision].jar"
+//    	ivyPattern "https://raw.githubusercontent.com/AlexIIL/BC-Temp-releases/bc-dep/deps/[revision].xml"
+//    }
+//  }
+//}
+
 dependencies {
     testCompile "junit:junit:4.12"
+//    deobfCompile "com.mod-buildcraft:buildcraft:7.2.0-pre12"
 }
 
 minecraft {

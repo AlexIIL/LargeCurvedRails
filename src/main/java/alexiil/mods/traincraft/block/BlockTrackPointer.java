@@ -11,7 +11,7 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.path.ITrackPath;
 
 /** This "points" to a different block that contains all of the actual information regarding the track path. */
 public class BlockTrackPointer extends BlockAbstractTrack {

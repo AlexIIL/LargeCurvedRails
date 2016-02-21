@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api.track;
+package alexiil.mods.traincraft.api.track.path;
 
 import net.minecraft.util.BlockPos;
 

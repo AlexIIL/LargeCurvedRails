@@ -18,20 +18,30 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
+import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.api.track.path.TrackPath2DArc;
+import alexiil.mods.traincraft.api.track.path.TrackPathStraight;
+
 public class TrackPathProvider {
     private static Map<Block, ITrackBlock> registeredBlocks = new HashMap<>();
+
+    @Deprecated
     private static Map<EnumRailDirection, ITrackPath> vanillaTracks = new EnumMap<>(EnumRailDirection.class);
 
+    @Deprecated
     public static ITrackPath[] getPathsAsArray(IBlockAccess access, BlockPos pos, IBlockState state) {
         ITrackBlock block = getBlockFor(state);
         if (block == null) return new ITrackPath[0];
         return block.paths(access, pos, state);
     }
 
+    @Deprecated
     public static List<ITrackPath> getPathsAsList(IBlockAccess access, BlockPos pos, IBlockState state) {
         return ImmutableList.copyOf(getPathsAsArray(access, pos, state));
     }
 
+    @Deprecated
     public static Stream<ITrackPath> getPathsAsStream(IBlockAccess access, BlockPos pos, IBlockState state) {
         return Stream.of(getPathsAsArray(access, pos, state));
     }
@@ -42,6 +52,7 @@ public class TrackPathProvider {
         return registeredBlocks.get(block);
     }
 
+    @Deprecated
     public static int pathIndex(World world, ITrackPath path) {
         ITrackPath[] arr = getPathsAsArray(world, path.creatingBlock(), world.getBlockState(path.creatingBlock()));
         for (int i = 0; i < arr.length; i++) {
@@ -51,6 +62,7 @@ public class TrackPathProvider {
         return -1;
     }
 
+    @Deprecated
     public static boolean isPathReversed(World world, ITrackPath path) {
         ITrackPath[] arr = getPathsAsArray(world, path.creatingBlock(), world.getBlockState(path.creatingBlock()));
         for (int i = 0; i < arr.length; i++) {
@@ -114,6 +126,11 @@ public class TrackPathProvider {
                 public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
                     EnumRailDirection dir = state.getValue(rail.getShapeProperty());
                     return new ITrackPath[] { map.get(dir).offset(pos) };
+                }
+
+                @Override
+                public TrackBehaviour[] behaviours(IBlockAccess access, BlockPos pos, IBlockState state) {
+                    return null;
                 }
             };
             registerBlock(rail, trackBlock);

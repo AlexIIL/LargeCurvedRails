@@ -5,14 +5,17 @@ import java.util.Locale;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.*;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.world.IBlockAccess;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.track.ITrackBlock;
-import alexiil.mods.traincraft.api.track.TrackPathStraight;
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
+import alexiil.mods.traincraft.api.track.path.TrackPathStraight;
 
 public abstract class BlockAbstractTrack extends BlockTraincraft implements ITrackBlock {
     public static final PropertyEnum<EnumDirection> TRACK_DIRECTION = PropertyEnum.create("facing", EnumDirection.class);
@@ -38,6 +41,12 @@ public abstract class BlockAbstractTrack extends BlockTraincraft implements ITra
     @Override
     public boolean isFullCube() {
         return false;
+    }
+    
+    @Override
+    public TrackBehaviour[] behaviours(IBlockAccess access, BlockPos pos, IBlockState state) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public enum EnumDirection implements IStringSerializable {

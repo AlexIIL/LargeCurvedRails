@@ -4,7 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Vec3;
 
 import alexiil.mods.traincraft.api.component.IComponentOuter;
-import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.path.ITrackPath;
 
 /** Denotes a train part (that MUST BE an instanceof {@link Entity}) that can usually conenct to other rolling stocks to
  * form a train. */

@@ -12,7 +12,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.track.ITrackPath;
+import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.item.TCItems;
 
 public class BlockTrackStraight extends BlockAbstractTrack {

@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api.track;
+package alexiil.mods.traincraft.api.track.path;
 
 import org.lwjgl.opengl.GL11;
 
@@ -10,6 +10,7 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.lib.MathUtil;
 
 public interface ITrackPath {
@@ -50,7 +51,12 @@ public interface ITrackPath {
         return new Vec3(x, y, z);
     }
 
+    default TrackBehaviour creatingBehaviour() {
+        return null;
+    }
+
     /** @return The block position that created this path */
+    @Deprecated
     BlockPos creatingBlock();
 
     /** Will attempt to find the best progress value that, when fed to {@link #interpolate(double)} returns the vector

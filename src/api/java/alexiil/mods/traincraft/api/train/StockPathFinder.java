@@ -16,8 +16,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.component.IComponentOuter;
-import alexiil.mods.traincraft.api.track.ITrackPath;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
+import alexiil.mods.traincraft.api.track.path.ITrackPath;
 
 public class StockPathFinder {
     public final Map<ITrackPath, PathNode> paths = new HashMap<>();
