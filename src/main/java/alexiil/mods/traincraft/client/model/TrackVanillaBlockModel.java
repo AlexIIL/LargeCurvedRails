@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 
-import alexiil.mods.traincraft.api.track.TrackPathProvider;
+import alexiil.mods.traincraft.TrackPathProvider;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.client.model.CommonModelSpriteCache.GenerateRailsArguments;
 

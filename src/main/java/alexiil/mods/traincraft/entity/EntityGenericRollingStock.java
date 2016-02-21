@@ -19,11 +19,11 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import alexiil.mods.traincraft.TrackPathProvider;
 import alexiil.mods.traincraft.TrainRegistry;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.lib.MathUtil;
-import alexiil.mods.traincraft.api.track.TrackPathProvider;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.track.path.RayTraceTrackPath;
 import alexiil.mods.traincraft.api.train.*;

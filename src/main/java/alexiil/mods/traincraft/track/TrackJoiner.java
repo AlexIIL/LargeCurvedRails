@@ -8,6 +8,7 @@ import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.block.TCBlocks;
 
+@Deprecated
 public enum TrackJoiner {
     INSTANCE;
 

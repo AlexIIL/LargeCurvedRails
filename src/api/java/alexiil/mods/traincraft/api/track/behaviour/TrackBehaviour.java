@@ -28,6 +28,9 @@ public abstract class TrackBehaviour {
     /** @return An identifier that can identify this behaviour verses any other. */
     public abstract TrackIdentifier getIdentifier(World world, BlockPos pos, IBlockState state);
 
+    /** Checks to see if the appropriate block/tile for this track still exists in the world. */
+    public abstract boolean isValid(World world, BlockPos pos, IBlockState state);
+
     /** Called once per tick by a stock to let the track intract with the stock. */
     public abstract void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock);
 

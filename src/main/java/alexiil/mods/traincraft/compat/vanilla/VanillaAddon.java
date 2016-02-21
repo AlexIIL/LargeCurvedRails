@@ -1,7 +1,7 @@
 package alexiil.mods.traincraft.compat.vanilla;
 
+import alexiil.mods.traincraft.TrackRegistry;
 import alexiil.mods.traincraft.api.IAddon;
-import alexiil.mods.traincraft.api.track.TrackRegistry;
 
 public class VanillaAddon implements IAddon {
     @Override

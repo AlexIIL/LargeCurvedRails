@@ -8,6 +8,7 @@ import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.track.TrackJoiner.ITrackJoiner;
 
+@Deprecated
 public abstract class TrackJoinerSimple implements ITrackJoiner {
     private final Map<BlockPos, WorldBlockState> stateMap;
 

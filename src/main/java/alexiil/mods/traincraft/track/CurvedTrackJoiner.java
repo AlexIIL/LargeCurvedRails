@@ -15,6 +15,7 @@ import alexiil.mods.traincraft.block.BlockTrackCurvedFull;
 import alexiil.mods.traincraft.block.BlockTrackCurvedHalf;
 import alexiil.mods.traincraft.block.TCBlocks;
 
+@Deprecated
 public class CurvedTrackJoiner extends TrackJoinerSimple {
     public CurvedTrackJoiner(Map<BlockPos, WorldBlockState> map) {
         super(map);

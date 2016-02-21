@@ -9,7 +9,6 @@ import net.minecraft.world.IBlockAccess;
 
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.track.ITrackBlock;
-import alexiil.mods.traincraft.api.track.TrackPathProvider;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.ITrainMovementManager;
 import alexiil.mods.traincraft.api.train.IRollingStock.Face;

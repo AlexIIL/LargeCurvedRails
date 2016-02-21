@@ -1,6 +1,6 @@
 package alexiil.mods.traincraft.track;
 
-import alexiil.mods.traincraft.api.track.TrackRegistry;
+import alexiil.mods.traincraft.TrackRegistry;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.StatefulFactory;
 
 public enum TCTracks {

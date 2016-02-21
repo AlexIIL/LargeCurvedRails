@@ -1,6 +1,5 @@
 package alexiil.mods.traincraft.api.train;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -9,25 +8,26 @@ import java.util.stream.Stream.Builder;
 
 import com.google.common.collect.Sets;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.component.IComponentOuter;
-import alexiil.mods.traincraft.api.track.TrackPathProvider;
-import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 
 public class StockPathFinder {
-    public final Map<ITrackPath, PathNode> paths = new HashMap<>();
+    public final Map<BehaviourWrapper, PathNode> paths = new HashMap<>();
     private final IRollingStock stock;
 
     public StockPathFinder(IRollingStock stock) {
         this(stock, null);
     }
 
-    public StockPathFinder(IRollingStock stock, ITrackPath path) {
+    public StockPathFinder(IRollingStock stock, BehaviourWrapper path) {
         if (stock == null) throw new NullPointerException("stock");
         if (!(stock instanceof Entity)) throw new IllegalArgumentException(stock.getClass() + " was not an instanceof Entity!");
         paths.put(path, new PathNode(path));
@@ -44,44 +44,39 @@ public class StockPathFinder {
         return ((Entity) stock).getEntityWorld();
     }
 
-    private Stream<ITrackPath> findPaths(Vec3 attachPoint, int pos, Vec3 direction) {
-        Builder<ITrackPath> paths = Stream.builder();
+    private Stream<BehaviourWrapper> findPaths(Vec3 attachPoint, int pos, Vec3 direction) {
         World world = world();
         BlockPos toTry = new BlockPos(attachPoint);
 
-        TrackPathProvider.getPathsAsStream(world, toTry, world.getBlockState(toTry)).forEach(p -> paths.add(p));
-        for (EnumFacing face : EnumFacing.values()) {
-            BlockPos offset = toTry.offset(face);
-            TrackPathProvider.getPathsAsStream(world, offset, world.getBlockState(offset)).forEach(p -> paths.add(p));
-            for (EnumFacing face2 : EnumFacing.values()) {
-                BlockPos offset2 = offset.offset(face2);
-                TrackPathProvider.getPathsAsStream(world, offset2, world.getBlockState(offset2)).forEach(p -> paths.add(p));
-            }
+        Builder<BehaviourWrapper> tracks = Stream.builder();
+
+        for (BlockPos offset : BlockPos.getAllInBox(new BlockPos(-2, -2, -2), new BlockPos(2, 2, 2))) {
+            BlockPos p = toTry.add(offset);
+            IBlockState state = world.getBlockState(p);
+            TrackBehaviour track = TrainCraftAPI.TRACK_PROVIDER.getTrackFromPoint(world, p, state, attachPoint);
+            if (track != null) tracks.add(TrainCraftAPI.TRACK_PROVIDER.wrap(track, world, p));
         }
-        // @formatter:off
-        return paths.build()
-                .flatMap(p -> Arrays.asList(p, p.reverse()).stream())
-                // Add a *tiny* bit of leway for path positions
-                //   -Arcs don't quite work out start and ends exactly.
-                .filter(p -> p.interpolate(pos).distanceTo(attachPoint) <= 1E-2)
-                .filter(p -> p.direction(pos).distanceTo(direction) <= 1.2);
+
+        return tracks.build().filter(t -> {
+            return t.getPath().direction(pos).distanceTo(direction) <= 1e-3;
+        });
     }
 
-    private Stream<ITrackPath> findPathsForward(Vec3 attachPoint, Vec3 direction) {
+    private Stream<BehaviourWrapper> findPathsForward(Vec3 attachPoint, Vec3 direction) {
         return findPaths(attachPoint, 0, direction);
     }
 
-    private Stream<ITrackPath> findPathsBackward(Vec3 attachPoint, Vec3 direction) {
+    private Stream<BehaviourWrapper> findPathsBackward(Vec3 attachPoint, Vec3 direction) {
         return findPaths(attachPoint, 1, direction);
     }
 
-    private ITrackPath findNextForward(ITrackPath path) {
+    private BehaviourWrapper findNextForward(BehaviourWrapper path) {
         PathNode node = paths.get(path);
         if (node == null) return null;
         if (node.forward != null) return node.forward;
-        Vec3 nextStart = path.end();
-        Vec3 direction = path.direction(1);
-        ITrackPath next = findPathsForward(nextStart, direction).findFirst().orElse(null);
+        Vec3 nextStart = path.getPath().end();
+        Vec3 direction = path.getPath().direction(1);
+        BehaviourWrapper next = findPathsForward(nextStart, direction).findFirst().orElse(null);
         if (next == null) return null;
         node.forward = next;
         PathNode nextNode = new PathNode(next);
@@ -90,13 +85,13 @@ public class StockPathFinder {
         return next;
     }
 
-    private ITrackPath findNextBackwards(ITrackPath path) {
+    private BehaviourWrapper findNextBackwards(BehaviourWrapper path) {
         PathNode node = paths.get(path);
         if (node == null) return null;
         if (node.back != null) return node.back;
-        Vec3 nextEnd = path.start();
-        Vec3 direction = path.direction(0);
-        ITrackPath next = findPathsBackward(nextEnd, direction).findFirst().orElse(null);
+        Vec3 nextEnd = path.getPath().start();
+        Vec3 direction = path.getPath().direction(0);
+        BehaviourWrapper next = findPathsBackward(nextEnd, direction).findFirst().orElse(null);
         if (next == null) return null;
         node.back = next;
         PathNode nextNode = new PathNode(next);
@@ -105,41 +100,41 @@ public class StockPathFinder {
         return next;
     }
 
-    public ITrackPath offsetPath(ITrackPath from, double meters) {
-        if (meters >= 0 && meters <= from.length()) return from;
+    public BehaviourWrapper offsetPath(BehaviourWrapper from, double meters) {
+        if (meters >= 0 && meters <= from.getPath().length()) return from;
         while (meters < 0) {
             from = findNextBackwards(from);
             if (from == null) return null;
-            meters += from.length();
+            meters += from.getPath().length();
         }
         while (meters > 1) {
-            meters -= from.length();
+            meters -= from.getPath().length();
             from = findNextForward(from);
             if (from == null) return null;
         }
         return from;
     }
 
-    public double offsetMeters(ITrackPath from, double meters) {
-        if (meters >= 0 && meters <= from.length()) return meters;
+    public double offsetMeters(BehaviourWrapper from, double meters) {
+        if (meters >= 0 && meters <= from.getPath().length()) return meters;
         while (meters < 0) {
             from = findNextBackwards(from);
             if (from == null) return meters;
-            meters += from.length();
+            meters += from.getPath().length();
         }
-        while (meters > from.length()) {
-            meters -= from.length();
+        while (meters > from.getPath().length()) {
+            meters -= from.getPath().length();
             from = findNextForward(from);
             if (from == null) return meters;
         }
         return meters;
     }
 
-    public void usePath(ITrackPath path, IComponentOuter user) {
+    public void usePath(BehaviourWrapper path, IComponentOuter user) {
         paths.get(path).uses.add(user);
     }
 
-    public void releasePath(ITrackPath path,  IComponentOuter user) {
+    public void releasePath(BehaviourWrapper path, IComponentOuter user) {
         PathNode node = paths.get(path);
         node.uses.remove(user);
 
@@ -147,14 +142,14 @@ public class StockPathFinder {
 
         if (node.forward == null) {
             // GC this node
-            ITrackPath back = node.back;
+            BehaviourWrapper back = node.back;
             if (back == null) return;
             PathNode n = paths.get(back);
             n.forward = null;
             paths.remove(path);
         } else if (node.back == null) {
             // GC this node
-            ITrackPath forward = node.forward;
+            BehaviourWrapper forward = node.forward;
             if (forward == null) return;
             PathNode n = paths.get(forward);
             n.back = null;
@@ -163,11 +158,11 @@ public class StockPathFinder {
     }
 
     public static class PathNode {// TODO: Convert this to a proper linked list. Or just fix the broken behaviour above.
-        public final ITrackPath thisPath;
-        public ITrackPath forward, back;
+        public final BehaviourWrapper thisPath;
+        public BehaviourWrapper forward, back;
         public final Set<IComponentOuter> uses = Sets.newIdentityHashSet();
 
-        public PathNode(ITrackPath thisPath) {
+        public PathNode(BehaviourWrapper thisPath) {
             this.thisPath = thisPath;
         }
     }
