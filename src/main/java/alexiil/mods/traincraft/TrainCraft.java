@@ -20,6 +20,7 @@ import alexiil.mods.traincraft.component.TypeSteamSmall;
 import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
 import alexiil.mods.traincraft.item.TCItems;
 import alexiil.mods.traincraft.network.MessageHandler;
+import alexiil.mods.traincraft.track.TCTracks;
 
 @Mod(modid = DefaultProps.MODID, name = "TrainCraft")
 public class TrainCraft {
@@ -36,6 +37,7 @@ public class TrainCraft {
 
         TrainCraftAPI.MOVEMENT_MANAGER = TrainMovementManager.INSTANCE;
 
+        TCTracks.preInit();
         TCBlocks.preInit();
         TCItems.preInit();
         TCTabs.preInit();
@@ -54,6 +56,7 @@ public class TrainCraft {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+        TCBlocks.init();
         TCItems.init();
         TCRecipies.init();
         TCCompat.init();

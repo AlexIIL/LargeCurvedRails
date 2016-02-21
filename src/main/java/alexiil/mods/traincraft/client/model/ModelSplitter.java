@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.Vec3;
 
-import alexiil.mods.traincraft.api.MCObjectUtils;
+import alexiil.mods.traincraft.api.lib.MCObjectUtils;
 import alexiil.mods.traincraft.client.model.MutableQuad.Vertex;
 import alexiil.mods.traincraft.client.model.Plane.Face;
 import alexiil.mods.traincraft.client.model.Polygon.LinkedVertex;

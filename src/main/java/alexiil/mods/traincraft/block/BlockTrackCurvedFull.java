@@ -12,9 +12,9 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.track.path.TrackPath2DArc;
-import alexiil.mods.traincraft.lib.MathUtil;
 
 public class BlockTrackCurvedFull extends BlockTrackSeperated {
     private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, TRACK_HEIGHT, 1);

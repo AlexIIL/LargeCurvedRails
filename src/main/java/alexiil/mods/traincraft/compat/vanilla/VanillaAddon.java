@@ -1,11 +1,15 @@
 package alexiil.mods.traincraft.compat.vanilla;
 
 import alexiil.mods.traincraft.api.IAddon;
+import alexiil.mods.traincraft.api.track.TrackRegistry;
 
 public class VanillaAddon implements IAddon {
     @Override
     public void preInit() {
-        
+        TrackRegistry.INSTANCE.register(BehaviourVanillaState.Factory.NORMAL);
+        TrackRegistry.INSTANCE.register(BehaviourVanillaState.Factory.ACTIVATOR);
+        TrackRegistry.INSTANCE.register(BehaviourVanillaState.Factory.DETECTOR);
+        TrackRegistry.INSTANCE.register(BehaviourVanillaState.Factory.SPEED);
     }
 
     @Override

@@ -5,7 +5,7 @@ import java.util.Objects;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 
-import alexiil.mods.traincraft.api.MCObjectUtils;
+import alexiil.mods.traincraft.api.lib.MCObjectUtils;
 
 /** Designates a path between any number of points. */
 public class TrackPathStraight implements ITrackPath {

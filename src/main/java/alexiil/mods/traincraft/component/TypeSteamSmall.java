@@ -21,7 +21,7 @@ import alexiil.mods.traincraft.item.TCItems;
 public enum TypeSteamSmall implements IRollingStockType {
     INSTANCE;
 
-    private static final ResourceLocation uniqueID = new ResourceLocation("traincraft:cart_small");
+    private static final ResourceLocation uniqueID = new ResourceLocation("traincraft:steam_locomotive_small");
 
     @Override
     public ConstructedData createInstance(IRollingStock stock) {

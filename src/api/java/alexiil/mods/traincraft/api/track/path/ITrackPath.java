@@ -10,8 +10,8 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
-import alexiil.mods.traincraft.lib.MathUtil;
 
 public interface ITrackPath {
     /** Gets a Vec3 position that has been interpolated between

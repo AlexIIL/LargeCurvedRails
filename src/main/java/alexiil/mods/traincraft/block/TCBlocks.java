@@ -9,6 +9,9 @@ import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
+import alexiil.mods.traincraft.tile.TileTrackMultiple;
+import alexiil.mods.traincraft.tile.TileTrackMultiplePoints;
+
 public enum TCBlocks {
     TRACK_STRAIGHT(() -> new BlockTrackStraight()),
     /* 45 degree turns */
@@ -60,6 +63,14 @@ public enum TCBlocks {
             tcBlock.block.setRegistryName(new ResourceLocation("traincraft", name));
             GameRegistry.registerBlock(tcBlock.getBlock(), tcBlock.itemBlock);
         }
+    }
+
+    public static void init() {
+        // Special case tile entities
+        GameRegistry.registerTileEntity(TileTrackMultiple.class, "traincraft.track.multiple");
+        GameRegistry.registerTileEntity(TileTrackMultiple.Tickable.class, "traincraft.track.multiple.tickable");
+        GameRegistry.registerTileEntity(TileTrackMultiplePoints.class, "traincraft.track.multiple.points");
+        GameRegistry.registerTileEntity(TileTrackMultiplePoints.Tickable.class, "traincraft.track.multiple.points.tickable");
     }
 
     public Block getBlock() {

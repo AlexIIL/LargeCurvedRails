@@ -10,7 +10,7 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.MCObjectUtils;
+import alexiil.mods.traincraft.api.lib.MCObjectUtils;
 
 public class TrackPath2DArc implements ITrackPath {
     private final BlockPos creator;

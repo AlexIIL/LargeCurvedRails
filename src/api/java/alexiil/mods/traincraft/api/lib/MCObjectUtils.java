@@ -1,4 +1,4 @@
-package alexiil.mods.traincraft.api;
+package alexiil.mods.traincraft.api.lib;
 
 import java.util.Objects;
 
@@ -6,8 +6,6 @@ import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.DataWatcher.WatchableObject;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
-
-import alexiil.mods.traincraft.lib.MathUtil;
 
 public class MCObjectUtils {
     public static int hash(Vec3 vec) {
@@ -51,5 +49,26 @@ public class MCObjectUtils {
             }
         }
         throw new IllegalStateException("Did not find a block position!");
+    }
+
+    public static final class Vec3Key {
+        private final Vec3 key;
+
+        public Vec3Key(Vec3 key) {
+            this.key = key;
+        }
+
+        @Override
+        public int hashCode() {
+            return hash(key);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null) return false;
+            if (obj instanceof Vec3Key) return MCObjectUtils.equals(key, ((Vec3Key) obj).key);
+            return false;
+        }
     }
 }

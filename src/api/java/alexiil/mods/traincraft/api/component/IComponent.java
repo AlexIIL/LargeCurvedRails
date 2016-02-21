@@ -9,7 +9,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.train.IRollingStock;
-import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
 
 public interface IComponent {
     IRollingStock stock();
@@ -49,8 +48,8 @@ public interface IComponent {
     int weight();
 
     /** Should calculate the current amount of newtons of power this rolling stock is putting out. This will be
-     * automatically used by {@link EntityGenericRollingStock#onUpdate()} to model everything properly. This should NOT
-     * take into account the current speed.
+     * automatically used by the generic rolling stock to model everything properly. This should NOT take into account
+     * the current speed.
      * 
      * @return The current power output of this locamotive (may be 0 in most cases if this is not a locamotive) */
     default double maxEngineOutput() {

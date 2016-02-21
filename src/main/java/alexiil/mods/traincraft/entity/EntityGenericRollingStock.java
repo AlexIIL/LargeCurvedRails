@@ -22,13 +22,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import alexiil.mods.traincraft.TrainRegistry;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponentOuter;
+import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.track.path.RayTraceTrackPath;
 import alexiil.mods.traincraft.api.train.*;
 import alexiil.mods.traincraft.api.train.IRollingStockType.ConstructedData;
 import alexiil.mods.traincraft.client.model.MatrixUtil;
-import alexiil.mods.traincraft.lib.MathUtil;
 
 import io.netty.buffer.ByteBuf;
 

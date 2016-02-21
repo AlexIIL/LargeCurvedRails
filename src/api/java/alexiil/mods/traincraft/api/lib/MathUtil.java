@@ -1,8 +1,6 @@
-package alexiil.mods.traincraft.lib;
+package alexiil.mods.traincraft.api.lib;
 
 import net.minecraft.util.Vec3;
-
-import alexiil.mods.traincraft.api.MCObjectUtils;
 
 public class MathUtil {
     public static final double DEFAULT_MATH_LIMIT = 1e-5;

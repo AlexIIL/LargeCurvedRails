@@ -9,8 +9,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.component.IComponentOuter;
+import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.train.IRollingStock.Face;
-import alexiil.mods.traincraft.lib.MathUtil;
 
 public class Connector {
     private final IRollingStock stock;

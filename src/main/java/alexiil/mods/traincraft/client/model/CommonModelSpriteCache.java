@@ -19,9 +19,9 @@ import net.minecraftforge.client.model.obj.OBJLoader;
 
 import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.TrainRegistry;
+import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.client.model.MutableQuad.Vertex;
-import alexiil.mods.traincraft.lib.MathUtil;
 
 public enum CommonModelSpriteCache {
     INSTANCE;

@@ -9,8 +9,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.MCObjectUtils;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
+import alexiil.mods.traincraft.api.lib.MCObjectUtils;
 import alexiil.mods.traincraft.api.track.TrackPathProvider;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;

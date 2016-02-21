@@ -1,9 +1,6 @@
 package alexiil.mods.traincraft.api.track;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
@@ -129,7 +126,13 @@ public class TrackPathProvider {
                 }
 
                 @Override
-                public TrackBehaviour[] behaviours(IBlockAccess access, BlockPos pos, IBlockState state) {
+                public Collection<TrackBehaviour> behaviours(IBlockAccess access, BlockPos pos, IBlockState state) {
+                    return Collections.emptyList();
+                }
+                
+                @Override
+                public TrackBehaviour currentBehaviour(IBlockAccess access, BlockPos pos, IBlockState state, Vec3 from) {
+                    // TODO Auto-generated method stub
                     return null;
                 }
             };

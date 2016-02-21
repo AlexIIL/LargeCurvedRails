@@ -1,5 +1,7 @@
 package alexiil.mods.traincraft.block;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 
 import net.minecraft.block.material.Material;
@@ -42,9 +44,14 @@ public abstract class BlockAbstractTrack extends BlockTraincraft implements ITra
     public boolean isFullCube() {
         return false;
     }
+
+    @Override
+    public Collection<TrackBehaviour> behaviours(IBlockAccess access, BlockPos pos, IBlockState state) {
+        return Collections.emptyList();
+    }
     
     @Override
-    public TrackBehaviour[] behaviours(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public TrackBehaviour currentBehaviour(IBlockAccess access, BlockPos pos, IBlockState state, Vec3 from) {
         // TODO Auto-generated method stub
         return null;
     }
