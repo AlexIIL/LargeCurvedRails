@@ -22,6 +22,7 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.track.path.TrackPathStraight;
 import alexiil.mods.traincraft.property.BlockStatePropWrapper;
@@ -72,11 +73,16 @@ public class BlockTrackAscending extends BlockTrackSeperated {
         slaveOffsets.put(straight, positions);
     }
 
+    // @Override
+    // public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
+    // ITrackPath path = path(state);
+    // if (path == null) return new ITrackPath[0];
+    // return new ITrackPath[] { path.offset(pos) };
+    // }
+
     @Override
-    public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
-        ITrackPath path = path(state);
-        if (path == null) return new ITrackPath[0];
-        return new ITrackPath[] { path.offset(pos) };
+    protected TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
+        return null;
     }
 
     public ITrackPath path(IBlockState state) {

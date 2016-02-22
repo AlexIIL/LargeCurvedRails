@@ -1,16 +1,23 @@
 package alexiil.mods.traincraft.api.track.behaviour;
 
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.INBTSerializable;
 
 import alexiil.mods.traincraft.api.INetSerialisable;
+import alexiil.mods.traincraft.api.TrainCraftAPI;
+import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 
@@ -29,7 +36,9 @@ public abstract class TrackBehaviour {
     public abstract TrackIdentifier getIdentifier(World world, BlockPos pos, IBlockState state);
 
     /** Checks to see if the appropriate block/tile for this track still exists in the world. */
-    public abstract boolean isValid(World world, BlockPos pos, IBlockState state);
+    public boolean isValid(IBlockAccess access, BlockPos pos, IBlockState state) {
+        return TrainCraftAPI.TRACK_PROVIDER.getTracksAsList(access, pos, state).contains(this);
+    }
 
     /** Called once per tick by a stock to let the track intract with the stock. */
     public abstract void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock);
@@ -42,7 +51,8 @@ public abstract class TrackBehaviour {
     }
 
     /** A behaviour that can save and load itself from inside a tile entity. If a subclass implements {@link ITickable}
-     * then the wrapping tile used will call {@link ITickable#update()} every tick. */
+     * then the wrapping tile used will call {@link ITickable#update()} every tick. getPath, getIdentifier and isValid
+     * will ignore all of the arguments you give them. */
     public static abstract class TrackBehaviourStateful extends TrackBehaviour implements INBTSerializable<NBTTagCompound>, INetSerialisable {
         /** @return A factory that will create new instances of this behaviour for client->server or world->disk->world
          *         transfer */
@@ -61,6 +71,48 @@ public abstract class TrackBehaviour {
          * @param otherTrack The track to test
          * @return True if you can overlap, false if not. */
         public abstract boolean canOverlap(TrackBehaviourStateful otherTrack);
+
+        /** @return All of the positions that this track passes over. This should include the ORIGIN as an offset. It is
+         *         recommended that you create a set with {@link #createSlaveOffsets(ITrackPath)} */
+        public abstract Set<BlockPos> getSlaveOffsets();
+
+        public static Set<BlockPos> createSlaveOffsets(ITrackPath path) {
+            ImmutableSet.Builder<BlockPos> slaves = ImmutableSet.builder();
+            // Calculate slaves
+            for (int i = 0; i < path.length() * 5; i++) {
+                double offset = i;
+                offset += 0.5;
+                offset /= path.length();
+                Vec3 pos = path.interpolate(offset);
+                Vec3 dir = path.direction(offset);
+                dir = MathUtil.cross(dir, new Vec3(0, 1, 0)).normalize();
+
+                slaves.add(new BlockPos(pos.add(MathUtil.scale(dir, 0.2))));
+                slaves.add(new BlockPos(pos.add(MathUtil.scale(dir, -0.2))));
+            }
+            return slaves.build();
+        }
+
+        @Override
+        public final ITrackPath getPath(IBlockAccess access, BlockPos pos, IBlockState state) {
+            return getPath();
+        }
+
+        public abstract ITrackPath getPath();
+
+        @Override
+        public final TrackIdentifier getIdentifier(World world, BlockPos pos, IBlockState state) {
+            return getIdentifier();
+        }
+
+        public abstract TrackIdentifier getIdentifier();
+
+        @Override
+        public final void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {
+            onStockPass(stock);
+        }
+
+        public abstract void onStockPass(IRollingStock stock);
 
         // Block related methods
         public void onNeighbourChange(TileEntity owner) {}

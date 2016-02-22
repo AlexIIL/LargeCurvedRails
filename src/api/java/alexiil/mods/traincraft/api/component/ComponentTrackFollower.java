@@ -11,14 +11,12 @@ import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.TrackPathProvider;
 import alexiil.mods.traincraft.TrainCraft;
-import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.lib.MCObjectUtils;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.api.train.IRollingStock;
-import alexiil.mods.traincraft.api.train.IRollingStock.Face;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -39,7 +37,8 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
     private final IRollingStock stock;
     private IComponentOuter parent;
 
-    private BehaviourWrapper currentPath;
+    private BehaviourWrapper currentTrack;
+    private ITrackPath currentPath;
     /** The progress accross the current path, in meters. */
     private double progress = 0;
     private double lastRecievedProgress = 0;
@@ -103,14 +102,15 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
     public void alignTo(BehaviourWrapper around, double meters, boolean simulate) throws AlignmentFailureException {
         around = stock.pathFinder().offsetPath(around, meters);
         if (around == null) throw new AlignmentFailureException();
-        currentPath = around;
-        stock().pathFinder().usePath(currentPath, this);
+        currentTrack = around;
+        stock().pathFinder().usePath(currentTrack, this);
         meters = stock.pathFinder().offsetMeters(around, meters);
         progress = meters;
+        currentPath = currentTrack.getPath();
 
         Entity ent = (Entity) stock;
 
-        TrackIdentifier ident = currentPath.getIdentifier();
+        TrackIdentifier ident = currentTrack.getIdentifier();
 
         ByteBuf buffer = Unpooled.buffer();
         ident.serializeBuf(buffer);
@@ -118,9 +118,10 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
         buffer.readBytes(bytes);
         StringBuilder builder = new StringBuilder();
         for (byte b : bytes) {
-            builder.append((char) b);
+            builder.append(Integer.toHexString((b >> 4) & 0b1111));
+            builder.append(Integer.toHexString(b & 0b1111));
         }
-        
+
         // FIMXE: OMFG THIS WILL BE SOOO HACKY!
 
         TrainCraft.trainCraftLog.info("STRING: \"" + builder.toString() + "\"");
@@ -151,31 +152,33 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
                 BlockPos currentTrack = MCObjectUtils.getWatchableObjectBlockPos(dataWatcher, dataWatcherOffset + DATA_WATCHER_TRACK_POS);
                 int index = dataWatcher.getWatchableObjectInt(dataWatcherOffset + DATA_WATCHER_PATH_INDEX);
 
-                ITrackPath[] paths = TrackPathProvider.getPathsAsArray(world, currentTrack, world.getBlockState(currentTrack));
-                if (index >= paths.length || index < 0) {
-                    // Something went wrong...
-                    currentPath = null;
-                    currentTrack = null;
-                } else {
-                    currentPath = paths[index];
-                    if ((flags & FLAG_PATH_REVERSED) == FLAG_PATH_REVERSED) {
-                        currentPath = currentPath.reverse();
-                    }
-                }
+                // ITrackPath[] paths = TrackPathProvider.getPathsAsArray(world, currentPath,
+                // world.getBlockState(currentPath));
+                // if (index >= paths.length || index < 0) {
+                // Something went wrong...
+                // currentTrack = null;
+                // currentTrack = null;
+                // } else {
+                // currentTrack = paths[index];
+                // if ((flags & FLAG_PATH_REVERSED) == FLAG_PATH_REVERSED) {
+                // currentTrack = currentTrack.reverse();
+                // }
+                // }
             } else {
-                currentPath = null;
+                currentTrack = null;
             }
             // Update the server side progress seperatly from the client side progress
             double prog = dataWatcher.getWatchableObjectFloat(dataWatcherOffset + DATA_WATCHER_PROGRESS);
             if (prog != lastRecievedProgress) {
                 progress = prog;
                 lastRecievedProgress = prog;
-            } else if (currentPath != null) {
+            } else if (currentTrack != null) {
                 // Only update it ourselves if we have gone a tick without seeing the server data
                 progress += distanceMoved;
-                currentPath = stock().pathFinder().offsetPath(currentPath, progress);
-                if (currentPath != null) {
-                    progress = stock().pathFinder().offsetMeters(currentPath, progress);
+                currentTrack = stock().pathFinder().offsetPath(currentTrack, progress);
+                if (currentTrack != null) {
+                    progress = stock().pathFinder().offsetMeters(currentTrack, progress);
+                    currentPath = currentTrack.getPath();
 
                     double length = currentPath.length();
                     lastPlace = currentPath.interpolate(progress / length);
@@ -183,26 +186,27 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
                 }
             }
         } else {// Else if its the server world
-            // getTrain().tick(this);
-            // Find the best track path
-            if (currentPath == null) {
+                // getTrain().tick(this);
+                // Find the best track path
+            if (currentTrack == null) {
                 requestNextPath(dataWatcher, world);
             }
 
             // Use the current track path
-            if (currentPath != null) {
+            if (currentTrack != null) {
                 progress += distanceMoved;
-                ITrackPath old = currentPath;
-                currentPath = stock().pathFinder().offsetPath(currentPath, progress);
-                if (old != currentPath) {
+                BehaviourWrapper old = currentTrack;
+                currentTrack = stock().pathFinder().offsetPath(currentTrack, progress);
+                if (old != currentTrack) {
                     progress = stock().pathFinder().offsetMeters(old, progress);
-                    if (currentPath != null) {
-                        stock.pathFinder().usePath(currentPath, this);
+                    if (currentTrack != null) {
+                        stock.pathFinder().usePath(currentTrack, this);
                         stock.pathFinder().releasePath(old, this);
                     }
                 }
             }
-            if (currentPath != null) {
+            if (currentTrack != null) {
+                currentPath = currentTrack.getPath();
                 lastPlace = currentPath.interpolate(progress / currentPath.length());
 
                 lookVec = currentPath.direction(progress / currentPath.length());
@@ -220,10 +224,12 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
                 dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PROGRESS, (float) progress);
             }
         }
+
     }
 
     private void requestNextPath(DataWatcher dataWatcher, World world) {
-        currentPath = TrainCraftAPI.MOVEMENT_MANAGER.closest(this, Face.FRONT);
+        // FIXME: either fix this or destroy the train.
+        // currentPath = TrainCraftAPI.MOVEMENT_MANAGER.closest(this, Face.FRONT);
     }
 
     public abstract double frictionCoefficient();

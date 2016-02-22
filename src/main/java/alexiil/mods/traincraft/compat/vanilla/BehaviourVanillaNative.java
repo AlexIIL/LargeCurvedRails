@@ -57,6 +57,11 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         return pathMap.get(dir);
     }
 
+    public ITrackPath getDefaultPath(IBlockState state) {
+        EnumRailDirection dir = state.getValue(rail.getShapeProperty());
+        return pathMap.get(dir);
+    }
+
     @Override
     public ITrackPath getPath(IBlockAccess access, BlockPos pos, IBlockState state) {
         EnumRailDirection dir = state.getValue(rail.getShapeProperty());
@@ -72,7 +77,9 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
     public void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {}
 
     public static class Normal extends BehaviourVanillaNative {
-        public Normal() {
+        public static final Normal INSTANCE = new Normal();
+
+        private Normal() {
             super((BlockRailBase) Blocks.rail);
         }
 
@@ -86,7 +93,9 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
     }
 
     public static class Activator extends BehaviourVanillaNative {
-        public Activator() {
+        public static final Activator INSTANCE = new Activator();
+
+        private Activator() {
             super((BlockRailBase) Blocks.activator_rail);
         }
 
@@ -100,7 +109,9 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
     }
 
     public static class Detector extends BehaviourVanillaNative {
-        public Detector() {
+        public static final Detector INSTANCE = new Detector();
+
+        private Detector() {
             super((BlockRailBase) Blocks.detector_rail);
         }
 
@@ -114,7 +125,9 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
     }
 
     public static class Speed extends BehaviourVanillaNative {
-        public Speed() {
+        public static final Speed INSTANCE = new Speed();
+
+        private Speed() {
             super((BlockRailBase) Blocks.golden_rail);
         }
 
@@ -124,6 +137,17 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
             // Perhaps this could be for saving tracks with block underneath?
             if (dir.isAscending()) return null;
             return BehaviourVanillaState.Factory.SPEED.create(world, pos).setDir(dir);
+        }
+
+        @Override
+        public void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {
+            double momentum = stock.momentum();
+            if (momentum < 0) {
+                momentum -= 20;
+            } else if (momentum > 0) {
+                momentum += 20;
+            } else return;
+            stock.setSpeed(momentum / stock.weight());
         }
     }
 }

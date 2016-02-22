@@ -12,10 +12,11 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.item.TCItems;
+import alexiil.mods.traincraft.track.TrackBehaviourStraightNative;
 
-public class BlockTrackStraight extends BlockAbstractTrack {
+public class BlockTrackStraight extends BlockAbstractTrackSingle {
     private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, TRACK_HEIGHT, 1);
 
     public BlockTrackStraight() {
@@ -55,9 +56,7 @@ public class BlockTrackStraight extends BlockAbstractTrack {
     }
 
     @Override
-    public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
-        EnumDirection dir = state.getValue(TRACK_DIRECTION);
-        ITrackPath path = dir.path.offset(pos);
-        return new ITrackPath[] { path };
+    protected TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
+        return TrackBehaviourStraightNative.INSTANCE;
     }
 }

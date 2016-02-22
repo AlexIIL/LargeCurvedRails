@@ -20,4 +20,9 @@ public enum TrackRegistry implements ITrackRegistry {
     public void unregister(StatefulFactory statefulTrack) {
         registry.remove(statefulTrack.identifier(), statefulTrack);
     }
+
+    @Override
+    public StatefulFactory getFactory(String type) {
+        return registry.get(type);
+    }
 }

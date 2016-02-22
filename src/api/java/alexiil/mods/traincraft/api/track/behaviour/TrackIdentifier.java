@@ -23,6 +23,10 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
         this.trackIdentifier = identifier;
     }
 
+    public TrackIdentifier(TrackIdentifier old, String newName) {
+        this(old.worldDimension, old.pos, newName);
+    }
+
     @Override
     public void serializeBuf(ByteBuf buffer) {
         PacketBuffer buf = new PacketBuffer(buffer);

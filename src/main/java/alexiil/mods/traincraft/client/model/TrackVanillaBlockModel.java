@@ -12,9 +12,9 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 
-import alexiil.mods.traincraft.TrackPathProvider;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.client.model.CommonModelSpriteCache.GenerateRailsArguments;
+import alexiil.mods.traincraft.compat.vanilla.BehaviourVanillaNative;
 
 public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
     public static final int CURVED_RAIL_GAP = 16;
@@ -26,13 +26,13 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
         else return new NormalModel();
     }
 
-    @Override
-    public ITrackPath path(IBlockState state) {
-        return TrackPathProvider.getVanillaTrack(state);
-    }
-
     public static class NormalModel extends TrackVanillaBlockModel {
         public NormalModel() {}
+
+        @Override
+        public ITrackPath path(IBlockState state) {
+            return BehaviourVanillaNative.Normal.INSTANCE.getDefaultPath(state);
+        }
 
         @Override
         protected List<BakedQuad> generateRails(IBlockState state, ITrackPath path) {
@@ -48,6 +48,11 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
 
     public static class DetectorModel extends TrackVanillaBlockModel {
         public DetectorModel() {}
+
+        @Override
+        public ITrackPath path(IBlockState state) {
+            return BehaviourVanillaNative.Detector.INSTANCE.getDefaultPath(state);
+        }
 
         @Override
         public void generateExtra(List<BakedQuad> quads, IBlockState state, ITrackPath path) {
@@ -67,6 +72,11 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
 
     public static class ActivatorModel extends TrackVanillaBlockModel {
         public ActivatorModel() {}
+
+        @Override
+        public ITrackPath path(IBlockState state) {
+            return BehaviourVanillaNative.Activator.INSTANCE.getDefaultPath(state);
+        }
 
         @Override
         public void generateExtra(List<BakedQuad> quads, IBlockState state, ITrackPath path) {
@@ -96,6 +106,11 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
 
     public static class GoldenModel extends TrackVanillaBlockModel {
         public GoldenModel() {}
+
+        @Override
+        public ITrackPath path(IBlockState state) {
+            return BehaviourVanillaNative.Speed.INSTANCE.getDefaultPath(state);
+        }
 
         @Override
         public void generateExtra(List<BakedQuad> quads, IBlockState state, ITrackPath path) {

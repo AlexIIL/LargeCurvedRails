@@ -29,6 +29,6 @@ public interface ITrackBlock {
     }
 
     /** Gets the currently active behaviour for the given point, or null if no behaviours exist from the point. This is
-     * useful if the train just needs to go somewhere*/
+     * useful if the train just needs to go somewhere */
     TrackBehaviour currentBehaviour(IBlockAccess access, BlockPos pos, IBlockState state, Vec3 from);
 }

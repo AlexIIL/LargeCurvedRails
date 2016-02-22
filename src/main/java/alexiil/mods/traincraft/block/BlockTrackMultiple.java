@@ -8,13 +8,13 @@ import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
-import alexiil.mods.traincraft.api.track.path.ITrackPath;
-import alexiil.mods.traincraft.tile.TileTrackMultiplePoints;
 import alexiil.mods.traincraft.tile.TileTrackMultiple;
+import alexiil.mods.traincraft.tile.TileTrackMultiplePoints;
 
 public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntityProvider {
     public static final PropertyBool TICKABLE = PropertyBool.create("tickable");
@@ -25,8 +25,13 @@ public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntit
     }
 
     @Override
-    public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
-        return new ITrackPath[0];
+    public TrackBehaviour currentBehaviour(IBlockAccess access, BlockPos pos, IBlockState state, Vec3 from) {
+        TileEntity tile = access.getTileEntity(pos);
+        if (tile instanceof TileTrackMultiple) {
+            TileTrackMultiple mult = (TileTrackMultiple) tile;
+            return mult.currentBehaviour(from);
+        }
+        return null;
     }
 
     @Override

@@ -7,7 +7,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-public abstract class BlockTrackSeperated extends BlockAbstractTrack {
+public abstract class BlockTrackSeperated extends BlockAbstractTrackSingle {
     public BlockTrackSeperated(IProperty<?>... properties) {
         super(properties);
     }

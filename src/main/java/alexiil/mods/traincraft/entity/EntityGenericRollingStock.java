@@ -7,6 +7,7 @@ import javax.vecmath.Matrix4f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,12 +20,13 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.TrackPathProvider;
 import alexiil.mods.traincraft.TrainRegistry;
+import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.lib.MathUtil;
-import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.path.RayTraceTrackPath;
 import alexiil.mods.traincraft.api.train.*;
 import alexiil.mods.traincraft.api.train.IRollingStockType.ConstructedData;
@@ -264,31 +266,37 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
     public boolean alignFromPlayer(Vec3 lookDir, Vec3 lookPoint, boolean simulate) throws AlignmentFailureException {
         MovingObjectPosition pos = worldObj.rayTraceBlocks(lookPoint, lookPoint.add(MathUtil.scale(lookDir, 4)), false);
         if (pos == null) throw new AlignmentFailureException();
-        List<ITrackPath> paths = new ArrayList<>();
+        List<BehaviourWrapper> paths = new ArrayList<>();
         BlockPos center = new BlockPos(pos.hitVec);
         int radius = 2;
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
                     BlockPos pos2 = center.add(x, y, z);
-                    paths.addAll(TrackPathProvider.getPathsAsList(worldObj, pos2, worldObj.getBlockState(pos2)));
+                    IBlockState state = worldObj.getBlockState(pos2);
+                    List<TrackBehaviour> tracksAsList = TrainCraftAPI.TRACK_PROVIDER.getTracksAsList(worldObj, pos2, state);
+                    paths.addAll(TrainCraftAPI.TRACK_PROVIDER.wrapList(tracksAsList, worldObj, pos2));
                 }
             }
         }
         RayTraceTrackPath best = null;
-        for (ITrackPath p : paths) {
-            RayTraceTrackPath rayTrace = p.rayTrace(lookPoint, lookDir);
-            if (best == null) best = rayTrace;
-            else if (best.distance > rayTrace.distance) best = rayTrace;
+        BehaviourWrapper bestWrapper = null;
+        for (BehaviourWrapper p : paths) {
+            // FIXME: Change RayTraceTrackPath to also have the behaviour wrapper!
+            RayTraceTrackPath rayTrace = p.getPath().rayTrace(lookPoint, lookDir);
+            if (best == null || best.distance > rayTrace.distance) {
+                best = rayTrace;
+                bestWrapper = p;
+            }
         }
         if (best == null) throw new AlignmentFailureException();
         // if (best.distance > 0.4) throw new AlignmentFailureException();
-        return alignToPath(best.path, best.interp, simulate);
+        return alignToPath(bestWrapper, best.interp, simulate);
     }
 
-    public boolean alignToPath(ITrackPath path, double interp, boolean simulate) throws AlignmentFailureException {
-        pathFinder = new StockPathFinder(this, path);
-        mainComponent.alignTo(path, path.length() * interp, simulate);
+    public boolean alignToPath(BehaviourWrapper behaviour, double interp, boolean simulate) throws AlignmentFailureException {
+        pathFinder = new StockPathFinder(this, behaviour);
+        mainComponent.alignTo(behaviour, behaviour.getPath().length() * interp, simulate);
         Vec3 vec = getPathPosition();
         setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
 

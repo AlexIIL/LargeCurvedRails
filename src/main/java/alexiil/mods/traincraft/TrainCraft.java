@@ -35,9 +35,9 @@ public class TrainCraft {
         trainCraftLog = event.getModLog();
         cfg = new Configuration(event.getSuggestedConfigurationFile());
 
-        TrainCraftAPI.MOVEMENT_MANAGER = TrainMovementManager.INSTANCE;
         TrainCraftAPI.TRACK_PROVIDER = TrackPathProvider.INSTANCE;
         TrainCraftAPI.TRACK_STATE_REGISTRY = TrackRegistry.INSTANCE;
+        TrainCraftAPI.TRACK_PLACER = TrackPlacer.INSTANCE;
 
         TCTracks.preInit();
         TCBlocks.preInit();

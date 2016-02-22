@@ -11,10 +11,12 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.track.TrackBehaviourPointerNative;
 
 /** This "points" to a different block that contains all of the actual information regarding the track path. */
-public class BlockTrackPointer extends BlockAbstractTrack {
+public class BlockTrackPointer extends BlockAbstractTrackSingle {
     public enum EnumOffset implements IStringSerializable {
         // @formatter:off
         /** 0 */ XN1    (-1, 0, 0),
@@ -65,13 +67,38 @@ public class BlockTrackPointer extends BlockAbstractTrack {
     }
 
     @Override
-    public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
+    protected TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
         try {
             BlockPos master = findMaster(access, pos, state);
             IBlockState masterState = access.getBlockState(master);
             if (masterState.getBlock() instanceof BlockTrackSeperated) {
                 BlockTrackSeperated seperated = (BlockTrackSeperated) masterState.getBlock();
-                return seperated.paths(access, master, masterState);
+                TrackBehaviour behaviour = seperated.singleBehaviour(access, master, masterState);
+                return new TrackBehaviourPointerNative(behaviour, master, masterState);
+            }
+            if (access instanceof World) {
+                ((World) access).markBlockForUpdate(pos);
+            }
+            return null;
+        } catch (IllegalPathException e) {
+            // Only update it if it was an actual world
+            if (access instanceof World) {
+                World world = (World) access;
+                List<BlockPos> illegalPositions = e.path;
+                illegalPositions.forEach(p -> world.markBlockForUpdate(p));
+            }
+            return null;
+        }
+    }
+
+    // @Override
+    public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
+        try {
+            BlockPos master = findMaster(access, pos, state);
+            IBlockState masterState = access.getBlockState(master);
+            if (masterState.getBlock() instanceof BlockTrackSeperated) {
+                // BlockTrackSeperated seperated = (BlockTrackSeperated) masterState.getBlock();
+                // return seperated.paths(access, master, masterState);
             }
             if (access instanceof World) {
                 ((World) access).markBlockForUpdate(pos);

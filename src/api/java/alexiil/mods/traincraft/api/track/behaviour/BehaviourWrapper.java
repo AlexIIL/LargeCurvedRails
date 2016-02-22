@@ -2,6 +2,7 @@ package alexiil.mods.traincraft.api.track.behaviour;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
@@ -17,9 +18,15 @@ public final class BehaviourWrapper {
     private final BlockPos pos;
 
     public BehaviourWrapper(TrackBehaviour behaviour, World world, BlockPos pos) {
+        if (behaviour == null) throw new NullPointerException("behaviour");
+        if (world == null) throw new NullPointerException("world");
+        if (pos == null || pos instanceof MutableBlockPos) throw new NullPointerException("pos");
         this.behaviour = behaviour;
         this.world = world;
         this.pos = pos;
+        if (getPath() == null) throw new IllegalArgumentException("Null path! " + behaviour.getClass());
+        if (getIdentifier() == null) throw new IllegalArgumentException("Null identifier! " + behaviour.getClass());
+        if (!isValid()) throw new IllegalArgumentException("Invalid behaviour! " + behaviour.getClass());
     }
 
     // Delegate methods

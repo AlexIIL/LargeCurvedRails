@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.block.BlockAbstractTrack;
-import alexiil.mods.traincraft.block.BlockAbstractTrack.EnumDirection;
+import alexiil.mods.traincraft.block.EnumDirection;
 
 public class TrackStraightBlockModel extends TrackGenericBlockModel {
     @Override

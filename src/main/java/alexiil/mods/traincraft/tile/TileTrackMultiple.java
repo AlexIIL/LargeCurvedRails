@@ -1,9 +1,6 @@
 package alexiil.mods.traincraft.tile;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -12,7 +9,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.Vec3;
 
+import alexiil.mods.traincraft.TrackRegistry;
 import alexiil.mods.traincraft.api.lib.MCObjectUtils.Vec3Key;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.StatefulFactory;
@@ -32,6 +31,13 @@ public class TileTrackMultiple extends TileAbstractTrack {
 
     public Collection<TrackBehaviour> getBehavioursNonStateful() {
         return nsUnmodifiable;
+    }
+
+    public TrackBehaviour currentBehaviour(Vec3 from) {
+        Collection<TrackBehaviour> behaviours = joinMap.get(new Vec3Key(from));
+        Iterator<TrackBehaviour> it = behaviours.iterator();
+        if (!it.hasNext()) return null;
+        return it.next();
     }
 
     @Override
@@ -56,7 +62,7 @@ public class TileTrackMultiple extends TileAbstractTrack {
             NBTTagCompound comp = list.getCompoundTagAt(i);
             String type = comp.getString("type");
             NBTTagCompound data = comp.getCompoundTag("data");
-            StatefulFactory factory = null;// FIXME
+            StatefulFactory factory = TrackRegistry.INSTANCE.getFactory(type);
             TrackBehaviourStateful behavior = factory.create(getWorld(), getPos());
             behavior.deserializeNBT(data);
             tracks.add(behavior);

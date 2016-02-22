@@ -1,5 +1,6 @@
 package alexiil.mods.traincraft.api.track;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -24,6 +25,18 @@ public interface ITrackProvider {
 
     default BehaviourWrapper wrap(TrackBehaviour behaviour, World world, BlockPos pos) {
         return new BehaviourWrapper(behaviour, world, pos);
+    }
+    
+    default List<BehaviourWrapper> wrapList(List<TrackBehaviour> list, World world, BlockPos pos) {
+        List<BehaviourWrapper> newList = new ArrayList<>();
+        for (TrackBehaviour b : list) {
+            newList.add(wrap(b,world,pos));
+        }
+        return newList;
+    }
+
+    default Stream<BehaviourWrapper> wrapStream(Stream<TrackBehaviour> stream, World world, BlockPos pos) {
+        return stream.map(b -> wrap(b, world, pos));
     }
 
     ITrackBlock getBlockFor(IBlockState state);

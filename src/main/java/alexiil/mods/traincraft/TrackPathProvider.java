@@ -19,6 +19,7 @@ import alexiil.mods.traincraft.api.track.ITrackBlock;
 import alexiil.mods.traincraft.api.track.ITrackProvider;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.compat.vanilla.VanillaAddon;
 
 public enum TrackPathProvider implements ITrackProvider {
     INSTANCE;
@@ -59,10 +60,10 @@ public enum TrackPathProvider implements ITrackProvider {
     /** Replaced with {@link TrackBehaviour#getIdentifier(World, BlockPos, IBlockState)} */
     @Deprecated
     public static int pathIndex(World world, ITrackPath path) {
-        ITrackPath[] arr = INSTANCE.getPathsAsArray(world, path.creatingBlock(), world.getBlockState(path.creatingBlock()));
+        TrackBehaviour[] arr = INSTANCE.getTracksAsArray(world, path.creatingBlock(), world.getBlockState(path.creatingBlock()));
         for (int i = 0; i < arr.length; i++) {
             if (arr[i].equals(path)) return i;
-            if (arr[i].reverse().equals(path)) return i;
+            // if (arr[i].reverse().equals(path)) return i;
         }
         return -1;
     }
@@ -70,10 +71,10 @@ public enum TrackPathProvider implements ITrackProvider {
     /** Replaced with {@link TrackBehaviour#getIdentifier(World, BlockPos, IBlockState)} */
     @Deprecated
     public static boolean isPathReversed(World world, ITrackPath path) {
-        ITrackPath[] arr = INSTANCE.getPathsAsArray(world, path.creatingBlock(), world.getBlockState(path.creatingBlock()));
+        TrackBehaviour[] arr = INSTANCE.getTracksAsArray(world, path.creatingBlock(), world.getBlockState(path.creatingBlock()));
         for (int i = 0; i < arr.length; i++) {
             if (arr[i].equals(path)) return false;
-            if (arr[i].reverse().equals(path)) return true;
+            // if (arr[i].reverse().equals(path)) return true;
         }
         return false;
     }

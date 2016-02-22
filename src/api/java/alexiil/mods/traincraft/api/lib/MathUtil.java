@@ -18,6 +18,10 @@ public class MathUtil {
         return new Vec3(x, y, z);
     }
 
+    public static Vec3 perp(Vec3 vec) {
+        return new Vec3(-vec.zCoord, vec.yCoord, vec.xCoord);
+    }
+
     public static Vec3 scale(Vec3 vec, double by) {
         return new Vec3(vec.xCoord * by, vec.yCoord * by, vec.zCoord * by);
     }

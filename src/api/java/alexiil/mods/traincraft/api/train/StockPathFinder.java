@@ -76,7 +76,7 @@ public class StockPathFinder {
         if (node.forward != null) return node.forward;
         Vec3 nextStart = path.getPath().end();
         Vec3 direction = path.getPath().direction(1);
-        BehaviourWrapper next = findPathsForward(nextStart, direction).findFirst().orElse(null);
+        BehaviourWrapper next = stock.controller().findBehaviour(findPathsForward(nextStart, direction));
         if (next == null) return null;
         node.forward = next;
         PathNode nextNode = new PathNode(next);
@@ -91,7 +91,7 @@ public class StockPathFinder {
         if (node.back != null) return node.back;
         Vec3 nextEnd = path.getPath().start();
         Vec3 direction = path.getPath().direction(0);
-        BehaviourWrapper next = findPathsBackward(nextEnd, direction).findFirst().orElse(null);
+        BehaviourWrapper next = stock.controller().findBehaviour(findPathsBackward(nextEnd, direction));
         if (next == null) return null;
         node.back = next;
         PathNode nextNode = new PathNode(next);

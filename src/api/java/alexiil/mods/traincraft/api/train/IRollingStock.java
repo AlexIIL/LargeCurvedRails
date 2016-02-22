@@ -4,6 +4,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Vec3;
 
 import alexiil.mods.traincraft.api.component.IComponentOuter;
+import alexiil.mods.traincraft.api.control.DumbController;
+import alexiil.mods.traincraft.api.control.IController;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 
 /** Denotes a train part (that MUST BE an instanceof {@link Entity}) that can usually conenct to other rolling stocks to
@@ -54,4 +56,8 @@ public interface IRollingStock {
     Vec3 getPathDirection(Face direction);
 
     Connector getConnector(Face direction);
+
+    default IController controller() {
+        return DumbController.INSTANCE;
+    }
 }

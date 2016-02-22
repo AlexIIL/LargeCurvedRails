@@ -1,5 +1,8 @@
 package alexiil.mods.traincraft.compat.vanilla;
 
+import net.minecraft.init.Blocks;
+
+import alexiil.mods.traincraft.TrackPathProvider;
 import alexiil.mods.traincraft.TrackRegistry;
 import alexiil.mods.traincraft.api.IAddon;
 
@@ -10,6 +13,11 @@ public class VanillaAddon implements IAddon {
         TrackRegistry.INSTANCE.register(BehaviourVanillaState.Factory.ACTIVATOR);
         TrackRegistry.INSTANCE.register(BehaviourVanillaState.Factory.DETECTOR);
         TrackRegistry.INSTANCE.register(BehaviourVanillaState.Factory.SPEED);
+
+        TrackPathProvider.INSTANCE.registerBlock(Blocks.rail, new VanillaTrackBlock(BehaviourVanillaNative.Normal.INSTANCE));
+        TrackPathProvider.INSTANCE.registerBlock(Blocks.detector_rail, new VanillaTrackBlock(BehaviourVanillaNative.Detector.INSTANCE));
+        TrackPathProvider.INSTANCE.registerBlock(Blocks.activator_rail, new VanillaTrackBlock(BehaviourVanillaNative.Activator.INSTANCE));
+        TrackPathProvider.INSTANCE.registerBlock(Blocks.golden_rail, new VanillaTrackBlock(BehaviourVanillaNative.Speed.INSTANCE));
     }
 
     @Override

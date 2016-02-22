@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.api.train.IRollingStock;
@@ -109,7 +110,7 @@ public abstract class ComponentResting implements IComponentOuter {
     }
 
     @Override
-    public void alignTo(ITrackPath around, double offset, boolean simulate) throws AlignmentFailureException {
+    public void alignTo(BehaviourWrapper around, double offset, boolean simulate) throws AlignmentFailureException {
         childFront.alignTo(around, offset + childFront.originOffset(), false);
         childBack.alignTo(around, offset + childBack.originOffset(), false);
         for (IComponentOuter comp : childMiddle)

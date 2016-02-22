@@ -13,17 +13,22 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.lib.MathUtil;
-import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.path.TrackPath2DArc;
+import alexiil.mods.traincraft.track.Curve;
 
 public class BlockTrackCurvedFull extends BlockTrackSeperated {
     private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, TRACK_HEIGHT, 1);
 
+    private final Curve curve;
+    @Deprecated
     private final Map<EnumFacing, TrackPath2DArc> trackPaths = new HashMap<>();
     private final Map<IBlockState, List<BlockPos>> slaveMap = new HashMap<>();
 
-    public BlockTrackCurvedFull(double radius) {
+    public BlockTrackCurvedFull(Curve curve, double radius) {
         super(PROPERTY_FACING);
+        this.curve = curve;
+        curve.fullBlock = this;
         int[][] angles = {//
             { 180, 270 },// North
             { 0, 90 },// South
@@ -84,11 +89,11 @@ public class BlockTrackCurvedFull extends BlockTrackSeperated {
     }
 
     @Override
-    public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
-        EnumFacing mainDirection = state.getValue(PROPERTY_FACING);
-        return new ITrackPath[] { path(mainDirection).offset(pos) };
+    protected TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
+        return null;// curve.fullNative;// FIXME! Needs to be fullNative
     }
 
+    @Deprecated
     public TrackPath2DArc path(EnumFacing mainDirection) {
         return trackPaths.get(mainDirection);
     }

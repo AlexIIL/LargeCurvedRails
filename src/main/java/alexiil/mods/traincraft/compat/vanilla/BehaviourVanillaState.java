@@ -1,5 +1,9 @@
 package alexiil.mods.traincraft.compat.vanilla;
 
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
+
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.BlockRailBase.EnumRailDirection;
 import net.minecraft.block.BlockRailDetector;
@@ -9,20 +13,21 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.IRollingStock;
+import alexiil.mods.traincraft.lib.NBTUtils;
 
 import io.netty.buffer.ByteBuf;
 
 public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
     protected final BlockRailBase rail;
     private final String name;
-    protected EnumRailDirection dir;
+    private final Set<BlockPos> slaves = ImmutableSet.of(BlockPos.ORIGIN);
+    private EnumRailDirection dir;
     private ITrackPath path;
     private TrackIdentifier identifier;
 
@@ -30,26 +35,31 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
         this.rail = rail;
         this.name = name;
         this.dir = EnumRailDirection.EAST_WEST;
-        this.path = BehaviourVanillaNative.getPath(dir);
+        this.path = BehaviourVanillaNative.getPath(dir).offset(pos);
         this.identifier = new TrackIdentifier(world.provider.getDimensionId(), pos, name + "::" + dir.name());
     }
 
     public BehaviourVanillaState setDir(EnumRailDirection dir) {
         this.dir = dir;
+        this.identifier = new TrackIdentifier(identifier.worldDim(), identifier.pos(), name + "::" + dir.name());
         return this;
+    }
+
+    public EnumRailDirection getDir() {
+        return dir;
     }
 
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setString("direction", dir.getName());
+        nbt.setTag("direction", NBTUtils.serializeEnum(dir));
         return nbt;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
-        this.dir = EnumRailDirection.EAST_WEST;
-        this.path = BehaviourVanillaNative.getPath(dir);
+        this.dir = NBTUtils.deserializeEnum(nbt.getTag("direction"), EnumRailDirection.class, dir);
+        this.path = BehaviourVanillaNative.getPath(dir).offset(identifier.pos());
         this.identifier = new TrackIdentifier(identifier.worldDim(), identifier.pos(), name + "::" + dir.name());
     }
 
@@ -60,23 +70,24 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
 
     @Override
     public void deserializeBuf(ByteBuf buffer) {
+        // TODO: Investigate Should this send over the dim and pos?
         dir = EnumRailDirection.byMetadata(buffer.readByte());
-        path = BehaviourVanillaNative.getPath(dir);
+        path = BehaviourVanillaNative.getPath(dir).offset(identifier.pos());
         identifier = new TrackIdentifier(identifier.worldDim(), identifier.pos(), name + "::" + dir.name());
     }
 
     @Override
-    public ITrackPath getPath(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public ITrackPath getPath() {
         return path;
     }
 
     @Override
-    public TrackIdentifier getIdentifier(World world, BlockPos pos, IBlockState state) {
+    public TrackIdentifier getIdentifier() {
         return identifier;
     }
 
     @Override
-    public void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {}
+    public void onStockPass(IRollingStock stock) {}
 
     @Override
     public boolean convertToNative(TileEntity owner) {
@@ -86,6 +97,11 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
     @Override
     public boolean canOverlap(TrackBehaviourStateful otherTrack) {
         return true;
+    }
+
+    @Override
+    public Set<BlockPos> getSlaveOffsets() {
+        return slaves;
     }
 
     public enum Factory implements StatefulFactory {
@@ -175,7 +191,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
 
         @Override
         public boolean convertToNative(TileEntity owner) {
-            IBlockState state = rail.getDefaultState().withProperty(rail.getShapeProperty(), dir);
+            IBlockState state = rail.getDefaultState().withProperty(rail.getShapeProperty(), getDir());
             state = state.withProperty(BlockRailPowered.POWERED, this.redstonePower > 0);
             return owner.getWorld().setBlockState(owner.getPos(), state);
         }
@@ -193,7 +209,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
 
         @Override
         public boolean convertToNative(TileEntity owner) {
-            IBlockState state = rail.getDefaultState().withProperty(rail.getShapeProperty(), dir);
+            IBlockState state = rail.getDefaultState().withProperty(rail.getShapeProperty(), getDir());
             state = state.withProperty(BlockRailDetector.POWERED, this.redstonePower > 0);
             return owner.getWorld().setBlockState(owner.getPos(), state);
         }
@@ -211,7 +227,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
 
         @Override
         public boolean convertToNative(TileEntity owner) {
-            IBlockState state = rail.getDefaultState().withProperty(rail.getShapeProperty(), dir);
+            IBlockState state = rail.getDefaultState().withProperty(rail.getShapeProperty(), getDir());
             state = state.withProperty(BlockRailPowered.POWERED, this.redstonePower > 0);
             return owner.getWorld().setBlockState(owner.getPos(), state);
         }
