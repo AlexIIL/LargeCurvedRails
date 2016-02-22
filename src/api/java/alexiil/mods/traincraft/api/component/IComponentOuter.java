@@ -12,7 +12,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 
@@ -68,7 +68,7 @@ public interface IComponentOuter extends IComponent {
         return false;
     }
 
-    void alignTo(ITrackPath around, double meters, boolean simulate) throws AlignmentFailureException;
+    void alignTo(BehaviourWrapper around, double meters, boolean simulate) throws AlignmentFailureException;
 
     double frontArea();
 

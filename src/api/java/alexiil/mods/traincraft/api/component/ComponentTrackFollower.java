@@ -10,12 +10,18 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.TrackPathProvider;
+import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.lib.MCObjectUtils;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
+import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 import alexiil.mods.traincraft.api.train.IRollingStock.Face;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 public abstract class ComponentTrackFollower implements IComponentOuter {
     // Each component uses: [ int (flag), float (progress), blockpos (track), int (track index)]
@@ -33,7 +39,7 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
     private final IRollingStock stock;
     private IComponentOuter parent;
 
-    private ITrackPath currentPath;
+    private BehaviourWrapper currentPath;
     /** The progress accross the current path, in meters. */
     private double progress = 0;
     private double lastRecievedProgress = 0;
@@ -94,7 +100,7 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
     }
 
     @Override
-    public void alignTo(ITrackPath around, double meters, boolean simulate) throws AlignmentFailureException {
+    public void alignTo(BehaviourWrapper around, double meters, boolean simulate) throws AlignmentFailureException {
         around = stock.pathFinder().offsetPath(around, meters);
         if (around == null) throw new AlignmentFailureException();
         currentPath = around;
@@ -104,8 +110,23 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
 
         Entity ent = (Entity) stock;
 
-        int index = TrackPathProvider.pathIndex(ent.getEntityWorld(), currentPath);
-        boolean reversed = TrackPathProvider.isPathReversed(ent.getEntityWorld(), currentPath);
+        TrackIdentifier ident = currentPath.getIdentifier();
+
+        ByteBuf buffer = Unpooled.buffer();
+        ident.serializeBuf(buffer);
+        byte[] bytes = new byte[buffer.readableBytes()];
+        buffer.readBytes(bytes);
+        StringBuilder builder = new StringBuilder();
+        for (byte b : bytes) {
+            builder.append((char) b);
+        }
+        
+        // FIMXE: OMFG THIS WILL BE SOOO HACKY!
+
+        TrainCraft.trainCraftLog.info("STRING: \"" + builder.toString() + "\"");
+
+        int index = 0;
+        boolean reversed = false;
 
         DataWatcher dataWatcher = ent.getDataWatcher();
         dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_TRACK_POS, currentPath.creatingBlock());

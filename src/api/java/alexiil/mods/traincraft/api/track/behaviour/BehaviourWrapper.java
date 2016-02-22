@@ -23,7 +23,6 @@ public final class BehaviourWrapper {
     }
 
     // Delegate methods
-
     public ITrackPath getPath() {
         return behaviour.getPath(world, pos, state());
     }
@@ -55,5 +54,32 @@ public final class BehaviourWrapper {
 
     public IBlockState state() {
         return world.getBlockState(pos);
+    }
+
+    // Internal
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((behaviour == null) ? 0 : behaviour.hashCode());
+        result = prime * result + ((pos == null) ? 0 : pos.hashCode());
+        // We don't need to compute the entire WORLD's hash (and it changes)
+        result = prime * result + ((world == null) ? 0 : world.provider.getDimensionId());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        BehaviourWrapper other = (BehaviourWrapper) obj;
+        if (behaviour == null) {
+            if (other.behaviour != null) return false;
+        } else if (!behaviour.equals(other.behaviour)) return false;
+        if (pos == null) {
+            if (other.pos != null) return false;
+        } else if (!pos.equals(other.pos)) return false;
+        return world == other.world;
     }
 }
