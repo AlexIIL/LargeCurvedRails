@@ -17,8 +17,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.block.BlockAbstractTrack.EnumDirection;
 import alexiil.mods.traincraft.block.BlockTrackAscending;
+import alexiil.mods.traincraft.block.EnumDirection;
 import alexiil.mods.traincraft.block.TCBlocks;
 
 public class ItemTrackAscendingAxis extends ItemBlockSeperatedTrack<BlockTrackAscending> {

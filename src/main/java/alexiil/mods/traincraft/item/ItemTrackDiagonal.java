@@ -9,8 +9,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.TrainCraft;
-import alexiil.mods.traincraft.block.BlockAbstractTrack.EnumDirection;
 import alexiil.mods.traincraft.block.BlockTrackStraight;
+import alexiil.mods.traincraft.block.EnumDirection;
 import alexiil.mods.traincraft.block.TCBlocks;
 
 public class ItemTrackDiagonal extends ItemBlockTrainCraft {

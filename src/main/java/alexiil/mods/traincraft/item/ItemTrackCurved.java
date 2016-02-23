@@ -10,7 +10,6 @@ import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.block.BlockTrackCurvedHalf;
 import alexiil.mods.traincraft.block.TCBlocks;
-import alexiil.mods.traincraft.track.TrackJoiner;
 
 public class ItemTrackCurved extends ItemBlockSeperatedTrack<BlockTrackCurvedHalf> {
 
@@ -46,7 +45,7 @@ public class ItemTrackCurved extends ItemBlockSeperatedTrack<BlockTrackCurvedHal
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ,
             IBlockState newState) {
         if (super.placeBlockAt(stack, player, world, pos, side, hitX, hitY, hitZ, newState)) {
-            if (!world.isRemote) TrackJoiner.INSTANCE.tryJoin(world, pos);
+            // if (!world.isRemote) TrackJoiner.INSTANCE.tryJoin(world, pos);
             return true;
         } else return false;
     }
