@@ -76,7 +76,8 @@ public class ItemTrackAscendingAxis extends ItemBlockSeperatedTrack<BlockTrackAs
             float hitY, float hitZ) {
         return null; // No state for this (it cannot overlap so there is no point)
     }
-
+    
+    
     @Override
     protected EnumTrackRequirement canPlaceTrack(World world, BlockPos pos, BlockPos origin) {
         double length = seperated.length / 2;

@@ -13,9 +13,12 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mods.traincraft.api.INetSerialisable;
 import alexiil.mods.traincraft.api.lib.MathUtil;
+import alexiil.mods.traincraft.api.track.model.ITrackModel;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 
@@ -72,6 +75,9 @@ public abstract class TrackBehaviour {
 
     /** Called once per tick by a stock to let the track intract with the stock. */
     public abstract void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock);
+    
+    @SideOnly(Side.CLIENT)
+    public abstract ITrackModel getModel();
 
     /** A behaviour that is completly stored within a single block. It is recommended that you also provide a
      * {@link TrackBehaviourStateful} instance to use for allowing your track to overlap with other tracks. */

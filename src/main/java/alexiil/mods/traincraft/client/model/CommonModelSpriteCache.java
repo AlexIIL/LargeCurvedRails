@@ -20,15 +20,17 @@ import net.minecraftforge.client.model.obj.OBJLoader;
 import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.TrainRegistry;
 import alexiil.mods.traincraft.api.lib.MathUtil;
+import alexiil.mods.traincraft.api.track.model.IModelSpriteGetter;
+import alexiil.mods.traincraft.api.track.model.RailGeneneratorParams;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.client.model.MutableQuad.Vertex;
 
-public enum CommonModelSpriteCache {
+public enum CommonModelSpriteCache implements IModelSpriteGetter {
     INSTANCE;
 
     // 4.3 is the lowest number that makes diagonal straight tracks use 3 sleepers rather than 2
-    public static final double SLEEPER_COUNT_PER_METER = 4.3;
-    public static final double RAIL_COUNT_PER_METER = 6;
+    public static final double SLEEPER_COUNT_PER_METER = RailGeneneratorParams.SLEEPER_COUNT_PER_METER;
+    public static final double RAIL_COUNT_PER_METER = RailGeneneratorParams.RAIL_COUNT_PER_METER;
 
     private TextureAtlasSprite railSprite, railSpriteMirrored, spriteVanillaExtras;
     private final List<List<BakedQuad>> sleepers = new ArrayList<>();
@@ -43,12 +45,35 @@ public enum CommonModelSpriteCache {
         spriteVanillaExtras = event.map.registerSprite(new ResourceLocation("traincraft:block/track_straight_vanilla_extra"));
     }
 
-    public TextureAtlasSprite spriteVanillaRail(boolean mirror) {
+    @Override
+    public TextureAtlasSprite spriteVanillaRails(boolean mirror) {
         return mirror ? railSpriteMirrored : railSprite;
     }
 
+    @Override
     public TextureAtlasSprite spriteVanillaExtras() {
         return spriteVanillaExtras;
+    }
+
+    @Override
+    public float textureU(VanillaExtrasSheet sheet) {
+        switch (sheet) {
+            // @formatter:off
+            case POWERED_OFF_START: return 0;
+            case POWERED_OFF_MIDDLE: return 1;
+            case POWERED_OFF_END:
+            case POWERED_ON_START: return 2;
+            case POWERED_ON_MIDDLE: return 3;
+            case POWERED_ON_END:
+            case REDSTONE_OFF_START: return 4;
+            case REDSTONE_OFF_MIDDLE: return 5;
+            case REDSTONE_OFF_END:
+            case REDSTONE_ON_START: return 6;
+            case REDSTONE_ON_MIDDLE: return 7;
+            case REDSTONE_ON_END: return 8;
+                // @formatter:on
+        }
+        throw new AbstractMethodError("Implement this!");
     }
 
     /** Loads (or returns immediatly from the cache) a list of all the available sleeper models. All of the lists are
@@ -106,6 +131,8 @@ public enum CommonModelSpriteCache {
         return generateRails(new GenerateRailsArguments(path, railSprite));
     }
 
+    // TODO: Replace all instances with RailGeneratorParams
+    @Deprecated
     public static class GenerateRailsArguments {
         private ITrackPath path;
         private TextureAtlasSprite railSprite;

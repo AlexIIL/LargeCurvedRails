@@ -37,7 +37,7 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
         @Override
         protected List<BakedQuad> generateRails(IBlockState state, ITrackPath path) {
             EnumRailDirection dir = state.getValue(BlockRail.SHAPE);
-            TextureAtlasSprite sprite = CommonModelSpriteCache.INSTANCE.spriteVanillaRail(false);
+            TextureAtlasSprite sprite = CommonModelSpriteCache.INSTANCE.spriteVanillaRails(false);
             if (dir.isAscending() || dir.getMetadata() < 3) {
                 return CommonModelSpriteCache.generateRails(path, sprite);
             }

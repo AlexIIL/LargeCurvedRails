@@ -17,6 +17,7 @@ import net.minecraftforge.client.model.ISmartBlockModel;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.lib.BlockStateKeyWrapper;
 
+// TODO: Convert this to use ITrackModel and be final rather than abstract
 public abstract class TrackGenericBlockModel extends PerspAwareModelBase implements ISmartBlockModel {
     private final LoadingCache<BlockStateKeyWrapper, IBakedModel> modelCache = CacheBuilder.newBuilder().maximumSize(maxCacheSize() + 10).build(
             CacheLoader.from(this::generateModel));
@@ -47,15 +48,17 @@ public abstract class TrackGenericBlockModel extends PerspAwareModelBase impleme
         quads.addAll(generateRails(state, path));
         generateExtra(quads, state, path);
 
-        return ModelUtil.wrapInBakedModel(quads, CommonModelSpriteCache.INSTANCE.spriteVanillaRail(false));
+        return ModelUtil.wrapInBakedModel(quads, CommonModelSpriteCache.INSTANCE.spriteVanillaRails(false));
     }
 
+    @SuppressWarnings("static-method")
     protected List<BakedQuad> generateSleepers(IBlockState state, ITrackPath path) {
         return CommonModelSpriteCache.generateSleepers(path, CommonModelSpriteCache.INSTANCE.loadSleepers(), false);
     }
 
+    @SuppressWarnings("static-method")
     protected List<BakedQuad> generateRails(IBlockState state, ITrackPath path) {
-        return CommonModelSpriteCache.generateRails(path, CommonModelSpriteCache.INSTANCE.spriteVanillaRail(false));
+        return CommonModelSpriteCache.generateRails(path, CommonModelSpriteCache.INSTANCE.spriteVanillaRails(false));
     }
 
     public IBakedModel getOrCreate(IBlockState state) {

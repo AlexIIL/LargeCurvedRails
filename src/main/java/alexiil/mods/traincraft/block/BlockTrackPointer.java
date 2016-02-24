@@ -5,6 +5,7 @@ import java.util.*;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
@@ -16,6 +17,8 @@ import alexiil.mods.traincraft.api.track.path.ITrackPath;
 
 /** This "points" to a different block that contains all of the actual information regarding the track path. */
 public class BlockTrackPointer extends BlockAbstractTrackSingle {
+    private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, TRACK_HEIGHT, 1);
+
     public enum EnumOffset implements IStringSerializable {
         // @formatter:off
         /** 0 */ XN1    (-1, 0, 0),
@@ -64,6 +67,21 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
 
     public BlockTrackPointer() {
         super(PROP_OFFSET);
+    }
+
+    @Override
+    public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
+        return BOUNDING_BOX.offset(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    @Override
+    public AxisAlignedBB getSelectedBoundingBox(World worldIn, BlockPos pos) {
+        return BOUNDING_BOX.offset(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
+        setBlockBounds(0, 0, 0, 1, TRACK_HEIGHT, 1);
     }
 
     /** Attemots to find the master for this block. If it cannot be found the null is returned. */
