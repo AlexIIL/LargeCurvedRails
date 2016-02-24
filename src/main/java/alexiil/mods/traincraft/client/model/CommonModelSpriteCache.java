@@ -71,9 +71,9 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
             case REDSTONE_ON_START: return 6;
             case REDSTONE_ON_MIDDLE: return 7;
             case REDSTONE_ON_END: return 8;
-                // @formatter:on
+            // @formatter:on
         }
-        throw new AbstractMethodError("Implement this!");
+        throw new IllegalArgumentException("Unknown sheet! " + sheet);
     }
 
     /** Loads (or returns immediatly from the cache) a list of all the available sleeper models. All of the lists are
