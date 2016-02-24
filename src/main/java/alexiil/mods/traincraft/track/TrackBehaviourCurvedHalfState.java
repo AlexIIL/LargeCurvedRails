@@ -10,6 +10,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
@@ -59,7 +60,7 @@ public class TrackBehaviourCurvedHalfState extends TrackBehaviourStateful {
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
-        EnumFacing facing = NBTUtils.deserializeEnum(nbt, EnumFacing.class, this.facing);
+        EnumFacing facing = NBTUtils.deserializeEnum(nbt.getTag("facing"), EnumFacing.class, this.facing);
         boolean positive = nbt.getBoolean("positive");
         setDir(facing, positive);
     }
@@ -91,7 +92,7 @@ public class TrackBehaviourCurvedHalfState extends TrackBehaviourStateful {
     }
 
     @Override
-    public boolean canOverlap(TrackBehaviourStateful otherTrack) {
+    public boolean canOverlap(TrackBehaviour otherTrack) {
         return true;
     }
 

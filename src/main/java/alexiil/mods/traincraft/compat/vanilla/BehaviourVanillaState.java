@@ -15,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
@@ -95,7 +96,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
     }
 
     @Override
-    public boolean canOverlap(TrackBehaviourStateful otherTrack) {
+    public boolean canOverlap(TrackBehaviour otherTrack) {
         return true;
     }
 

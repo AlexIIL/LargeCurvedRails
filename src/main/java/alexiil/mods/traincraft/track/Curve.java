@@ -31,6 +31,8 @@ public enum Curve {
     RADIUS_9("9", 9.5, 2.5, 6.5),
     RADIUS_11("11", 11.5, 3, 8),;
 
+    public final String halfIdentifier, fullIdentifier;
+
     public final HalfFactory halfFactory;
     public final FullFactory fullFactory;
 
@@ -44,6 +46,9 @@ public enum Curve {
 
     private Curve(String radiusReadable, double radius, double width, double length) {
         this.radiusReadable = radiusReadable;
+        halfIdentifier = "traincraft:curve_half_" + radiusReadable + "::";
+        fullIdentifier = "traincraft:curve_full_" + radiusReadable + "::";
+
         halfFactory = new HalfFactory(width, length);
         fullFactory = new FullFactory(radius);
 

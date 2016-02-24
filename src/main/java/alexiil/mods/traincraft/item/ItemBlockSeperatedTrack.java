@@ -76,7 +76,7 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
             if (req != null) {
                 TrackBehaviourStateful stateful = statefulState(world, pos, player, stack, side, hitX, hitY, hitZ);
                 if (stateful == null) return false;
-                return TrackPlacer.INSTANCE.tryPlaceTrack(stateful, world, pos, world.getBlockState(pos));
+                return TrackPlacer.INSTANCE.tryPlaceTrackAndSlaves(stateful, world, pos);
             }
         }
 

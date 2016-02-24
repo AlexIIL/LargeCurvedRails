@@ -1,12 +1,14 @@
 package alexiil.mods.traincraft.track;
 
+import java.util.Set;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.TrainCraft;
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourNative;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
@@ -48,8 +50,20 @@ public class TrackBehaviourCurvedHalfNative extends TrackBehaviourNative {
     }
 
     @Override
+    public boolean canOverlap(TrackBehaviour otherTrack) {
+        return true;
+    }
+
+    @Override
+    public Set<BlockPos> getSlaveOffsets(World world, BlockPos pos, IBlockState state) {
+        EnumFacing face = state.getValue(BlockTrackCurvedHalf.PROPERTY_FACING);
+        boolean positive = state.getValue(BlockTrackCurvedHalf.PROPERTY_DIRECTION);
+        return curve.halfFactory.getSlaves(face, positive);
+    }
+
+    @Override
     public TrackIdentifier getIdentifier(World world, BlockPos pos, IBlockState state) {
-        return new TrackIdentifier(world.provider.getDimensionId(), pos, "");// FIXME!
+        return new TrackIdentifier(world.provider.getDimensionId(), pos, curve.halfIdentifier + "native");// FIXME!
     }
 
     @Override

@@ -2,6 +2,7 @@ package alexiil.mods.traincraft.compat.vanilla;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Set;
 
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.BlockRailBase.EnumRailDirection;
@@ -10,8 +11,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourNative;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
@@ -75,6 +76,16 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
 
     @Override
     public void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {}
+
+    @Override
+    public boolean canOverlap(TrackBehaviour otherTrack) {
+        return true;
+    }
+
+    @Override
+    public Set<BlockPos> getSlaveOffsets(World world, BlockPos pos, IBlockState state) {
+        return TrackBehaviour.SINGLE_BLOCK_SLAVES;
+    }
 
     public static class Normal extends BehaviourVanillaNative {
         public static final Normal INSTANCE = new Normal();

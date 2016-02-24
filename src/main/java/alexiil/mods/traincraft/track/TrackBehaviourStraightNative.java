@@ -1,10 +1,12 @@
 package alexiil.mods.traincraft.track;
 
+import java.util.Set;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourNative;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
@@ -41,4 +43,14 @@ public class TrackBehaviourStraightNative extends TrackBehaviourNative {
 
     @Override
     public void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {}
+
+    @Override
+    public boolean canOverlap(TrackBehaviour otherTrack) {
+        return true;
+    }
+
+    @Override
+    public Set<BlockPos> getSlaveOffsets(World world, BlockPos pos, IBlockState state) {
+        return TrackBehaviour.SINGLE_BLOCK_SLAVES;
+    }
 }

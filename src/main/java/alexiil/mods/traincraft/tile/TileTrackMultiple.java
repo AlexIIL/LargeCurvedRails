@@ -57,8 +57,8 @@ public class TileTrackMultiple extends TileAbstractTrack {
         for (BehaviourWrapper wrapped : containing) {
             TrackBehaviourStateful track = (TrackBehaviourStateful) wrapped.behaviour();
             NBTTagCompound comp = new NBTTagCompound();
-            comp.setTag("data", track.serializeNBT());
             comp.setString("type", track.factory().identifier());
+            comp.setTag("data", track.serializeNBT());
             list.appendTag(comp);
         }
         nbt.setTag("tracks", list);
@@ -97,9 +97,14 @@ public class TileTrackMultiple extends TileAbstractTrack {
         }
     }
 
-    public void addTrack(TrackBehaviourStateful behaviour) {
+    public boolean addTrack(TrackBehaviourStateful behaviour) {
         if (!getPos().equals(behaviour.getIdentifier().pos())) throw new IllegalArgumentException("Different positions!");
         BehaviourWrapper wrapped = new BehaviourWrapper(behaviour, getWorld(), getPos());
+
+        for (BehaviourWrapper w : allWrapped) {
+            if (!w.behaviour().canOverlap(behaviour)) return false;
+        }
+
         containing.add(wrapped);
         allWrapped.add(wrapped);
 
@@ -107,6 +112,7 @@ public class TileTrackMultiple extends TileAbstractTrack {
         boolean statePoints = this instanceof TileTrackMultiplePoints || hasPoints();
 
         convert(forState(stateTickable, statePoints));
+        return true;
     }
 
     protected boolean hasPoints() {

@@ -11,12 +11,10 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.INBTSerializable;
 
 import alexiil.mods.traincraft.api.INetSerialisable;
-import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.IRollingStock;
@@ -25,6 +23,10 @@ import io.netty.buffer.ByteBuf;
 
 /** This controls how a train interacts with a tracks and can get a path that a train can use to follow this track. */
 public abstract class TrackBehaviour {
+    /** An immutable set of just the origin point to be used for all tracks that have paths which are completly
+     * contained within a single block. */
+    public static final ImmutableSet<BlockPos> SINGLE_BLOCK_SLAVES = ImmutableSet.of(BlockPos.ORIGIN);
+
     /** Private constructor to force either of the below types to be used as they are specially coded for. */
     private TrackBehaviour() {}
 
@@ -37,7 +39,35 @@ public abstract class TrackBehaviour {
 
     /** Checks to see if the appropriate block/tile for this track still exists in the world. */
     public boolean isValid(World world, BlockPos pos, IBlockState state) {
-        return TrainCraftAPI.TRACK_PROVIDER.getTracksAsList(world, pos, state).contains(this);
+        return true;
+    }
+
+    /** Tests to see if the given track is allowed to overlap with this track. Note that you do not need to check to see
+     * if the two {@link #getPath(World, BlockPos, IBlockState)} are actually allowed over each other.
+     * 
+     * @param otherTrack The track to test
+     * @return True if you can overlap, false if not. */
+    public abstract boolean canOverlap(TrackBehaviour otherTrack);
+
+    /** @return All of the positions that this track passes over. This should include the ORIGIN as an offset. It is
+     *         recommended that you create a set with {@link #createSlaveOffsets(ITrackPath)} */
+    public abstract Set<BlockPos> getSlaveOffsets(World world, BlockPos pos, IBlockState state);
+
+    public static Set<BlockPos> createSlaveOffsets(ITrackPath path) {
+        ImmutableSet.Builder<BlockPos> slaves = ImmutableSet.builder();
+        // Calculate slaves
+        for (int i = 0; i < path.length() * 5; i++) {
+            double offset = i;
+            offset += 0.5;
+            offset /= path.length();
+            Vec3 pos = path.interpolate(offset);
+            Vec3 dir = path.direction(offset);
+            dir = MathUtil.cross(dir, new Vec3(0, 1, 0)).normalize();
+
+            slaves.add(new BlockPos(pos.add(MathUtil.scale(dir, 0.2))));
+            slaves.add(new BlockPos(pos.add(MathUtil.scale(dir, -0.2))));
+        }
+        return slaves.build();
     }
 
     /** Called once per tick by a stock to let the track intract with the stock. */
@@ -65,34 +95,6 @@ public abstract class TrackBehaviour {
          * @return True if this was converted into block-only format in the world, false. */
         public abstract boolean convertToNative(TileEntity owner);
 
-        /** Tests to see if the given track is allowed to overlap with this track. Note that you do not need to check to
-         * see if the two {@link #getPath(World, BlockPos, IBlockState)} are actually allowed over each other.
-         * 
-         * @param otherTrack The track to test
-         * @return True if you can overlap, false if not. */
-        public abstract boolean canOverlap(TrackBehaviourStateful otherTrack);
-
-        /** @return All of the positions that this track passes over. This should include the ORIGIN as an offset. It is
-         *         recommended that you create a set with {@link #createSlaveOffsets(ITrackPath)} */
-        public abstract Set<BlockPos> getSlaveOffsets();
-
-        public static Set<BlockPos> createSlaveOffsets(ITrackPath path) {
-            ImmutableSet.Builder<BlockPos> slaves = ImmutableSet.builder();
-            // Calculate slaves
-            for (int i = 0; i < path.length() * 5; i++) {
-                double offset = i;
-                offset += 0.5;
-                offset /= path.length();
-                Vec3 pos = path.interpolate(offset);
-                Vec3 dir = path.direction(offset);
-                dir = MathUtil.cross(dir, new Vec3(0, 1, 0)).normalize();
-
-                slaves.add(new BlockPos(pos.add(MathUtil.scale(dir, 0.2))));
-                slaves.add(new BlockPos(pos.add(MathUtil.scale(dir, -0.2))));
-            }
-            return slaves.build();
-        }
-
         @Override
         public final ITrackPath getPath(World world, BlockPos pos, IBlockState state) {
             return getPath();
@@ -106,6 +108,13 @@ public abstract class TrackBehaviour {
         }
 
         public abstract TrackIdentifier getIdentifier();
+
+        @Override
+        public final Set<BlockPos> getSlaveOffsets(World world, BlockPos pos, IBlockState state) {
+            return getSlaveOffsets();
+        }
+
+        public abstract Set<BlockPos> getSlaveOffsets();
 
         @Override
         public final void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {
