@@ -30,6 +30,38 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
         this.seperated = block;
     }
 
+    /* Same as the one in ItemBlock, but has an additional check to not modify the block position if we are looking at a
+     * track */
+    @Override
+    public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
+        IBlockState iblockstate = world.getBlockState(pos);
+        Block block = iblockstate.getBlock();
+
+        // Our addition, we don't care what the defaults are as we know if we are allowed to do this or not.
+        boolean replacingTrack = TrackPlacer.INSTANCE.isUpgradableTrack(world, pos);
+
+        if (!block.isReplaceable(world, pos) && !replacingTrack) {
+            pos = pos.offset(side);
+        }
+
+        if (stack.stackSize == 0) {
+            return false;
+        } else if (!playerIn.canPlayerEdit(pos, side, stack)) {
+            return false;
+        } else if (replacingTrack || world.canBlockBePlaced(this.block, pos, false, side, (Entity) null, stack)) {
+            int i = this.getMetadata(stack.getMetadata());
+            IBlockState iblockstate1 = this.block.onBlockPlaced(world, pos, side, hitX, hitY, hitZ, i, playerIn);
+
+            if (placeBlockAt(stack, playerIn, world, pos, side, hitX, hitY, hitZ, iblockstate1)) {
+                world.playSoundEffect(pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, this.block.stepSound.getPlaceSound(),
+                        (this.block.stepSound.getVolume() + 1.0F) / 2.0F, this.block.stepSound.getFrequency() * 0.8F);
+                --stack.stackSize;
+            }
+
+            return true;
+        } else return false;
+    }
+
     protected Map<BlockPos, IBlockSetter> getTrackBlockSetters(IBlockState targetState, ItemStack stack) {
         Map<BlockPos, IBlockSetter> setters = new HashMap<>();
         List<BlockPos> offsets = seperated.getSlaveOffsets(targetState);

@@ -35,4 +35,7 @@ public interface ITrackPlacer {
      * 
      * @return True if the behaviour was removed from the world. */
     boolean removeTrack(TrackBehaviour toRemove, World world, BlockPos pos, IBlockState state);
+
+    /** Checks to see if the given block is upgradable to a multi-track tile entity. */
+    boolean isUpgradableTrack(World world, BlockPos pos);
 }

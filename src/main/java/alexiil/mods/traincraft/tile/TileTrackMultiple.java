@@ -97,6 +97,13 @@ public class TileTrackMultiple extends TileAbstractTrack {
         }
     }
 
+    protected boolean hasPoints() {
+        for (Collection<BehaviourWrapper> key : joinMap.asMap().values()) {
+            if (key.size() > 1) return true;
+        }
+        return false;
+    }
+
     public boolean addTrack(TrackBehaviourStateful behaviour) {
         if (!getPos().equals(behaviour.getIdentifier().pos())) throw new IllegalArgumentException("Different positions!");
         BehaviourWrapper wrapped = new BehaviourWrapper(behaviour, getWorld(), getPos());
@@ -115,13 +122,6 @@ public class TileTrackMultiple extends TileAbstractTrack {
         return true;
     }
 
-    protected boolean hasPoints() {
-        for (Collection<BehaviourWrapper> key : joinMap.asMap().values()) {
-            if (key.size() > 1) return true;
-        }
-        return false;
-    }
-
     public void removeTrack(TrackBehaviourStateful behaviour) {
         BehaviourWrapper wrapped = new BehaviourWrapper(behaviour, getWorld(), behaviour.getIdentifier().pos());
         // No point in doing anything if the behaviour given didn't actually exist
@@ -132,6 +132,25 @@ public class TileTrackMultiple extends TileAbstractTrack {
         boolean statePoints = this instanceof TileTrackMultiplePoints && hasPoints();
 
         convert(forState(stateTickable, statePoints));
+    }
+
+    public boolean addPointerToTrack(BehaviourWrapper wrapped) {
+        if (getPos().equals(wrapped.pos())) throw new IllegalArgumentException("Same position!");
+
+        for (BehaviourWrapper w : allWrapped) {
+            if (!w.behaviour().canOverlap(wrapped.behaviour())) return false;
+        }
+
+        pointingTo.add(wrapped);
+        allWrapped.add(wrapped);
+
+        return true;
+    }
+
+    public void removePointerFromTrack(BehaviourWrapper wrapped) {
+        // No point in doing anything if the behaviour given didn't actually exist
+        if (!pointingTo.remove(wrapped)) return;
+        allWrapped.remove(wrapped);
     }
 
     protected final TileTrackMultiple forState(boolean tickable, boolean points) {

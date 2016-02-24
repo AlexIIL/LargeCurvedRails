@@ -109,7 +109,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
         NORMAL("normal", (ident, world, pos) -> new Normal(ident, world, pos)),
         ACTIVATOR("activator", (ident, world, pos) -> new Activator(ident, world, pos)),
         DETECTOR("detector", (ident, world, pos) -> new Detector(ident, world, pos)),
-        SPEED("speed", (ident, world, pos) -> new Speed(ident, world, pos));
+        GOLDEN("golden", (ident, world, pos) -> new Speed(ident, world, pos));
 
         private final String ident;
         private final TriFunction<String, World, BlockPos, BehaviourVanillaState> factory;
@@ -223,7 +223,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
 
         @Override
         public StatefulFactory factory() {
-            return Factory.SPEED;
+            return Factory.GOLDEN;
         }
 
         @Override

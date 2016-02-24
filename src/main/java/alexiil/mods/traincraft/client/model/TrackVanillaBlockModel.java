@@ -109,7 +109,7 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
 
         @Override
         public ITrackPath path(IBlockState state) {
-            return BehaviourVanillaNative.Speed.INSTANCE.getDefaultPath(state);
+            return BehaviourVanillaNative.Golden.INSTANCE.getDefaultPath(state);
         }
 
         @Override

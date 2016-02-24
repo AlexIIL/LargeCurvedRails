@@ -49,9 +49,11 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
     }
 
     protected final BlockRailBase rail;
+    private final String uniqueName;
 
-    public BehaviourVanillaNative(BlockRailBase rail) {
+    public BehaviourVanillaNative(BlockRailBase rail, String name) {
         this.rail = rail;
+        this.uniqueName = name;
     }
 
     public static ITrackPath getPath(EnumRailDirection dir) {
@@ -71,7 +73,8 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
 
     @Override
     public TrackIdentifier getIdentifier(World world, BlockPos pos, IBlockState state) {
-        return new TrackIdentifier(world.provider.getDimensionId(), pos, "native");
+        EnumRailDirection dir = state.getValue(rail.getShapeProperty());
+        return new TrackIdentifier(world.provider.getDimensionId(), pos, "traincraft:vanilla_" + uniqueName + ":" + dir.getName());
     }
 
     @Override
@@ -91,7 +94,7 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         public static final Normal INSTANCE = new Normal();
 
         private Normal() {
-            super((BlockRailBase) Blocks.rail);
+            super((BlockRailBase) Blocks.rail, "normal");
         }
 
         @Override
@@ -107,7 +110,7 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         public static final Activator INSTANCE = new Activator();
 
         private Activator() {
-            super((BlockRailBase) Blocks.activator_rail);
+            super((BlockRailBase) Blocks.activator_rail, "activator");
         }
 
         @Override
@@ -123,7 +126,7 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         public static final Detector INSTANCE = new Detector();
 
         private Detector() {
-            super((BlockRailBase) Blocks.detector_rail);
+            super((BlockRailBase) Blocks.detector_rail, "detector");
         }
 
         @Override
@@ -135,11 +138,11 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         }
     }
 
-    public static class Speed extends BehaviourVanillaNative {
-        public static final Speed INSTANCE = new Speed();
+    public static class Golden extends BehaviourVanillaNative {
+        public static final Golden INSTANCE = new Golden();
 
-        private Speed() {
-            super((BlockRailBase) Blocks.golden_rail);
+        private Golden() {
+            super((BlockRailBase) Blocks.golden_rail, "golden");
         }
 
         @Override
@@ -147,7 +150,7 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
             EnumRailDirection dir = world.getBlockState(pos).getValue(rail.getShapeProperty());
             // Perhaps this could be for saving tracks with block underneath?
             if (dir.isAscending()) return null;
-            return BehaviourVanillaState.Factory.SPEED.create(world, pos).setDir(dir);
+            return BehaviourVanillaState.Factory.GOLDEN.create(world, pos).setDir(dir);
         }
 
         @Override

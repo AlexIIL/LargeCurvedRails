@@ -24,9 +24,6 @@ public final class BehaviourWrapper {
         this.behaviour = behaviour;
         this.world = world;
         this.pos = pos;
-        if (getPath() == null) throw new IllegalArgumentException("Null path! " + behaviour.getClass());
-        if (getIdentifier() == null) throw new IllegalArgumentException("Null identifier! " + behaviour.getClass());
-        if (!isValid()) throw new IllegalArgumentException("Invalid behaviour! " + behaviour.getClass());
     }
 
     // Delegate methods
