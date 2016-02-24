@@ -8,13 +8,21 @@ import java.util.Set;
 
 import org.apache.commons.lang3.tuple.MutablePair;
 
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fml.common.LoaderState.ModState;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+/** Controls loading traincraft addons. If you are making a compatibility module for TrainCraft then I highly recommend
+ * registering here. */
 public enum AddonManager {
     INSTANCE;
     private final Map<IAddon, ModState> addons = new IdentityHashMap<>();
     private ModState allReached = ModState.CONSTRUCTED;
 
+    /** @param addon
+     * @return */
     public <T extends IAddon> T registerAddon(T addon) {
         Entry<IAddon, ModState> entry = MutablePair.of(addon, ModState.CONSTRUCTED);
         advanceToState(entry, allReached);
@@ -55,6 +63,21 @@ public enum AddonManager {
     public void disableAll() {
         addons.entrySet().forEach(a -> advanceToState(a, ModState.DISABLED));
         allReached = ModState.DISABLED;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void textureStitchPre(TextureStitchEvent.Pre pre) {
+        addons.keySet().forEach(a -> a.textureStitchPre(pre));
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void textureStitchPost(TextureStitchEvent.Post post) {
+        addons.keySet().forEach(a -> a.textureStitchPost(post));
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void modelBake(ModelBakeEvent bake) {
+        addons.keySet().forEach(a -> a.modelBake(bake));
     }
 
     private void advanceToState(Entry<IAddon, ModState> entry, ModState wantedState) {

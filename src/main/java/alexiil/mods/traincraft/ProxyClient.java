@@ -33,6 +33,7 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import alexiil.mods.traincraft.api.AddonManager;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
@@ -105,6 +106,7 @@ public class ProxyClient extends Proxy {
             ModelResourceLocation mrl = new ModelResourceLocation(Block.blockRegistry.getNameForObject(rail).toString());
             bake.modelRegistry.putObject(mrl, TrackVanillaBlockModel.create(rail));
         }
+        AddonManager.INSTANCE.modelBake(bake);
     }
 
     @SubscribeEvent
@@ -112,10 +114,13 @@ public class ProxyClient extends Proxy {
         ComponentSmallWheel.textureStitchPre(event);
         ComponentCart.textureStitchPre(event);
         CommonModelSpriteCache.INSTANCE.textureStitchPre(event);
+        AddonManager.INSTANCE.textureStitchPre(event);
     }
 
     @SubscribeEvent
-    public void textureStitchPost(TextureStitchEvent.Post event) {}
+    public void textureStitchPost(TextureStitchEvent.Post event) {
+        AddonManager.INSTANCE.textureStitchPost(event);
+    }
 
     private static final double STEP_DIST = 0.3;
 

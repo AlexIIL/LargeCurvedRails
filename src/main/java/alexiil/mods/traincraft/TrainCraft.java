@@ -38,6 +38,7 @@ public class TrainCraft {
         TrainCraftAPI.TRACK_PROVIDER = TrackPathProvider.INSTANCE;
         TrainCraftAPI.TRACK_STATE_REGISTRY = TrackRegistry.INSTANCE;
         TrainCraftAPI.TRACK_PLACER = TrackPlacer.INSTANCE;
+        TrainCraftAPI.TRAIN_REGISTRY = TrainRegistry.INSTANCE;
 
         TCTracks.preInit();
         TCBlocks.preInit();
@@ -45,10 +46,10 @@ public class TrainCraft {
         TCTabs.preInit();
         TCCompat.preInit();
 
-        EntityRegistry.registerModEntity(EntityGenericRollingStock.class, "", 0, instance, 60, 64, false);
+        EntityRegistry.registerModEntity(EntityGenericRollingStock.class, "genericRollingStock", 0, instance, 60, 64, false);
 
-        TrainRegistry.INSTANCE.registerTrain(TypeCartSmall.INSTANCE);
-        TrainRegistry.INSTANCE.registerTrain(TypeSteamSmall.INSTANCE);
+        TrainCraftAPI.TRAIN_REGISTRY.registerTrain(TypeCartSmall.INSTANCE);
+        TrainCraftAPI.TRAIN_REGISTRY.registerTrain(TypeSteamSmall.INSTANCE);
 
         AddonManager.INSTANCE.preInit();
 

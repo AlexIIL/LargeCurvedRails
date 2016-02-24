@@ -55,7 +55,8 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
     private static final Map<BlockPos, EnumOffset> OFFSET_MAP = new HashMap<>();
 
     public static final PropertyEnum<EnumOffset> PROP_OFFSET = PropertyEnum.create("offset", EnumOffset.class);
-    /** Many more tries than are technically needed, but this makes sure that */
+    /** Many more tries than are technically needed, but this makes sure that even if we add very long tracks in the
+     * future they are all accounted for. */
     private static final int MAX_TRIES = 90;
 
     protected BlockTrackPointer(IProperty<?>... properties) {
@@ -66,8 +67,18 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
         super(PROP_OFFSET);
     }
 
+    /** Attemots to find the master for this block. If it cannot be found the null is returned. */
+    public BlockPos master(IBlockAccess access, BlockPos pos, IBlockState state) {
+        try {
+            return findMaster(access, pos, state);
+        } catch (@SuppressWarnings("unused") IllegalPathException e) {
+            // Ignore it, we will need to to update at somepoint.
+        }
+        return null;
+    }
+
     @Override
-    protected TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
         try {
             BlockPos master = findMaster(access, pos, state);
             IBlockState masterState = access.getBlockState(master);

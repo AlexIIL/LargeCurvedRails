@@ -2,6 +2,8 @@ package alexiil.mods.traincraft.block;
 
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.properties.IProperty;
@@ -30,11 +32,13 @@ public abstract class BlockAbstractTrackSingle extends BlockAbstractTrack {
     @Override
     public TrackBehaviour currentBehaviour(IBlockAccess access, BlockPos pos, IBlockState state, Vec3 from) {
         TrackBehaviour single = singleBehaviour(access, pos, state);
+        if (single == null) return null;
         ITrackPath p = single.getPath(access, pos, state);
         if (MCObjectUtils.equals(from, p.start())) return single;
         if (MCObjectUtils.equals(from, p.end())) return single;
         return null;
     }
 
-    protected abstract TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state);
+    @Nullable
+    public abstract TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state);
 }

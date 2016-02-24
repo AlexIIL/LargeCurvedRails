@@ -1,5 +1,6 @@
 package alexiil.mods.traincraft.item;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
         return setters;
     }
 
-    private static EnumOffset calculateOffsetTo(BlockPos from, List<BlockPos> via, BlockPos to) {
+    public static EnumOffset calculateOffsetTo(BlockPos from, Collection<BlockPos> via, BlockPos to) {
         double bestOffsetL = Double.MAX_VALUE;
         EnumOffset bestOffset = null;
 
