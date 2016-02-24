@@ -16,13 +16,14 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.track.path.TrackPathStraight;
 import alexiil.mods.traincraft.property.BlockStatePropWrapper;
@@ -74,14 +75,15 @@ public class BlockTrackAscending extends BlockTrackSeperated {
     }
 
     // @Override
-    // public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
+    // public ITrackPath[] paths(World world, BlockPos pos, IBlockState state) {
     // ITrackPath path = path(state);
     // if (path == null) return new ITrackPath[0];
     // return new ITrackPath[] { path.offset(pos) };
     // }
 
     @Override
-    protected TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public BehaviourWrapper singleBehaviour(World world, BlockPos pos, IBlockState state) {
+        // FIXME!
         return null;
     }
 
@@ -92,26 +94,26 @@ public class BlockTrackAscending extends BlockTrackSeperated {
     }
 
     @Override
-    public boolean isSlave(IBlockAccess access, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState) {
+    public boolean isSlave(World world, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState) {
         BlockPos slaveOffset = slavePos.subtract(masterPos);
         return slaveOffsets(path(masterState)).contains(slaveOffset);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
-        IBlockState material = getSupportingMaterial(state, world, pos);
+    public IBlockState getExtendedState(IBlockState state, IBlockAccess access, BlockPos pos) {
+        IBlockState material = getSupportingMaterial(access, pos);
         if (material == null) return state;
         IExtendedBlockState extended = (IExtendedBlockState) state;
         return extended.withProperty((IUnlistedProperty<BlockStatePropWrapper>) MATERIAL_TYPE, new BlockStatePropWrapper(material));
     }
 
-    private static IBlockState getSupportingMaterial(IBlockState state, IBlockAccess world, BlockPos pos) {
+    private static IBlockState getSupportingMaterial(IBlockAccess access, BlockPos pos) {
         for (EnumFacing face : EnumFacing.HORIZONTALS) {
-            IBlockState offset = world.getBlockState(pos.offset(face));
+            IBlockState offset = access.getBlockState(pos.offset(face));
             if (offset.getBlock() instanceof BlockTrackPointerAscending) {
                 BlockTrackPointerAscending pointer = (BlockTrackPointerAscending) offset.getBlock();
-                return pointer.getSupportingMaterial(world, pos, offset);
+                return pointer.getSupportingMaterial(access, pos, offset);
             }
         }
         return null;
@@ -122,7 +124,7 @@ public class BlockTrackAscending extends BlockTrackSeperated {
     }
 
     @Override
-    public boolean shouldSideBeRendered(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
+    public boolean shouldSideBeRendered(IBlockAccess access, BlockPos pos, EnumFacing side) {
         return true;
     }
 

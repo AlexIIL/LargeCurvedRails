@@ -17,7 +17,6 @@ import net.minecraft.world.World;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
-import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 
 public class StockPathFinder {
     public final Map<BehaviourWrapper, PathNode> paths = new HashMap<>();
@@ -53,8 +52,8 @@ public class StockPathFinder {
         for (BlockPos offset : BlockPos.getAllInBox(new BlockPos(-2, -2, -2), new BlockPos(2, 2, 2))) {
             BlockPos p = toTry.add(offset);
             IBlockState state = world.getBlockState(p);
-            TrackBehaviour track = TrainCraftAPI.TRACK_PROVIDER.getTrackFromPoint(world, p, state, attachPoint);
-            if (track != null) tracks.add(TrainCraftAPI.TRACK_PROVIDER.wrap(track, world, p));
+            BehaviourWrapper track = TrainCraftAPI.TRACK_PROVIDER.getTrackFromPoint(world, p, state, attachPoint);
+            if (track != null) tracks.add(track);
         }
 
         return tracks.build().filter(t -> {

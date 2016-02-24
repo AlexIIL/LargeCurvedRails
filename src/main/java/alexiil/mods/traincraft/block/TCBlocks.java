@@ -36,7 +36,6 @@ public enum TCBlocks {
     /* Pointers */
     TRACK_POINTER(() -> new BlockTrackPointer()),
     TRACK_POINTER_ASCENDING(() -> new BlockTrackPointerAscending()),
-    TRACK_POINTER_MULTIPLE(() -> new BlockTrackPointerMultiple()),
     TRACK_MULTIPLE(() -> new BlockTrackMultiple()),;
 
     private final Supplier<Block> supplier;

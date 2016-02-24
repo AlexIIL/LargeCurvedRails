@@ -10,32 +10,42 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.TrackRegistry;
 import alexiil.mods.traincraft.api.lib.MCObjectUtils.Vec3Key;
-import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.StatefulFactory;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.block.BlockTrackMultiple;
 
 public class TileTrackMultiple extends TileAbstractTrack {
-    protected final List<TrackBehaviourStateful> tracks = new ArrayList<>(), unmodifiable = Collections.unmodifiableList(tracks);
-    private final List<TrackBehaviour> nonStateful = new ArrayList<>(), nsUnmodifiable = Collections.unmodifiableList(nonStateful);
-    protected final Multimap<Vec3Key, TrackBehaviour> joinMap = HashMultimap.create();
+    protected final List<BehaviourWrapper> pointingTo = new ArrayList<>(), umPointingTo = Collections.unmodifiableList(pointingTo);
+    protected final List<BehaviourWrapper> containing = new ArrayList<>(), umContaining = Collections.unmodifiableList(containing);
+    protected final List<BehaviourWrapper> allWrapped = new ArrayList<>(), umAllWrapped = Collections.unmodifiableList(allWrapped);
+    protected final Multimap<Vec3Key, BehaviourWrapper> joinMap = HashMultimap.create();
+
+    private NBTTagCompound postLoad;
 
     @Override
-    public List<TrackBehaviourStateful> getBehaviours() {
-        return unmodifiable;
+    public List<BehaviourWrapper> getWrappedBehaviours() {
+        return umAllWrapped;
     }
 
-    public Collection<TrackBehaviour> getBehavioursNonStateful() {
-        return nsUnmodifiable;
+    @Override
+    public void setWorldObj(World world) {
+        super.setWorldObj(world);
+        if (world != null) {
+            if (postLoad == null) return;
+            readFromNBT(postLoad);
+            postLoad = null;
+        }
     }
 
-    public TrackBehaviour currentBehaviour(Vec3 from) {
-        Collection<TrackBehaviour> behaviours = joinMap.get(new Vec3Key(from));
-        Iterator<TrackBehaviour> it = behaviours.iterator();
+    public BehaviourWrapper currentBehaviour(Vec3 from) {
+        Collection<BehaviourWrapper> behaviours = joinMap.get(new Vec3Key(from));
+        Iterator<BehaviourWrapper> it = behaviours.iterator();
         if (!it.hasNext()) return null;
         return it.next();
     }
@@ -44,7 +54,8 @@ public class TileTrackMultiple extends TileAbstractTrack {
     public void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         NBTTagList list = new NBTTagList();
-        for (TrackBehaviourStateful track : tracks) {
+        for (BehaviourWrapper wrapped : containing) {
+            TrackBehaviourStateful track = (TrackBehaviourStateful) wrapped.behaviour();
             NBTTagCompound comp = new NBTTagCompound();
             comp.setTag("data", track.serializeNBT());
             comp.setString("type", track.factory().identifier());
@@ -56,7 +67,12 @@ public class TileTrackMultiple extends TileAbstractTrack {
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
-        tracks.clear();
+        if (!hasWorldObj()) {
+            // Loading depends on having the world, so we will load later if we don't actually have the world right now
+            postLoad = nbt;
+            return;
+        }
+        containing.clear();
         NBTTagList list = (NBTTagList) nbt.getTag("tracks");
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound comp = list.getCompoundTagAt(i);
@@ -65,44 +81,48 @@ public class TileTrackMultiple extends TileAbstractTrack {
             StatefulFactory factory = TrackRegistry.INSTANCE.getFactory(type);
             TrackBehaviourStateful behavior = factory.create(getWorld(), getPos());
             behavior.deserializeNBT(data);
-            tracks.add(behavior);
-            nonStateful.add(behavior);
+            BehaviourWrapper wrapped = new BehaviourWrapper(behavior, getWorld(), behavior.getIdentifier().pos());
+            containing.add(wrapped);
+            allWrapped.add(wrapped);
         }
     }
 
     /** Repopulates the {@link #joinMap} */
     protected void regenJoinMap() {
         joinMap.clear();
-        for (TrackBehaviourStateful track : tracks) {
-            ITrackPath path = track.getPath(getWorld(), getPos(), getWorld().getBlockState(getPos()));
+        for (BehaviourWrapper track : allWrapped) {
+            ITrackPath path = track.getPath();
             joinMap.put(new Vec3Key(path.start()), track);
             joinMap.put(new Vec3Key(path.end()), track);
         }
     }
 
     public void addTrack(TrackBehaviourStateful behaviour) {
-        tracks.add(behaviour);
-        nonStateful.add(behaviour);
+        if (!getPos().equals(behaviour.getIdentifier().pos())) throw new IllegalArgumentException("Different positions!");
+        BehaviourWrapper wrapped = new BehaviourWrapper(behaviour, getWorld(), getPos());
+        containing.add(wrapped);
+        allWrapped.add(wrapped);
 
-        boolean stateTickable = this instanceof ITickable | behaviour instanceof ITickable;
-        boolean statePoints = this instanceof TileTrackMultiplePoints && hasPoints();
+        boolean stateTickable = this instanceof ITickable || behaviour instanceof ITickable;
+        boolean statePoints = this instanceof TileTrackMultiplePoints || hasPoints();
 
         convert(forState(stateTickable, statePoints));
     }
 
     protected boolean hasPoints() {
-        for (Collection<TrackBehaviour> key : joinMap.asMap().values()) {
+        for (Collection<BehaviourWrapper> key : joinMap.asMap().values()) {
             if (key.size() > 1) return true;
         }
         return false;
     }
 
     public void removeTrack(TrackBehaviourStateful behaviour) {
+        BehaviourWrapper wrapped = new BehaviourWrapper(behaviour, getWorld(), behaviour.getIdentifier().pos());
         // No point in doing anything if the behaviour given didn't actually exist
-        if (!tracks.remove(behaviour)) return;
-        nonStateful.remove(behaviour);
+        if (!containing.remove(wrapped)) return;
+        allWrapped.remove(wrapped);
 
-        boolean stateTickable = this instanceof ITickable && tracks.stream().anyMatch(t -> t instanceof ITickable);
+        boolean stateTickable = this instanceof ITickable && containing.stream().anyMatch(t -> t.behaviour() instanceof ITickable);
         boolean statePoints = this instanceof TileTrackMultiplePoints && hasPoints();
 
         convert(forState(stateTickable, statePoints));
@@ -120,11 +140,13 @@ public class TileTrackMultiple extends TileAbstractTrack {
 
     protected final void convert(TileTrackMultiple mult) {
         if (mult == this || mult.getClass() == this.getClass()) return;
-        mult.tracks.clear();
-        mult.nonStateful.clear();
+        mult.containing.clear();
+        mult.pointingTo.clear();
+        mult.allWrapped.clear();
 
-        mult.tracks.addAll(tracks);
-        mult.nonStateful.addAll(nonStateful);
+        mult.containing.addAll(containing);
+        mult.pointingTo.addAll(pointingTo);
+        mult.allWrapped.addAll(allWrapped);
 
         IBlockState state = worldObj.getBlockState(getPos());
         state = state.withProperty(BlockTrackMultiple.TICKABLE, mult instanceof ITickable);
@@ -136,9 +158,9 @@ public class TileTrackMultiple extends TileAbstractTrack {
     public static class Tickable extends TileTrackMultiple implements ITickable {
         @Override
         public void update() {
-            for (TrackBehaviourStateful track : tracks) {
-                if (track instanceof ITickable) {
-                    ((ITickable) track).update();
+            for (BehaviourWrapper track : containing) {
+                if (track.behaviour() instanceof ITickable) {
+                    ((ITickable) track.behaviour()).update();
                 }
             }
         }

@@ -26,7 +26,6 @@ import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
-import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.path.RayTraceTrackPath;
 import alexiil.mods.traincraft.api.train.*;
 import alexiil.mods.traincraft.api.train.IRollingStockType.ConstructedData;
@@ -274,8 +273,7 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
                 for (int z = -radius; z <= radius; z++) {
                     BlockPos pos2 = center.add(x, y, z);
                     IBlockState state = worldObj.getBlockState(pos2);
-                    List<TrackBehaviour> tracksAsList = TrainCraftAPI.TRACK_PROVIDER.getTracksAsList(worldObj, pos2, state);
-                    paths.addAll(TrainCraftAPI.TRACK_PROVIDER.wrapList(tracksAsList, worldObj, pos2));
+                    paths.addAll(TrainCraftAPI.TRACK_PROVIDER.getTracksAsList(worldObj, pos2, state));
                 }
             }
         }

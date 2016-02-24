@@ -12,7 +12,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.item.TCItems;
 import alexiil.mods.traincraft.track.TrackBehaviourStraightNative;
 
@@ -51,12 +51,12 @@ public class BlockTrackStraight extends BlockAbstractTrackSingle {
     }
 
     @Override
-    public void setBlockBoundsBasedOnState(IBlockAccess worldIn, BlockPos pos) {
+    public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
         setBlockBounds(0, 0, 0, 1, TRACK_HEIGHT, 1);
     }
 
     @Override
-    protected TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
-        return TrackBehaviourStraightNative.INSTANCE;
+    public BehaviourWrapper singleBehaviour(World world, BlockPos pos, IBlockState state) {
+        return new BehaviourWrapper(TrackBehaviourStraightNative.INSTANCE, world, pos);
     }
 }

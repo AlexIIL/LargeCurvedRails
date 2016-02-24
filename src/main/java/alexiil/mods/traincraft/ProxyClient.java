@@ -37,7 +37,6 @@ import alexiil.mods.traincraft.api.AddonManager;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
-import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.block.*;
@@ -215,8 +214,7 @@ public class ProxyClient extends Proxy {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
                     BlockPos offset = around.add(x, y, z);
-                    List<TrackBehaviour> behaviours = TrainCraftAPI.TRACK_PROVIDER.getTracksAsList(world, offset, world.getBlockState(offset));
-                    List<BehaviourWrapper> paths = TrainCraftAPI.TRACK_PROVIDER.wrapList(behaviours, world, offset);
+                    List<BehaviourWrapper> paths = TrainCraftAPI.TRACK_PROVIDER.getTracksAsList(world, offset, world.getBlockState(offset));
                     for (BehaviourWrapper behaviourWrapper : paths) {
                         if (behaviourWrapper == null) continue;
                         ITrackPath path = behaviourWrapper.getPath();

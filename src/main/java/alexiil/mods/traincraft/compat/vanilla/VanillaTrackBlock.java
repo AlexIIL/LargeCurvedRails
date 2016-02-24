@@ -6,13 +6,10 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.lib.MCObjectUtils;
 import alexiil.mods.traincraft.api.track.ITrackBlock;
-import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
-import alexiil.mods.traincraft.api.track.path.ITrackPath;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 
 public class VanillaTrackBlock implements ITrackBlock {
     private final BehaviourVanillaNative behaviour;
@@ -22,16 +19,7 @@ public class VanillaTrackBlock implements ITrackBlock {
     }
 
     @Override
-    public Collection<TrackBehaviour> behaviours(IBlockAccess access, BlockPos pos, IBlockState state) {
-        return ImmutableList.of(behaviour);
+    public Collection<BehaviourWrapper> behaviours(World world, BlockPos pos, IBlockState state) {
+        return ImmutableList.of(new BehaviourWrapper(behaviour, world, pos));
     }
-
-    @Override
-    public TrackBehaviour currentBehaviour(IBlockAccess access, BlockPos pos, IBlockState state, Vec3 from) {
-        ITrackPath path = behaviour.getPath(access, pos, state);
-        if (MCObjectUtils.equals(from, path.start())) return behaviour;
-        if (MCObjectUtils.equals(from, path.end())) return behaviour;
-        return null;
-    }
-
 }

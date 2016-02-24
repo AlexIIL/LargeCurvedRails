@@ -17,6 +17,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mods.traincraft.block.BlockTrackAscending;
 import alexiil.mods.traincraft.block.EnumDirection;
 import alexiil.mods.traincraft.block.TCBlocks;
@@ -68,6 +69,12 @@ public class ItemTrackAscendingAxis extends ItemBlockSeperatedTrack<BlockTrackAs
             state = state.withProperty(BlockTrackAscending.ASCEND_DIRECTION, false);
         }
         return state;
+    }
+
+    @Override
+    protected TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
+            float hitY, float hitZ) {
+        return null; // No state for this (it cannot overlap so there is no point)
     }
 
     @Override

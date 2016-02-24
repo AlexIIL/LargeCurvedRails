@@ -15,6 +15,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.TrackPlacer;
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mods.traincraft.block.BlockTrackPointer;
 import alexiil.mods.traincraft.block.BlockTrackPointer.EnumOffset;
 import alexiil.mods.traincraft.block.BlockTrackSeperated;
@@ -65,12 +67,17 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
     @Override
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ,
             IBlockState newState) {
+
         IBlockState targetState = targetState(world, pos, player, stack, side, hitX, hitY, hitZ);
         Map<BlockPos, IBlockSetter> setters = getTrackBlockSetters(targetState, stack);
 
         for (BlockPos p : setters.keySet()) {
             EnumTrackRequirement req = canPlaceTrack(world, pos.add(p), player, side, stack, pos);
-            if (req != null) return false;
+            if (req != null) {
+                TrackBehaviourStateful stateful = statefulState(world, pos, player, stack, side, hitX, hitY, hitZ);
+                if (stateful == null) return false;
+                return TrackPlacer.INSTANCE.tryPlaceTrack(stateful, world, pos, world.getBlockState(pos));
+            }
         }
 
         // Place the blocks
@@ -108,6 +115,9 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
 
     protected abstract IBlockState targetState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
             float hitY, float hitZ);
+
+    protected abstract TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side,
+            float hitX, float hitY, float hitZ);
 
     public interface IBlockSetter {
         void placeBlockAt(World world, BlockPos pos);

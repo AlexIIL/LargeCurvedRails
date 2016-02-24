@@ -14,11 +14,11 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.lib.MathUtil;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.track.path.TrackPath2DArc;
 import alexiil.mods.traincraft.api.track.path.TrackPathStraight;
 import alexiil.mods.traincraft.api.track.path.TrackPathTriComposite;
 import alexiil.mods.traincraft.track.Curve;
-import alexiil.mods.traincraft.track.TrackBehaviourCurvedHalfNative;
 
 public class BlockTrackCurvedHalf extends BlockTrackSeperated {
     /** Designates whether this track goes in a positive direction after this or a negative direction: if
@@ -27,7 +27,7 @@ public class BlockTrackCurvedHalf extends BlockTrackSeperated {
     public static final PropertyBool PROPERTY_DIRECTION = PropertyBool.create("direction");
     private static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 1, TRACK_HEIGHT, 1);
 
-    private final Curve curve;
+    public final Curve curve;
 
     // @Deprecated
     // private final Table<EnumFacing, Boolean, TrackPathTriComposite<TrackPathStraight, TrackPath2DArc,
@@ -153,13 +153,13 @@ public class BlockTrackCurvedHalf extends BlockTrackSeperated {
     }
 
     @Override
-    public void setBlockBoundsBasedOnState(IBlockAccess worldIn, BlockPos pos) {
+    public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
         setBlockBounds(0, 0, 0, 1, TRACK_HEIGHT, 1);
     }
 
     @Override
-    protected TrackBehaviourCurvedHalfNative singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
-        return curve.halfNative;
+    public BehaviourWrapper singleBehaviour(World world, BlockPos pos, IBlockState state) {
+        return new BehaviourWrapper(curve.halfNative, world, pos);
     }
 
     @Deprecated
@@ -168,7 +168,7 @@ public class BlockTrackCurvedHalf extends BlockTrackSeperated {
     }
 
     @Override
-    public boolean isSlave(IBlockAccess access, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState) {
+    public boolean isSlave(World world, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState) {
         return slaveMap.get(masterState).contains(slavePos.subtract(masterPos));
     }
 

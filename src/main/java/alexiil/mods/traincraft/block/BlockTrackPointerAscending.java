@@ -26,14 +26,14 @@ public class BlockTrackPointerAscending extends BlockTrackPointer {
     }
 
     @Override
-    protected BlockPos findMaster(IBlockAccess access, BlockPos pos, IBlockState state) throws IllegalPathException {
+    protected BlockPos findMaster(World world, BlockPos pos, IBlockState state) throws IllegalPathException {
         for (EnumFacing face : EnumFacing.HORIZONTALS) {
             BlockPos masterPos = pos.offset(face);
-            IBlockState masterState = access.getBlockState(masterPos);
+            IBlockState masterState = world.getBlockState(masterPos);
             Block masterBlock = masterState.getBlock();
             if (masterBlock instanceof BlockTrackAscending) {
                 BlockTrackAscending asc = (BlockTrackAscending) masterBlock;
-                if (asc.isSlave(access, masterPos, masterState, pos, state)) return masterPos;
+                if (asc.isSlave(world, masterPos, masterState, pos, state)) return masterPos;
             }
         }
         // We failed. Update this block to remove it.

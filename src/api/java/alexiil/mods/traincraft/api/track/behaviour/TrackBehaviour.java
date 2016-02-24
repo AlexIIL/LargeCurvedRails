@@ -10,7 +10,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.Vec3;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.INBTSerializable;
@@ -30,14 +30,14 @@ public abstract class TrackBehaviour {
 
     /** @return A path that will traverse over this behaviour. So long as a rolling stock is traversing this path
      *         {@link #onStockPass(IRollingStock)} will be called. */
-    public abstract ITrackPath getPath(IBlockAccess access, BlockPos pos, IBlockState state);
+    public abstract ITrackPath getPath(World world, BlockPos pos, IBlockState state);
 
     /** @return An identifier that can identify this behaviour verses any other. */
     public abstract TrackIdentifier getIdentifier(World world, BlockPos pos, IBlockState state);
 
     /** Checks to see if the appropriate block/tile for this track still exists in the world. */
-    public boolean isValid(IBlockAccess access, BlockPos pos, IBlockState state) {
-        return TrainCraftAPI.TRACK_PROVIDER.getTracksAsList(access, pos, state).contains(this);
+    public boolean isValid(World world, BlockPos pos, IBlockState state) {
+        return TrainCraftAPI.TRACK_PROVIDER.getTracksAsList(world, pos, state).contains(this);
     }
 
     /** Called once per tick by a stock to let the track intract with the stock. */
@@ -94,7 +94,7 @@ public abstract class TrackBehaviour {
         }
 
         @Override
-        public final ITrackPath getPath(IBlockAccess access, BlockPos pos, IBlockState state) {
+        public final ITrackPath getPath(World world, BlockPos pos, IBlockState state) {
             return getPath();
         }
 

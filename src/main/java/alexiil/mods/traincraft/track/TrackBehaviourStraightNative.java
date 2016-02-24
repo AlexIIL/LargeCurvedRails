@@ -2,7 +2,7 @@ package alexiil.mods.traincraft.track;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourNative;
@@ -29,7 +29,7 @@ public class TrackBehaviourStraightNative extends TrackBehaviourNative {
     }
 
     @Override
-    public ITrackPath getPath(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public ITrackPath getPath(World world, BlockPos pos, IBlockState state) {
         if (state.getBlock() != TCBlocks.TRACK_STRAIGHT.getBlock()) return null;
         return state.getValue(BlockAbstractTrack.TRACK_DIRECTION).path.offset(pos);
     }

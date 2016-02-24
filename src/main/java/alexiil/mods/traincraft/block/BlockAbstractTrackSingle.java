@@ -10,9 +10,10 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.lib.MCObjectUtils;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 
@@ -23,22 +24,22 @@ public abstract class BlockAbstractTrackSingle extends BlockAbstractTrack {
     }
 
     @Override
-    public Collection<TrackBehaviour> behaviours(IBlockAccess access, BlockPos pos, IBlockState state) {
-        TrackBehaviour behaviour = singleBehaviour(access, pos, state);
+    public Collection<BehaviourWrapper> behaviours(World world, BlockPos pos, IBlockState state) {
+        BehaviourWrapper behaviour = singleBehaviour(world, pos, state);
         if (behaviour == null) return ImmutableList.of();
         return ImmutableList.of(behaviour);
     }
 
     @Override
-    public TrackBehaviour currentBehaviour(IBlockAccess access, BlockPos pos, IBlockState state, Vec3 from) {
-        TrackBehaviour single = singleBehaviour(access, pos, state);
+    public BehaviourWrapper currentBehaviour(World world, BlockPos pos, IBlockState state, Vec3 from) {
+        BehaviourWrapper single = singleBehaviour(world, pos, state);
         if (single == null) return null;
-        ITrackPath p = single.getPath(access, pos, state);
+        ITrackPath p = single.getPath();
         if (MCObjectUtils.equals(from, p.start())) return single;
         if (MCObjectUtils.equals(from, p.end())) return single;
         return null;
     }
 
     @Nullable
-    public abstract TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state);
+    public abstract BehaviourWrapper singleBehaviour(World world, BlockPos pos, IBlockState state);
 }

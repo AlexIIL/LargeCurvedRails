@@ -13,7 +13,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.lib.MathUtil;
-import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.track.path.TrackPath2DArc;
 import alexiil.mods.traincraft.track.Curve;
 
@@ -84,12 +84,12 @@ public class BlockTrackCurvedFull extends BlockTrackSeperated {
     }
 
     @Override
-    public void setBlockBoundsBasedOnState(IBlockAccess worldIn, BlockPos pos) {
+    public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
         setBlockBounds(0, 0, 0, 1, TRACK_HEIGHT, 1);
     }
 
     @Override
-    protected TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public BehaviourWrapper singleBehaviour(World world, BlockPos pos, IBlockState state) {
         return null;// curve.fullNative;// FIXME! Needs to be fullNative
     }
 
@@ -99,7 +99,7 @@ public class BlockTrackCurvedFull extends BlockTrackSeperated {
     }
 
     @Override
-    public boolean isSlave(IBlockAccess access, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState) {
+    public boolean isSlave(World world, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState) {
         return slaveMap.get(masterState).contains(slavePos.subtract(masterPos));
     }
 

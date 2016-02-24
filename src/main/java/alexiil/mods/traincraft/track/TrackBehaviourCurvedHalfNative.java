@@ -3,7 +3,7 @@ package alexiil.mods.traincraft.track;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.TrainCraft;
@@ -31,7 +31,7 @@ public class TrackBehaviourCurvedHalfNative extends TrackBehaviourNative {
     }
 
     @Override
-    public ITrackPath getPath(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public ITrackPath getPath(World world, BlockPos pos, IBlockState state) {
         if (state.getBlock() != curve.halfBlock) {
             TrainCraft.trainCraftLog.info(" state.getBlock() = " + state.getBlock());
             TrainCraft.trainCraftLog.info(" curve.halfBlock = " + curve.halfBlock);
@@ -43,7 +43,7 @@ public class TrackBehaviourCurvedHalfNative extends TrackBehaviourNative {
     }
 
     @Override
-    public boolean isValid(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public boolean isValid(World world, BlockPos pos, IBlockState state) {
         return state.getBlock() == curve.halfBlock;
     }
 

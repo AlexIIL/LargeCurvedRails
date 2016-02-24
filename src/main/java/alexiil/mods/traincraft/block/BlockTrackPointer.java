@@ -11,9 +11,8 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
-import alexiil.mods.traincraft.track.TrackBehaviourPointerNative;
 
 /** This "points" to a different block that contains all of the actual information regarding the track path. */
 public class BlockTrackPointer extends BlockAbstractTrackSingle {
@@ -68,9 +67,9 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
     }
 
     /** Attemots to find the master for this block. If it cannot be found the null is returned. */
-    public BlockPos master(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public BlockPos master(World world, BlockPos pos, IBlockState state) {
         try {
-            return findMaster(access, pos, state);
+            return findMaster(world, pos, state);
         } catch (@SuppressWarnings("unused") IllegalPathException e) {
             // Ignore it, we will need to to update at somepoint.
         }
@@ -78,23 +77,20 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
     }
 
     @Override
-    public TrackBehaviour singleBehaviour(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public BehaviourWrapper singleBehaviour(World world, BlockPos pos, IBlockState state) {
         try {
-            BlockPos master = findMaster(access, pos, state);
-            IBlockState masterState = access.getBlockState(master);
+            BlockPos master = findMaster(world, pos, state);
+            IBlockState masterState = world.getBlockState(master);
             if (masterState.getBlock() instanceof BlockTrackSeperated) {
                 BlockTrackSeperated seperated = (BlockTrackSeperated) masterState.getBlock();
-                TrackBehaviour behaviour = seperated.singleBehaviour(access, master, masterState);
-                return new TrackBehaviourPointerNative(behaviour, master, masterState);
+                BehaviourWrapper behaviour = seperated.singleBehaviour(world, master, masterState);
+                return behaviour;
             }
-            if (access instanceof World) {
-                ((World) access).markBlockForUpdate(pos);
-            }
+            world.markBlockForUpdate(pos);
             return null;
         } catch (IllegalPathException e) {
             // Only update it if it was an actual world
-            if (access instanceof World) {
-                World world = (World) access;
+            if (world != null) {
                 List<BlockPos> illegalPositions = e.path;
                 illegalPositions.forEach(p -> world.markBlockForUpdate(p));
             }
@@ -103,35 +99,29 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
     }
 
     // @Override
-    public ITrackPath[] paths(IBlockAccess access, BlockPos pos, IBlockState state) {
+    public ITrackPath[] paths(World world, BlockPos pos, IBlockState state) {
         try {
-            BlockPos master = findMaster(access, pos, state);
-            IBlockState masterState = access.getBlockState(master);
+            BlockPos master = findMaster(world, pos, state);
+            IBlockState masterState = world.getBlockState(master);
             if (masterState.getBlock() instanceof BlockTrackSeperated) {
                 // BlockTrackSeperated seperated = (BlockTrackSeperated) masterState.getBlock();
-                // return seperated.paths(access, master, masterState);
+                // return seperated.paths(world, master, masterState);
             }
-            if (access instanceof World) {
-                ((World) access).markBlockForUpdate(pos);
-            }
+            world.markBlockForUpdate(pos);
             return new ITrackPath[0];
         } catch (IllegalPathException e) {
-            // Only update it if it was an actual world
-            if (access instanceof World) {
-                World world = (World) access;
-                List<BlockPos> illegalPositions = e.path;
-                illegalPositions.forEach(p -> world.markBlockForUpdate(p));
-            }
+            List<BlockPos> illegalPositions = e.path;
+            illegalPositions.forEach(p -> world.markBlockForUpdate(p));
             return new ITrackPath[0];
         }
     }
 
-    protected BlockPos findMaster(IBlockAccess access, BlockPos pos, IBlockState state) throws IllegalPathException {
+    protected BlockPos findMaster(World world, BlockPos pos, IBlockState state) throws IllegalPathException {
         BlockPos toTry = pos;
         List<BlockPos> tried = new ArrayList<>();
         int i = 0;
         while (i++ < MAX_TRIES) {
-            IBlockState tryState = access.getBlockState(toTry);
+            IBlockState tryState = world.getBlockState(toTry);
             if (tryState.getBlock() == this) {
                 EnumOffset offset = tryState.getValue(PROP_OFFSET);
                 toTry = toTry.add(offset.offset);
@@ -143,7 +133,7 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
                 tried.add(toTry);
             } else if (tryState.getBlock() instanceof BlockTrackSeperated) {
                 BlockTrackSeperated seperated = (BlockTrackSeperated) tryState.getBlock();
-                if (seperated.isSlave(access, toTry, tryState, pos, state)) return toTry;
+                if (seperated.isSlave(world, toTry, tryState, pos, state)) return toTry;
             } else {
                 /* Somehow this block doesn't point to a proper block. */
                 throw new IllegalPathException(tried);
@@ -162,7 +152,7 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
     }
 
     @Override
-    public boolean shouldSideBeRendered(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
+    public boolean shouldSideBeRendered(IBlockAccess access, BlockPos pos, EnumFacing side) {
         return true;
     }
 }

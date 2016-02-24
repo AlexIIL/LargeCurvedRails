@@ -9,7 +9,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.TrackPathProvider;
 import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.lib.MCObjectUtils;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
@@ -210,8 +209,8 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
                 lastPlace = currentPath.interpolate(progress / currentPath.length());
 
                 lookVec = currentPath.direction(progress / currentPath.length());
-                int index = TrackPathProvider.pathIndex(ent.getEntityWorld(), currentPath);
-                boolean reversed = TrackPathProvider.isPathReversed(ent.getEntityWorld(), currentPath);
+                int index = 0;// TrackPathProvider.pathIndex(ent.getEntityWorld(), currentPath);
+                boolean reversed = false;// TrackPathProvider.isPathReversed(ent.getEntityWorld(), currentPath);
 
                 dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_TRACK_POS, currentPath.creatingBlock());
                 dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, FLAG_HAS_PATH + (reversed ? FLAG_PATH_REVERSED : 0));

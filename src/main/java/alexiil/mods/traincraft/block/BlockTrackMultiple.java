@@ -9,10 +9,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
+import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.tile.TileTrackMultiple;
 import alexiil.mods.traincraft.tile.TileTrackMultiplePoints;
 
@@ -25,8 +25,8 @@ public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntit
     }
 
     @Override
-    public TrackBehaviour currentBehaviour(IBlockAccess access, BlockPos pos, IBlockState state, Vec3 from) {
-        TileEntity tile = access.getTileEntity(pos);
+    public BehaviourWrapper currentBehaviour(World world, BlockPos pos, IBlockState state, Vec3 from) {
+        TileEntity tile = world.getTileEntity(pos);
         if (tile instanceof TileTrackMultiple) {
             TileTrackMultiple mult = (TileTrackMultiple) tile;
             return mult.currentBehaviour(from);
@@ -35,11 +35,11 @@ public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntit
     }
 
     @Override
-    public Collection<TrackBehaviour> behaviours(IBlockAccess access, BlockPos pos, IBlockState state) {
-        TileEntity tile = access.getTileEntity(pos);
+    public Collection<BehaviourWrapper> behaviours(World world, BlockPos pos, IBlockState state) {
+        TileEntity tile = world.getTileEntity(pos);
         if (tile instanceof TileTrackMultiple) {
             TileTrackMultiple mult = (TileTrackMultiple) tile;
-            return mult.getBehavioursNonStateful();
+            return mult.getWrappedBehaviours();
         }
         return Collections.emptyList();
     }
