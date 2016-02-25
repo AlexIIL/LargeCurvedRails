@@ -37,7 +37,7 @@ public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntit
         TileTrackMultiple mult = (TileTrackMultiple) tile;
         IExtendedBlockState ext = (IExtendedBlockState) state;
         List<TrackModelWrapper> allWrappers = new ArrayList<>();
-        for (BehaviourWrapper wrapper : mult.getWrappedBehaviours()) {
+        for (BehaviourWrapper wrapper : mult.getContainedBehaviours()) {
             allWrappers.add(new TrackModelWrapper(wrapper.getPath(), wrapper.behaviour().getModel()));
         }
         ext = ext.withProperty(TrackModelProperty.INSTANCE, allWrappers.toArray(new TrackModelWrapper[allWrappers.size()]));

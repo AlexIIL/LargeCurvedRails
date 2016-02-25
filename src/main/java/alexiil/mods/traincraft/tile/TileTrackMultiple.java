@@ -33,6 +33,10 @@ public class TileTrackMultiple extends TileAbstractTrack {
         return umAllWrapped;
     }
 
+    public List<BehaviourWrapper> getContainedBehaviours() {
+        return umContaining;
+    }
+
     @Override
     public void setWorldObj(World world) {
         super.setWorldObj(world);

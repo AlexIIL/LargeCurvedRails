@@ -42,6 +42,7 @@ public class TrackGenericBlockModel_NEW_ extends PerspAwareModelBase implements 
 
             // Add rails
             for (RailGeneneratorParams rail : model.getRailGen()) {
+                // TODO: Y-offsets (or perhaps a very inteligent system that stops rails before another one?)
                 allQuads.addAll(CommonModelSpriteCache.generateRails(path, rail));
             }
         }
