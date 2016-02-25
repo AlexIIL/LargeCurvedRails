@@ -42,7 +42,7 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
                 return CommonModelSpriteCache.generateRails(path, sprite);
             }
             GenerateRailsArguments args = new GenerateRailsArguments(path, sprite);
-            return CommonModelSpriteCache.generateRails(args.railGap(CURVED_RAIL_GAP));
+            return CommonModelSpriteCache.generateRails(path, args.railGap(CURVED_RAIL_GAP));
         }
     }
 
@@ -63,7 +63,7 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
             GenerateRailsArguments args = new GenerateRailsArguments(path, sprite).width(2 / 16.0).radius(0).yOffset(-0.5 / 16.0).left(false);
             if (powered) args.uMin(6).uMax(8);
             else args.uMin(4).uMax(6);
-            quads.addAll(CommonModelSpriteCache.generateRails(args));
+            quads.addAll(CommonModelSpriteCache.generateRails(path, args));
 
             // Detecting block
 
@@ -87,19 +87,19 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
             GenerateRailsArguments args = new GenerateRailsArguments(path, sprite).width(1 / 16.0).radius(3.5 / 16.0).right(false);
             if (powered) args.uMin(6).uMax(7);
             else args.uMin(4).uMax(5);
-            quads.addAll(CommonModelSpriteCache.generateRails(args));
+            quads.addAll(CommonModelSpriteCache.generateRails(path, args));
 
             // Right rail
             args = new GenerateRailsArguments(path, sprite).width(1 / 16.0).radius(3.5 / 16.0).left(false);
             if (powered) args.uMin(7).uMax(8);
             else args.uMin(5).uMax(6);
-            quads.addAll(CommonModelSpriteCache.generateRails(args));
+            quads.addAll(CommonModelSpriteCache.generateRails(path, args));
 
             // Redstone Block
             args = new GenerateRailsArguments(path, sprite).width(2 / 16.0).radius(0).yOffset(-0.5 / 16.0).left(false);
             if (powered) args.uMin(6).uMax(8);
             else args.uMin(4).uMax(6);
-            quads.addAll(CommonModelSpriteCache.generateRails(args));
+            quads.addAll(CommonModelSpriteCache.generateRails(path, args));
 
         }
     }
@@ -120,18 +120,18 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
             GenerateRailsArguments args = new GenerateRailsArguments(path, sprite).left(false).width(1 / 16.0).radius(3.5 / 16.0);
             if (powered) args.uMin(2).uMax(3);
             else args.uMin(0).uMax(1);
-            quads.addAll(CommonModelSpriteCache.generateRails(args));
+            quads.addAll(CommonModelSpriteCache.generateRails(path, args));
 
             args = new GenerateRailsArguments(path, sprite).right(false).width(1 / 16.0).radius(3.5 / 16.0);
             if (powered) args.uMin(3).uMax(4);
             else args.uMin(1).uMax(2);
-            quads.addAll(CommonModelSpriteCache.generateRails(args));
+            quads.addAll(CommonModelSpriteCache.generateRails(path, args));
 
             // Redstone Block
             args = new GenerateRailsArguments(path, sprite).width(2 / 16.0).radius(0).yOffset(-0.5 / 16.0).left(false);
             if (powered) args.uMin(6).uMax(8);
             else args.uMin(4).uMax(6);
-            quads.addAll(CommonModelSpriteCache.generateRails(args));
+            quads.addAll(CommonModelSpriteCache.generateRails(path, args));
         }
     }
 }

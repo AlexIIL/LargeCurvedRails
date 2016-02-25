@@ -7,10 +7,15 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 import alexiil.mods.traincraft.TrainCraft;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourNative;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
+import alexiil.mods.traincraft.api.track.model.DefaultTrackModel;
+import alexiil.mods.traincraft.api.track.model.ITrackModel;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 import alexiil.mods.traincraft.block.BlockTrackCurvedHalf;
@@ -68,4 +73,10 @@ public class TrackBehaviourCurvedHalfNative extends TrackBehaviourNative {
 
     @Override
     public void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {}
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public ITrackModel getModel() {
+        return DefaultTrackModel.INSTANCE;
+    }
 }

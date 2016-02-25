@@ -12,9 +12,14 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourNative;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
+import alexiil.mods.traincraft.api.track.model.DefaultTrackModel;
+import alexiil.mods.traincraft.api.track.model.ITrackModel;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.track.path.TrackPath2DArc;
 import alexiil.mods.traincraft.api.track.path.TrackPathStraight;
@@ -88,6 +93,13 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
     @Override
     public Set<BlockPos> getSlaveOffsets(World world, BlockPos pos, IBlockState state) {
         return TrackBehaviour.SINGLE_BLOCK_SLAVES;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public ITrackModel getModel() {
+        // FIXME: This should be different for all the different types
+        return DefaultTrackModel.INSTANCE;
     }
 
     public static class Normal extends BehaviourVanillaNative {

@@ -10,11 +10,13 @@ import com.google.common.collect.ImmutableMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.util.EnumFacing;
 
 import net.minecraftforge.client.model.IFlexibleBakedModel;
@@ -38,6 +40,10 @@ public class PerspAwareModelBase implements IPerspectiveAwareModel {
         if (transforms == null) {
             this.transforms = ImmutableMap.of();
         } else this.transforms = transforms;
+    }
+
+    public static IBakedModel missingModel() {
+        return Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getMissingModel();
     }
 
     @Override

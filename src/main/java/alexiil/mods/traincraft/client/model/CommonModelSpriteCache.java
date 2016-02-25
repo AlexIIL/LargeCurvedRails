@@ -128,13 +128,12 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
     }
 
     public static List<BakedQuad> generateRails(ITrackPath path, TextureAtlasSprite railSprite) {
-        return generateRails(new GenerateRailsArguments(path, railSprite));
+        return generateRails(path, new GenerateRailsArguments(path, railSprite));
     }
 
     // TODO: Replace all instances with RailGeneratorParams
     @Deprecated
     public static class GenerateRailsArguments {
-        private ITrackPath path;
         private TextureAtlasSprite railSprite;
         private double railGap = CommonModelSpriteCache.RAIL_COUNT_PER_METER;
         private float uMin = 1, uMax = 3;
@@ -143,12 +142,11 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
         private double yOffset = 0;
 
         public GenerateRailsArguments(ITrackPath path, TextureAtlasSprite railSprite) {
-            this.path = path;
             this.railSprite = railSprite;
         }
 
         // @formatter:off
-        public GenerateRailsArguments path(ITrackPath path) { this.path = path; return this; }
+        public GenerateRailsArguments path(ITrackPath path) { throw new IllegalArgumentException("NOT IMPLEMETED"); }
         public GenerateRailsArguments railSprite(TextureAtlasSprite railSprite) { this.railSprite = railSprite; return this; }
         public GenerateRailsArguments railGap(double railGap) { this.railGap = railGap; return this; }
         public GenerateRailsArguments uMin(float uMin) { this.uMin = uMin; return this; }
@@ -161,11 +159,11 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
         // @formatter:on
     }
 
-    public static List<BakedQuad> generateRails(GenerateRailsArguments args) {
+    public static List<BakedQuad> generateRails(ITrackPath path, RailGeneneratorParams args) {
         List<BakedQuad> list = new ArrayList<>();
 
-        double length = args.path.length();
-        int numRailJoints = (int) (length * args.railGap);
+        double length = path.length();
+        int numRailJoints = (int) (length * args.railGap());
         double railDist = 1 / (double) numRailJoints;
 
         double currentV = 0;
@@ -173,34 +171,49 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
         for (int i = 0; i < numRailJoints; i++) {
             if (currentV + railDist > 1) currentV = 0;
             double vL = 16 * currentV;
-            Vec3 railStartMiddle = args.path.interpolate(offset).addVector(0, args.yOffset, 0);
-            Vec3 railStartDir = args.path.direction(offset);
+            Vec3 railStartMiddle = path.interpolate(offset).addVector(0, args.yOffset(), 0);
+            Vec3 railStartDir = path.direction(offset);
 
             offset += railDist;
             currentV += railDist;
             double vH = 16 * currentV;
 
-            Vec3 railEndMiddle = args.path.interpolate(offset).addVector(0, args.yOffset, 0);
-            Vec3 railEndDir = args.path.direction(offset);
-            if (args.left) {
+            Vec3 railEndMiddle = path.interpolate(offset).addVector(0, args.yOffset(), 0);
+            Vec3 railEndDir = path.direction(offset);
+            if (args.left()) {
                 Vec3[][] vecs = { { railStartMiddle, railStartDir }, { railEndMiddle, railEndDir } };
                 float[][] uvs = { //
-                    { args.railSprite.getInterpolatedU(args.uMin), args.railSprite.getInterpolatedU(args.uMax) },//
-                    { args.railSprite.getInterpolatedV(vL), args.railSprite.getInterpolatedV(vH) } //
+                    { args.railSprite().getInterpolatedU(args.uMin()), args.railSprite().getInterpolatedU(args.uMax()) },//
+                    { args.railSprite().getInterpolatedV(vL), args.railSprite().getInterpolatedV(vH) } //
                 };
-                list.addAll(makeQuads(vecs, uvs, args.radius, args.width));
+                list.addAll(makeQuads(vecs, uvs, args.radius(), args.width()));
             }
-            if (args.right) {
+            if (args.right()) {
                 Vec3[][] vecs = { { railStartMiddle, railStartDir }, { railEndMiddle, railEndDir } };
                 float[][] uvs = { //
-                    { args.railSprite.getInterpolatedU(args.uMax), args.railSprite.getInterpolatedU(args.uMin) },//
-                    { args.railSprite.getInterpolatedV(vL), args.railSprite.getInterpolatedV(vH) } //
+                    { args.railSprite().getInterpolatedU(args.uMax()), args.railSprite().getInterpolatedU(args.uMin()) },//
+                    { args.railSprite().getInterpolatedV(vL), args.railSprite().getInterpolatedV(vH) } //
                 };
-                list.addAll(makeQuads(vecs, uvs, -args.radius, args.width));
+                list.addAll(makeQuads(vecs, uvs, -args.radius(), args.width()));
             }
         }
 
         return list;
+    }
+
+    @Deprecated
+    public static List<BakedQuad> generateRails(ITrackPath path, GenerateRailsArguments args) {
+        return generateRails(path, new RailGeneneratorParams(args.railSprite)
+                // @formatter:off
+                .railGap(args.railGap)
+                .uMin(args.uMin)
+                .uMax(args.uMax)
+                .left(args.left)
+                .right(args.right)
+                .width(args.width)
+                .radius(args.radius)
+                .yOffset(args.yOffset));
+                // @formatter:on
     }
 
     /** @param coords An array of {{start, startDir}, {end, endDir}}

@@ -42,6 +42,7 @@ public interface ITrackPath {
 
     /** Offsets this track path by the given amount. Useful for caching a single path object (that works out the length)
      * and offsetting it for every block position that exists. */
+    @Deprecated
     ITrackPath offset(BlockPos pos);
 
     public static Vec3 interpolate(Vec3 start, Vec3 end, double position) {

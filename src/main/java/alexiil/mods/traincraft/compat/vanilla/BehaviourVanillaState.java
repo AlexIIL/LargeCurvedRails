@@ -15,9 +15,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
+import alexiil.mods.traincraft.api.track.model.DefaultTrackModel;
+import alexiil.mods.traincraft.api.track.model.ITrackModel;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.IRollingStock;
 import alexiil.mods.traincraft.lib.NBTUtils;
@@ -105,11 +110,18 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
         return slaves;
     }
 
+    @Override
+    @SideOnly(Side.CLIENT)
+    public ITrackModel getModel() {
+        // FIXME: This should be different for all the different types
+        return DefaultTrackModel.INSTANCE;
+    }
+
     public enum Factory implements StatefulFactory {
         NORMAL("normal", (ident, world, pos) -> new Normal(ident, world, pos)),
         ACTIVATOR("activator", (ident, world, pos) -> new Activator(ident, world, pos)),
         DETECTOR("detector", (ident, world, pos) -> new Detector(ident, world, pos)),
-        GOLDEN("golden", (ident, world, pos) -> new Speed(ident, world, pos));
+        GOLDEN("golden", (ident, world, pos) -> new Golden(ident, world, pos));
 
         private final String ident;
         private final TriFunction<String, World, BlockPos, BehaviourVanillaState> factory;
@@ -216,8 +228,8 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
         }
     }
 
-    public static class Speed extends Redstone {
-        public Speed(String name, World world, BlockPos pos) {
+    public static class Golden extends Redstone {
+        public Golden(String name, World world, BlockPos pos) {
             super(name, (BlockRailPowered) Blocks.golden_rail, world, pos);
         }
 

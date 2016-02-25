@@ -37,6 +37,7 @@ import alexiil.mods.traincraft.api.AddonManager;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
+import alexiil.mods.traincraft.api.track.model.DefaultTrackModel;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.block.*;
@@ -51,6 +52,9 @@ public class ProxyClient extends Proxy {
     @Override
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
+
+        TrainCraftAPI.SPRITE_GETTER = CommonModelSpriteCache.INSTANCE;
+
         RenderingRegistry.registerEntityRenderingHandler(EntityGenericRollingStock.class, RenderRollingStockBase.Factory.INSTANCE);
         OBJLoader.instance.addDomain("traincraft");
         for (TCBlocks b : TCBlocks.values()) {
@@ -97,6 +101,10 @@ public class ProxyClient extends Proxy {
                 BlockTrackCurvedFull curved = (BlockTrackCurvedFull) b.getBlock();
                 bake.modelRegistry.putObject(mrl, new TrackCurvedFullBlockModel(curved));
             }
+
+            if (b.getBlock() instanceof BlockTrackMultiple) {
+                bake.modelRegistry.putObject(mrl, TrackGenericBlockModel_NEW_.INSTANCE);
+            }
         }
 
         Block[] vanillaTracks = { Blocks.rail, Blocks.activator_rail, Blocks.detector_rail, Blocks.golden_rail };
@@ -119,6 +127,7 @@ public class ProxyClient extends Proxy {
     @SubscribeEvent
     public void textureStitchPost(TextureStitchEvent.Post event) {
         AddonManager.INSTANCE.textureStitchPost(event);
+        DefaultTrackModel.textureStitchPost();
     }
 
     private static final double STEP_DIST = 0.3;

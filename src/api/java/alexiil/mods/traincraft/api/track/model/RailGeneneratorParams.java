@@ -26,19 +26,58 @@ public final class RailGeneneratorParams {
 
     // FIXME: These all need comments!
 
-    // @formatter:off
     // Setters
-    public RailGeneneratorParams railSprite(TextureAtlasSprite railSprite) { this.railSprite = railSprite; return this; }
-    public RailGeneneratorParams railGap(double railGap) { this.railGap = railGap; return this; }
-    public RailGeneneratorParams uMin(float uMin) { this.uMin = uMin; return this; }
-    public RailGeneneratorParams uMax(float uMax) { this.uMax = uMax; return this; }
-    public RailGeneneratorParams left(boolean l) {this.left = l; return this; }
-    public RailGeneneratorParams right(boolean r) {this.right = r; return this; }
-    public RailGeneneratorParams width(double w) {this.width = w; return this; }
-    public RailGeneneratorParams radius(double r) {this.radius = r; return this; }
-    public RailGeneneratorParams yOffset(double y) {this.yOffset = y; return this; }
+    /** Designates the sprite that will be used for rendering the rail. */
+    public RailGeneneratorParams railSprite(TextureAtlasSprite railSprite) {
+        this.railSprite = railSprite;
+        return this;
+    }
+
+    /** How far apart the model curves should be. This must be less than 1 (as that's the longest that a texture can be
+     * used). Larger values for curves look odd, however straight sections don't need this to be low. */
+    public RailGeneneratorParams railGap(double railGap) {
+        this.railGap = railGap;
+        return this;
+    }
+
+    /** The minimum texture U coord to use when generating rails. This */
+    public RailGeneneratorParams uMin(float uMin) {
+        this.uMin = uMin;
+        return this;
+    }
+
+    public RailGeneneratorParams uMax(float uMax) {
+        this.uMax = uMax;
+        return this;
+    }
+
+    public RailGeneneratorParams left(boolean l) {
+        this.left = l;
+        return this;
+    }
+
+    public RailGeneneratorParams right(boolean r) {
+        this.right = r;
+        return this;
+    }
+
+    public RailGeneneratorParams width(double w) {
+        this.width = w;
+        return this;
+    }
+
+    public RailGeneneratorParams radius(double r) {
+        this.radius = r;
+        return this;
+    }
+
+    public RailGeneneratorParams yOffset(double y) {
+        this.yOffset = y;
+        return this;
+    }
 
     // Getters
+    // @formatter:off
     public TextureAtlasSprite railSprite() { return railSprite; }
     public double railGap() { return railGap; }
     public float uMin() { return uMin; }
