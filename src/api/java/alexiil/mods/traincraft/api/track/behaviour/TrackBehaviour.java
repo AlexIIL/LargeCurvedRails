@@ -1,5 +1,6 @@
 package alexiil.mods.traincraft.api.track.behaviour;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -57,21 +58,24 @@ public abstract class TrackBehaviour {
      *         recommended that you create a set with {@link #createSlaveOffsets(ITrackPath)} */
     public abstract Set<BlockPos> getSlaveOffsets(World world, BlockPos pos, IBlockState state);
 
+    /** Makes a set of slave offsets for the given path. Assumes that the track has a width of 0.8. */
     public static Set<BlockPos> createSlaveOffsets(ITrackPath path) {
-        ImmutableSet.Builder<BlockPos> slaves = ImmutableSet.builder();
+        Set<BlockPos> tmpSet = new HashSet<>();
         // Calculate slaves
         for (int i = 0; i < path.length() * 5; i++) {
-            double offset = i;
-            offset += 0.5;
-            offset /= path.length();
+            double offset = (i + 0.5) / path.length();
             Vec3 pos = path.interpolate(offset);
             Vec3 dir = path.direction(offset);
             dir = MathUtil.cross(dir, new Vec3(0, 1, 0)).normalize();
 
-            slaves.add(new BlockPos(pos.add(MathUtil.scale(dir, 0.2))));
-            slaves.add(new BlockPos(pos.add(MathUtil.scale(dir, -0.2))));
+            tmpSet.add(new BlockPos(pos.add(MathUtil.scale(dir, 0.4))));
+            tmpSet.add(new BlockPos(pos));
+            tmpSet.add(new BlockPos(pos.add(MathUtil.scale(dir, -0.4))));
         }
-        return slaves.build();
+        // Remove the ends as curves don't work properly without these
+        tmpSet.remove(new BlockPos(path.end().add(MathUtil.scale(path.direction(1), 0.01))));
+        tmpSet.remove(new BlockPos(path.start().add(MathUtil.scale(path.direction(0), -0.01))));
+        return ImmutableSet.copyOf(tmpSet);
     }
 
     /** Called once per tick by a stock to let the track intract with the stock. */

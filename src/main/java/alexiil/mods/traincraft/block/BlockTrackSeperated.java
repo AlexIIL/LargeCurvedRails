@@ -1,6 +1,6 @@
 package alexiil.mods.traincraft.block;
 
-import java.util.List;
+import java.util.Set;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
@@ -54,7 +54,7 @@ public abstract class BlockTrackSeperated extends BlockAbstractTrackSingle {
         return getSlaveOffsets(masterState).contains(slavePos.subtract(masterPos));
     }
 
-    public abstract List<BlockPos> getSlaveOffsets(IBlockState state);
+    public abstract Set<BlockPos> getSlaveOffsets(IBlockState state);
 
     @Override
     public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {

@@ -1,8 +1,8 @@
 package alexiil.mods.traincraft.item;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
@@ -24,8 +24,9 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
     @Override
     protected Map<BlockPos, IBlockSetter> getTrackBlockSetters(IBlockState targetState, ItemStack stack) {
         Map<BlockPos, IBlockSetter> setters = new HashMap<>();
-        List<BlockPos> offsets = seperated.getSlaveOffsets(targetState);
+        Set<BlockPos> offsets = seperated.getSlaveOffsets(targetState);
         for (BlockPos p : offsets) {
+            if (p.equals(BlockPos.ORIGIN)) continue;
             setters.put(p, (world, pos) -> {
                 EnumOffset offset = calculateOffsetTo(p, offsets, BlockPos.ORIGIN);
                 world.setBlockState(pos, TCBlocks.TRACK_POINTER.getBlock().getDefaultState().withProperty(BlockTrackPointer.PROP_OFFSET, offset), 2);

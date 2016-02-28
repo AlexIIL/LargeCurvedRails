@@ -1,6 +1,6 @@
 package alexiil.mods.traincraft.track;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.StatefulFactory;
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourNative;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.track.path.TrackPath2DArc;
@@ -182,7 +183,8 @@ public enum Curve {
     public class FullFactory implements StatefulFactory {
         private final String identifier = "traincraft:curved_full_" + parent().radiusReadable;
         private final double radius;
-        private final Map<EnumFacing, TrackPath2DArc> trackPaths = new HashMap<>();
+        private final Map<EnumFacing, TrackPath2DArc> trackPaths = new EnumMap<>(EnumFacing.class);
+        private final Map<EnumFacing, Set<BlockPos>> slaveOffsets = new EnumMap<>(EnumFacing.class);
 
         public FullFactory(double radius) {
             this.radius = radius;
@@ -208,6 +210,7 @@ public enum Curve {
 
                 TrackPath2DArc path = TrackPath2DArc.createDegrees(creator, center, radius, ang[0], ang[1]);
                 trackPaths.put(horizontal, path);
+                slaveOffsets.put(horizontal, TrackBehaviourNative.createSlaveOffsets(path));
             }
         }
 
@@ -232,6 +235,10 @@ public enum Curve {
 
         public ITrackPath getPath(EnumFacing face) {
             return trackPaths.get(face);
+        }
+
+        public Set<BlockPos> getSLaveOffsets(EnumFacing face) {
+            return slaveOffsets.get(face);
         }
     }
 }

@@ -12,11 +12,15 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import net.minecraftforge.common.util.Constants;
+
+import alexiil.mods.traincraft.TrackPathProvider;
 import alexiil.mods.traincraft.TrackRegistry;
 import alexiil.mods.traincraft.api.lib.MCObjectUtils.Vec3Key;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.StatefulFactory;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
+import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.block.BlockTrackMultiple;
 
@@ -27,9 +31,16 @@ public class TileTrackMultiple extends TileAbstractTrack {
     protected final Multimap<Vec3Key, BehaviourWrapper> joinMap = HashMultimap.create();
 
     private NBTTagCompound postLoad;
+    private List<TrackIdentifier> postLoadIdents = new ArrayList<>();
 
     @Override
     public List<BehaviourWrapper> getWrappedBehaviours() {
+        if (!postLoadIdents.isEmpty()) {
+            for (TrackIdentifier ident : postLoadIdents) {
+                loadPointingIdentifier(ident);
+            }
+            postLoadIdents.clear();
+        }
         return umAllWrapped;
     }
 
@@ -66,6 +77,13 @@ public class TileTrackMultiple extends TileAbstractTrack {
             list.appendTag(comp);
         }
         nbt.setTag("tracks", list);
+
+        list = new NBTTagList();
+        for (BehaviourWrapper wrapped : pointingTo) {
+            TrackBehaviourStateful track = (TrackBehaviourStateful) wrapped.behaviour();
+            list.appendTag(track.getIdentifier().serializeNBT());
+        }
+        nbt.setTag("pointers", list);
     }
 
     @Override
@@ -76,18 +94,49 @@ public class TileTrackMultiple extends TileAbstractTrack {
             postLoad = nbt;
             return;
         }
-        containing.clear();
-        NBTTagList list = (NBTTagList) nbt.getTag("tracks");
-        for (int i = 0; i < list.tagCount(); i++) {
-            NBTTagCompound comp = list.getCompoundTagAt(i);
-            String type = comp.getString("type");
-            NBTTagCompound data = comp.getCompoundTag("data");
-            StatefulFactory factory = TrackRegistry.INSTANCE.getFactory(type);
-            TrackBehaviourStateful behavior = factory.create(getWorld(), getPos());
-            behavior.deserializeNBT(data);
-            BehaviourWrapper wrapped = new BehaviourWrapper(behavior, getWorld(), behavior.getIdentifier().pos());
-            containing.add(wrapped);
-            allWrapped.add(wrapped);
+        if (nbt.hasKey("tracks", Constants.NBT.TAG_LIST)) {
+            containing.clear();
+            NBTTagList list = (NBTTagList) nbt.getTag("tracks");
+            for (int i = 0; i < list.tagCount(); i++) {
+                NBTTagCompound comp = list.getCompoundTagAt(i);
+                String type = comp.getString("type");
+                NBTTagCompound data = comp.getCompoundTag("data");
+                StatefulFactory factory = TrackRegistry.INSTANCE.getFactory(type);
+                TrackBehaviourStateful behavior = factory.create(getWorld(), getPos());
+                behavior.deserializeNBT(data);
+                BehaviourWrapper wrapped = new BehaviourWrapper(behavior, getWorld(), behavior.getIdentifier().pos());
+                containing.add(wrapped);
+                allWrapped.add(wrapped);
+            }
+        }
+
+        if (nbt.hasKey("pointers", Constants.NBT.TAG_LIST)) {
+            pointingTo.clear();
+            NBTTagList list = (NBTTagList) nbt.getTag("pointers");
+            for (int i = 0; i < list.tagCount(); i++) {
+                NBTTagCompound comp = list.getCompoundTagAt(i);
+                TrackIdentifier ident = new TrackIdentifier(worldObj.provider.getDimensionId(), null, "");
+                ident.deserializeNBT(comp);
+                if (ident.pos() == null) continue;
+                if (worldObj.isBlockLoaded(ident.pos())) {
+                    loadPointingIdentifier(ident);
+                } else {
+                    postLoadIdents.add(ident);
+                }
+            }
+        }
+    }
+
+    private void loadPointingIdentifier(TrackIdentifier ident) {
+        IBlockState state = worldObj.getBlockState(ident.pos());
+        List<BehaviourWrapper> wrappers = TrackPathProvider.INSTANCE.getTracksAsList(worldObj, ident.pos(), state);
+
+        for (BehaviourWrapper wrapper : wrappers) {
+            if (wrapper.getIdentifier().equals(ident)) {
+                pointingTo.add(wrapper);
+                allWrapped.add(wrapper);
+                return;
+            }
         }
     }
 
