@@ -3,7 +3,6 @@ package alexiil.mods.traincraft.item;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -75,6 +74,7 @@ public abstract class ItemBlockTrack extends ItemBlockTrainCraft {
     }
 
     @SuppressWarnings("static-method")
+    @Deprecated
     protected Map<BlockPos, IBlockSetter> getTrackBlockSetters(IBlockState targetState, ItemStack stack) {
         Map<BlockPos, IBlockSetter> setters = new HashMap<>();
         setters.put(BlockPos.ORIGIN, (world, pos) -> {
@@ -84,29 +84,8 @@ public abstract class ItemBlockTrack extends ItemBlockTrainCraft {
     }
 
     @Override
-    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ,
-            IBlockState newState) {
-
-        IBlockState targetState = targetState(world, pos, player, stack, side, hitX, hitY, hitZ);
-        Map<BlockPos, IBlockSetter> setters = getTrackBlockSetters(targetState, stack);
-
-        for (BlockPos p : setters.keySet()) {
-            EnumTrackRequirement req = canPlaceTrack(world, pos.add(p), player, side, stack, pos);
-            if (req != null) {
-                TrackBehaviourStateful stateful = statefulState(world, pos, player, stack, side, hitX, hitY, hitZ);
-                if (stateful == null) return false;
-                return TrackPlacer.INSTANCE.tryPlaceTrackAndSlaves(stateful, world, pos);
-            }
-        }
-
-        // Place the blocks
-        for (Entry<BlockPos, IBlockSetter> entry : setters.entrySet()) {
-            BlockPos p = entry.getKey();
-            IBlockSetter setter = entry.getValue();
-            setter.placeBlockAt(world, pos.add(p));
-        }
-        return true;
-    }
+    public abstract boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY,
+            float hitZ, IBlockState newState);
 
     public final EnumTrackRequirement canPlaceTrack(World world, BlockPos pos, EntityPlayer player, EnumFacing side, ItemStack stack,
             BlockPos origin) {
@@ -135,9 +114,10 @@ public abstract class ItemBlockTrack extends ItemBlockTrainCraft {
     protected abstract IBlockState targetState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
             float hitY, float hitZ);
 
-    protected abstract TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side,
-            float hitX, float hitY, float hitZ);
+    public abstract TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
+            float hitY, float hitZ);
 
+    @Deprecated
     public interface IBlockSetter {
         void placeBlockAt(World world, BlockPos pos);
     }

@@ -33,7 +33,7 @@ public class BlockTrackPointerAscending extends BlockTrackPointer {
             Block masterBlock = masterState.getBlock();
             if (masterBlock instanceof BlockTrackAscending) {
                 BlockTrackAscending asc = (BlockTrackAscending) masterBlock;
-                if (asc.isSlave(world, masterPos, masterState, pos, state)) return masterPos;
+                if (asc.isSlaveOffset(world, masterPos, masterState, pos)) return masterPos;
             }
         }
         // We failed. Update this block to remove it.

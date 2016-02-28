@@ -32,7 +32,7 @@ public class TrackGenericBlockModel_NEW_ extends PerspAwareModelBase implements 
         return makeModel(wrappers);
     }
 
-    private static IBakedModel makeModel(TrackModelWrapper[] wrappers) {
+    public static IBakedModel makeModel(TrackModelWrapper[] wrappers) {
         // For now we will just bake each model as it comes.
         List<BakedQuad> allQuads = new ArrayList<>();
 

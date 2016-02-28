@@ -9,6 +9,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 
+import alexiil.mods.traincraft.TrackPlacer;
 import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mods.traincraft.block.BlockTrackStraight;
 import alexiil.mods.traincraft.block.EnumDirection;
@@ -30,12 +31,26 @@ public class ItemTrackStraight extends ItemBlockTrack {
     }
 
     @Override
-    protected TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
+    public TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
             float hitY, float hitZ) {
         TrackBehaviourStraightState state = new TrackBehaviourStraightState(world, pos);
         EnumFacing entFacing = player.getHorizontalFacing();
         if (entFacing.getAxis() == Axis.X) state.setDir(EnumDirection.EAST_WEST);
         else state.setDir(EnumDirection.NORTH_SOUTH);
         return state;
+    }
+
+    @Override
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ,
+            IBlockState newState) {
+        IBlockState targetState = targetState(world, pos, player, stack, side, hitX, hitY, hitZ);
+
+        if (canPlaceTrack(world, pos, player, side, stack, pos) == null) {
+            return world.setBlockState(pos, targetState);
+        } else {
+            TrackBehaviourStateful stateful = statefulState(world, pos, player, stack, side, hitX, hitY, hitZ);
+            if (stateful == null) return false;
+            return TrackPlacer.INSTANCE.tryPlaceTrack(stateful, world, pos);
+        }
     }
 }

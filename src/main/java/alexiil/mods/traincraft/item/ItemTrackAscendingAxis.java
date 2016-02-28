@@ -72,7 +72,7 @@ public class ItemTrackAscendingAxis extends ItemBlockSeperatedTrack<BlockTrackAs
     }
 
     @Override
-    protected TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
+    public TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
             float hitY, float hitZ) {
         return null; // No state for this (it cannot overlap so there is no point)
     }

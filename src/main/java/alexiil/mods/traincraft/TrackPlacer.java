@@ -11,6 +11,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.track.ITrackPlacer;
@@ -124,33 +125,29 @@ public enum TrackPlacer implements ITrackPlacer {
 
         for (BlockPos slave : slaves) {
             if (slave.equals(BlockPos.ORIGIN)) continue;
-            if (canReplaceSlave(world, pos.add(slave))) {
+            if (canReplaceSlave(world, pos.add(slave)) == null) {
                 replaceSlave(behaviour, world, pos, pos.add(slave), slavesCopy);
             }
         }
     }
 
     @Override
-    public boolean canPlaceSlaves(TrackBehaviour behaviour, World world, BlockPos pos) {
-        Set<BlockPos> slaves = behaviour.getSlaveOffsets(world, pos, world.getBlockState(pos));
-
+    public EnumTrackRequirement checkSlaves(Set<BlockPos> slaves, World world, BlockPos pos) {
         for (BlockPos slave : slaves) {
             if (slave.equals(BlockPos.ORIGIN)) continue;
-            if (!canReplaceSlave(world, pos.add(slave))) return false;
+            EnumTrackRequirement req = canReplaceSlave(world, pos.add(slave));
+            if (req != null) return req;
         }
-        return true;
+        return null;
     }
 
-    private static boolean canReplaceSlave(World world, BlockPos slavePos) {
-        if (isUpgradableSlaveTile(world, slavePos)) {
-            return true;
-        }
-        if (isMultiTile(world, slavePos)) {
-            return true;
-        } else if (world.getBlockState(slavePos).getBlock().isReplaceable(world, slavePos)) {
-            return true;
-        }
-        return false;
+    private static EnumTrackRequirement canReplaceSlave(World world, BlockPos slavePos) {
+        if (!world.isAirBlock(slavePos.up())) return EnumTrackRequirement.SPACE_ABOVE;
+        if (!world.isSideSolid(slavePos.down(), EnumFacing.UP)) return EnumTrackRequirement.GROUND_BELOW;
+        if (isUpgradableSlaveTile(world, slavePos)) return null;
+        if (isMultiTile(world, slavePos)) return null;
+        if (world.getBlockState(slavePos).getBlock().isReplaceable(world, slavePos)) return null;
+        return EnumTrackRequirement.OTHER;
     }
 
     private static void replaceSlave(TrackBehaviour behaviour, World world, BlockPos behaviourPos, BlockPos slavePos, Set<BlockPos> allSlaves) {

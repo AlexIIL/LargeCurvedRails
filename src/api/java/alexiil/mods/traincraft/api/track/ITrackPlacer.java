@@ -1,5 +1,7 @@
 package alexiil.mods.traincraft.api.track;
 
+import java.util.Set;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
@@ -21,7 +23,19 @@ public interface ITrackPlacer {
 
     /** Tests to see if {@link #placeSlaves(TrackBehaviour, World, BlockPos)} would completly place down all the slaves
      * necessary for the given behaviour. */
-    boolean canPlaceSlaves(TrackBehaviour behaviour, World world, BlockPos pos);
+    default boolean canPlaceSlaves(TrackBehaviour behaviour, World world, BlockPos pos) {
+        return checkSlaves(behaviour, world, pos) == null;
+    }
+
+    default boolean canPlaceSlaves(Set<BlockPos> slaveOffsets, World world, BlockPos pos) {
+        return checkSlaves(slaveOffsets, world, pos) == null;
+    }
+
+    default EnumTrackRequirement checkSlaves(TrackBehaviour behaviour, World world, BlockPos pos) {
+        return checkSlaves(behaviour.getSlaveOffsets(world, pos, world.getBlockState(pos)), world, pos);
+    }
+
+    EnumTrackRequirement checkSlaves(Set<BlockPos> slaveOffsets, World world, BlockPos pos);
 
     default boolean tryPlaceTrackAndSlaves(TrackBehaviourStateful behaviour, World world, BlockPos pos) {
         if (!canPlaceSlaves(behaviour, world, pos)) return false;
@@ -38,4 +52,10 @@ public interface ITrackPlacer {
 
     /** Checks to see if the given block is upgradable to a multi-track tile entity. */
     boolean isUpgradableTrack(World world, BlockPos pos);
+
+    public enum EnumTrackRequirement {
+        GROUND_BELOW,
+        SPACE_ABOVE,
+        OTHER
+    }
 }

@@ -14,13 +14,16 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
@@ -36,16 +39,21 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import alexiil.mods.traincraft.api.AddonManager;
 import alexiil.mods.traincraft.api.TrainCraftAPI;
 import alexiil.mods.traincraft.api.lib.MathUtil;
+import alexiil.mods.traincraft.api.track.ITrackPlacer.EnumTrackRequirement;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
+import alexiil.mods.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mods.traincraft.api.track.model.DefaultTrackModel;
+import alexiil.mods.traincraft.api.track.model.TrackModelWrapper;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.block.*;
 import alexiil.mods.traincraft.client.model.*;
 import alexiil.mods.traincraft.client.render.RenderRollingStockBase;
+import alexiil.mods.traincraft.client.render.SmoothFaceRenderer;
 import alexiil.mods.traincraft.component.ComponentCart;
 import alexiil.mods.traincraft.component.ComponentSmallWheel;
 import alexiil.mods.traincraft.entity.EntityGenericRollingStock;
+import alexiil.mods.traincraft.item.ItemBlockSeperatedTrack;
 import alexiil.mods.traincraft.item.ItemPlacableTrain;
 
 public class ProxyClient extends Proxy {
@@ -190,7 +198,61 @@ public class ProxyClient extends Proxy {
     }
 
     private static void renderFakeItemBlock(RenderWorldLastEvent event) {
+        if (Minecraft.getMinecraft().getRenderManager().livingPlayer == null) return;
 
+        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        if (player.getHeldItem() == null || player.getHeldItem().stackSize == 0) return;
+        Item item = player.getHeldItem().getItem();
+        if (!(item instanceof ItemBlockSeperatedTrack<?>)) return;
+        ItemBlockSeperatedTrack<?> track = (ItemBlockSeperatedTrack<?>) item;
+
+        if (Minecraft.getMinecraft().objectMouseOver == null || Minecraft.getMinecraft().objectMouseOver.typeOfHit != MovingObjectType.BLOCK) {
+            return;
+        }
+        MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+
+        BlockPos hitPos = mop.getBlockPos();
+        EnumFacing side = mop.sideHit;
+        Vec3 hitVec = mop.hitVec;
+
+        float hitX = (float) (hitVec.xCoord - hitPos.getX());
+        float hitY = (float) (hitVec.yCoord - hitPos.getY());
+        float hitZ = (float) (hitVec.zCoord - hitPos.getZ());
+
+        TrackBehaviourStateful state = track.statefulState(player.worldObj, hitPos, player, player.getHeldItem(), side, hitX, hitY, hitZ);
+        if (state == null) return;
+
+        // FIXME: This check doesn't work
+        EnumTrackRequirement req = TrackPlacer.INSTANCE.checkSlaves(state.getSlaveOffsets(), player.worldObj, hitPos);
+
+        TrackModelWrapper[] wrappers = { new TrackModelWrapper(state.getPath(), state.getModel()) };
+        IBakedModel model = TrackGenericBlockModel_NEW_.makeModel(wrappers);
+
+        GlStateManager.disableTexture2D();
+
+        if (req != null) switch (req) {
+            case GROUND_BELOW:
+                GlStateManager.color(0, 0, 0.6f);
+                break;
+            case OTHER:
+                GlStateManager.color(0.6f, 0, 0);
+                break;
+            case SPACE_ABOVE:
+                GlStateManager.color(0, 0, 0);
+                break;
+        }
+        else {
+            GlStateManager.color(1, 1, 1);
+        }
+
+        Vec3 diff = new Vec3(hitPos);
+        diff = diff.subtract(player.getPositionEyes(event.partialTicks));
+        diff = diff.addVector(0, 1 + player.getEyeHeight(), 0);
+
+        SmoothFaceRenderer.renderModel(model, MatrixUtil.translation(diff));
+        GlStateManager.color(1, 1, 1);
+
+        GlStateManager.enableTexture2D();
     }
 
     private static void renderDebug(RenderWorldLastEvent event) {

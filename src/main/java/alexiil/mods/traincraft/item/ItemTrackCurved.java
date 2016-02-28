@@ -44,7 +44,7 @@ public class ItemTrackCurved extends ItemBlockSeperatedTrack<BlockTrackCurvedHal
     }
 
     @Override
-    protected TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
+    public TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
             float hitY, float hitZ) {
         TrackBehaviourCurvedHalfState state = new TrackBehaviourCurvedHalfState(world, pos, seperated.curve.halfFactory);
         EnumFacing horizontal = player.getHorizontalFacing();
