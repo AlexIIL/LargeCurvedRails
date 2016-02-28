@@ -95,7 +95,7 @@ public enum TrackPlacer implements ITrackPlacer {
         TileTrackMultiple multi = new TileTrackMultiple();
         multi.setWorldObj(world);
         multi.setPos(pos);
-        world.setBlockState(pos, TCBlocks.TRACK_MULTIPLE.getBlock().getDefaultState());
+        world.setBlockState(pos, TCBlocks.TRACK_MULTIPLE.getBlock().getDefaultState(), 2);
         world.setTileEntity(pos, multi);
         return multi;
     }
@@ -184,7 +184,7 @@ public enum TrackPlacer implements ITrackPlacer {
     private static void createPointerBlock(EnumOffset offset, World world, BlockPos slavePos) {
         IBlockState state = TCBlocks.TRACK_POINTER.getBlock().getDefaultState();
         state = state.withProperty(BlockTrackPointer.PROP_OFFSET, offset);
-        world.setBlockState(slavePos, state);
+        world.setBlockState(slavePos, state, 2);
     }
 
     private static EnumOffset calculateOffsetTo(BlockPos from, Collection<BlockPos> via, BlockPos to) {

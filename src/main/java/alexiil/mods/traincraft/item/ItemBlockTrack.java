@@ -105,7 +105,6 @@ public abstract class ItemBlockTrack extends ItemBlockTrainCraft {
             IBlockSetter setter = entry.getValue();
             setter.placeBlockAt(world, pos.add(p));
         }
-
         return true;
     }
 

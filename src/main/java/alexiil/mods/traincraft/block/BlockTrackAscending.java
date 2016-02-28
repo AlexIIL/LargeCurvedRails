@@ -94,12 +94,6 @@ public class BlockTrackAscending extends BlockTrackSeperated {
     }
 
     @Override
-    public boolean isSlave(World world, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState) {
-        BlockPos slaveOffset = slavePos.subtract(masterPos);
-        return slaveOffsets(path(masterState)).contains(slaveOffset);
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public IBlockState getExtendedState(IBlockState state, IBlockAccess access, BlockPos pos) {
         IBlockState material = getSupportingMaterial(access, pos);

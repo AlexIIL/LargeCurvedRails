@@ -227,6 +227,7 @@ public class ProxyClient extends Proxy {
                     for (BehaviourWrapper behaviourWrapper : paths) {
                         if (behaviourWrapper == null) continue;
                         ITrackPath path = behaviourWrapper.getPath();
+                        if (path == null) continue;
                         if (drawn.contains(path)) continue;
                         drawn.add(path);
                         int steps = (int) (path.length() / STEP_DIST);

@@ -168,11 +168,6 @@ public class BlockTrackCurvedHalf extends BlockTrackSeperated {
     }
 
     @Override
-    public boolean isSlave(World world, BlockPos masterPos, IBlockState masterState, BlockPos slavePos, IBlockState slaveState) {
-        return slaveMap.get(masterState).contains(slavePos.subtract(masterPos));
-    }
-
-    @Override
     public List<BlockPos> getSlaveOffsets(IBlockState state) {
         return slaveMap.get(state);
     }

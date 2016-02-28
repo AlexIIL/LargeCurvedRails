@@ -2,6 +2,7 @@ package alexiil.mods.traincraft.block;
 
 import java.util.*;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
@@ -151,7 +152,8 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
                 tried.add(toTry);
             } else if (tryState.getBlock() instanceof BlockTrackSeperated) {
                 BlockTrackSeperated seperated = (BlockTrackSeperated) tryState.getBlock();
-                if (seperated.isSlave(world, toTry, tryState, pos, state)) return toTry;
+                // Only check if its a slave offset as we already know that we are a valid slave for it.
+                if (seperated.isSlaveOffset(world, toTry, tryState, pos)) return toTry;
             } else {
                 /* Somehow this block doesn't point to a proper block. */
                 throw new IllegalPathException(tried);
@@ -172,5 +174,19 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
     @Override
     public boolean shouldSideBeRendered(IBlockAccess access, BlockPos pos, EnumFacing side) {
         return true;
+    }
+
+    @Override
+    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+        if (world.isRemote) return;
+        try {
+            BlockPos master = findMaster(world, pos, state);
+            /* We might have just recieved a block break event- however we cannot use "onBlockBreak" as the block has
+             * already happened at that point */
+            world.notifyBlockOfStateChange(master, this);
+            return;
+        } catch (IllegalPathException e) {
+            world.setBlockToAir(pos);
+        }
     }
 }

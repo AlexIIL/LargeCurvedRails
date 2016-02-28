@@ -28,11 +28,11 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
         for (BlockPos p : offsets) {
             setters.put(p, (world, pos) -> {
                 EnumOffset offset = calculateOffsetTo(p, offsets, BlockPos.ORIGIN);
-                world.setBlockState(pos, TCBlocks.TRACK_POINTER.getBlock().getDefaultState().withProperty(BlockTrackPointer.PROP_OFFSET, offset));
+                world.setBlockState(pos, TCBlocks.TRACK_POINTER.getBlock().getDefaultState().withProperty(BlockTrackPointer.PROP_OFFSET, offset), 2);
             });
         }
         setters.put(BlockPos.ORIGIN, (world, pos) -> {
-            world.setBlockState(pos, targetState);
+            world.setBlockState(pos, targetState, 2);
         });
         return setters;
     }
