@@ -43,14 +43,13 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
     private double lastRecievedProgress = 0;
 
     private Vec3 lookVec = new Vec3(0, 0, 1), lastPlace = new Vec3(0, 0, 0);
-    protected final int dataWatcherOffset, componentIndex;
+    public final int componentIndex;
     protected final double constructorOffset;
 
     public ComponentTrackFollower(IRollingStock stock, double offset, int componentIndex) {
         this.stock = stock;
         constructorOffset = lastRecievedProgress = progress = offset;
         this.componentIndex = componentIndex;
-        this.dataWatcherOffset = DATA_WATCHER_COMPONENT_START + componentIndex * DATA_WATCHER_COMPONENT_STRIDE;
     }
 
     @Override
@@ -133,6 +132,10 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
         dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, FLAG_HAS_PATH + (reversed ? FLAG_PATH_REVERSED : 0));
         dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PATH_INDEX, index);
         dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PROGRESS, (float) progress);
+    }
+
+    public void receiveMessageUpdateTrackLocation(TrackIdentifier ident, float progress) {
+
     }
 
     @Override

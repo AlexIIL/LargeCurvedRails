@@ -17,6 +17,8 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
     private BlockPos pos;
     private String trackIdentifier;
 
+    private TrackIdentifier() {}
+
     public TrackIdentifier(int dim, BlockPos pos, String identifier) {
         this.worldDimension = dim;
         this.pos = pos;
@@ -25,6 +27,12 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
 
     public TrackIdentifier(TrackIdentifier old, String newName) {
         this(old.worldDimension, old.pos, newName);
+    }
+
+    public static TrackIdentifier deserialize(ByteBuf buf) {
+        TrackIdentifier ident = new TrackIdentifier();
+        ident.deserializeBuf(buf);
+        return ident;
     }
 
     @Override

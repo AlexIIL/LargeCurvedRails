@@ -222,35 +222,25 @@ public class ProxyClient extends Proxy {
         TrackBehaviourStateful state = track.statefulState(player.worldObj, hitPos, player, player.getHeldItem(), side, hitX, hitY, hitZ);
         if (state == null) return;
 
-        // FIXME: This check doesn't work
+        // FIXME: This check doesn't work. Also the "hitPos" is actually wrong.
         EnumTrackRequirement req = TrackPlacer.INSTANCE.checkSlaves(state.getSlaveOffsets(), player.worldObj, hitPos);
 
         TrackModelWrapper[] wrappers = { new TrackModelWrapper(state.getPath(), state.getModel()) };
         IBakedModel model = TrackGenericBlockModel_NEW_.makeModel(wrappers);
 
-        GlStateManager.disableTexture2D();
+        float[] col = { 1, 1, 1 };
 
-        if (req != null) switch (req) {
-            case GROUND_BELOW:
-                GlStateManager.color(0, 0, 0.6f);
-                break;
-            case OTHER:
-                GlStateManager.color(0.6f, 0, 0);
-                break;
-            case SPACE_ABOVE:
-                GlStateManager.color(0, 0, 0);
-                break;
-        }
-        else {
-            GlStateManager.color(1, 1, 1);
-        }
+        if (req == EnumTrackRequirement.GROUND_BELOW) col = new float[] { 0, 0, 0.6f };
+        else if (req == EnumTrackRequirement.SPACE_ABOVE) col = new float[] { 0, 0, 0 };
+        else if (req == EnumTrackRequirement.OTHER) col = new float[] { 0.6f, 0, 0 };
 
         Vec3 diff = new Vec3(hitPos);
         diff = diff.subtract(player.getPositionEyes(event.partialTicks));
         diff = diff.addVector(0, 1 + player.getEyeHeight(), 0);
 
-        SmoothFaceRenderer.renderModel(model, MatrixUtil.translation(diff));
-        GlStateManager.color(1, 1, 1);
+        GlStateManager.disableTexture2D();
+
+        SmoothFaceRenderer.renderModelMultColour(model, MatrixUtil.translation(diff), col[0], col[1], col[2]);
 
         GlStateManager.enableTexture2D();
     }

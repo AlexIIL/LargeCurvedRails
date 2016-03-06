@@ -26,6 +26,7 @@ import alexiil.mods.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mods.traincraft.api.component.IComponentOuter;
 import alexiil.mods.traincraft.api.lib.MathUtil;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
+import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.RayTraceTrackPath;
 import alexiil.mods.traincraft.api.train.*;
 import alexiil.mods.traincraft.api.train.IRollingStockType.ConstructedData;
@@ -36,6 +37,7 @@ import io.netty.buffer.ByteBuf;
 public final class EntityGenericRollingStock extends Entity implements IRollingStock, IEntityAdditionalSpawnData {
     private static final int DATA_WATCHER_SPEED = 5;
 
+    @Deprecated
     private static final Object[] DATA_WATCHER_COMPONENT_VARS = { Integer.valueOf(0), new Integer(0), Float.valueOf(0), new BlockPos(0, 0, 0) };
     /** Max speed of 20 meters per second */
     private static final double MAX_SPEED = 20;
@@ -301,6 +303,25 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
         boolean connected = connectorFront.attemptJoinAround(simulate);
         connected |= connectorBack.attemptJoinAround(simulate);
         return connected;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void recieveMessageUpdateTrackLocation(int componentID, TrackIdentifier ident, float progress) {
+        sendTrackUpdate(mainComponent, componentID, ident, progress);
+    }
+
+    private void sendTrackUpdate(IComponentOuter from, int componentID, TrackIdentifier ident, float progress) {
+        for (IComponentOuter c : from.children()) {
+            if (c instanceof ComponentTrackFollower) {
+                if (((ComponentTrackFollower) c).componentIndex == componentID) {
+                    ((ComponentTrackFollower) c).receiveMessageUpdateTrackLocation(ident, progress);
+                    return;
+                } else {
+                    sendTrackUpdate(c, componentID, ident, progress);
+                }
+            }
+        }
+
     }
 
     @Override

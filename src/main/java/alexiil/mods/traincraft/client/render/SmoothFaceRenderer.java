@@ -31,14 +31,22 @@ public class SmoothFaceRenderer {
     }
 
     public static void renderModel(IBakedModel model, Matrix4f transform) {
+        renderModelMultColour(model, transform, 1, 1, 1);
+    }
+
+    public static void renderModelMultColour(IBakedModel model, Matrix4f transform, float red, float green, float blue) {
         List<BakedQuad> quads = new ArrayList<>();
         quads.addAll(model.getGeneralQuads());
         for (EnumFacing face : EnumFacing.values())
             quads.addAll(model.getFaceQuads(face));
-        renderModel(quads, transform);
+        renderModelMultColour(quads, transform, red, green, blue);
     }
 
     public static void renderModel(List<BakedQuad> quads, Matrix4f transform) {
+        renderModelMultColour(quads, transform, 1, 1, 1);
+    }
+
+    public static void renderModelMultColour(List<BakedQuad> quads, Matrix4f transform, float red, float green, float blue) {
         WorldRenderer wr = Tessellator.getInstance().getWorldRenderer();
         wr.setTranslation(0, 0, 0);
         wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
@@ -57,7 +65,7 @@ public class SmoothFaceRenderer {
                 wr.tex(uv.x, uv.y);
 
                 Point4i colour = colour(quad, i);
-                wr.color((int) (diffuse * colour.x), (int) (diffuse * colour.y), (int) (diffuse * colour.z), colour.w);
+                wr.color((int) (diffuse * colour.x * red), (int) (diffuse * colour.y * green), (int) (diffuse * colour.z * blue), colour.w);
 
                 wr.normal(normal.x, normal.y, normal.z);
 

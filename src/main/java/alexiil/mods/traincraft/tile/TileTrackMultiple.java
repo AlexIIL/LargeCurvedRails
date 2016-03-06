@@ -80,8 +80,7 @@ public class TileTrackMultiple extends TileAbstractTrack {
 
         list = new NBTTagList();
         for (BehaviourWrapper wrapped : pointingTo) {
-            TrackBehaviourStateful track = (TrackBehaviourStateful) wrapped.behaviour();
-            list.appendTag(track.getIdentifier().serializeNBT());
+            list.appendTag(wrapped.getIdentifier().serializeNBT());
         }
         nbt.setTag("pointers", list);
     }
