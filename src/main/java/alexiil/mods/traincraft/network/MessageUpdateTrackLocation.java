@@ -21,14 +21,17 @@ public class MessageUpdateTrackLocation implements IMessage, IMessageHandler<Mes
     public MessageUpdateTrackLocation() {}
 
     public MessageUpdateTrackLocation(int entID, int componentID, TrackIdentifier ident, float progress) {
-        // TODO Auto-generated constructor stub
+        this.entityID = entID;
+        this.componentID = componentID;
+        this.ident = ident;
+        this.progress = progress;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
         entityID = buf.readInt();
         componentID = buf.readInt();
-        ident = TrackIdentifier.deserialize(buf);
+        if (buf.readBoolean()) ident = TrackIdentifier.deserialize(buf);
         progress = buf.readFloat();
     }
 
@@ -36,7 +39,8 @@ public class MessageUpdateTrackLocation implements IMessage, IMessageHandler<Mes
     public void toBytes(ByteBuf buf) {
         buf.writeInt(entityID);
         buf.writeInt(componentID);
-        ident.serializeBuf(buf);
+        buf.writeBoolean(ident != null);
+        if (ident != null) ident.serializeBuf(buf);
         buf.writeFloat(progress);
     }
 

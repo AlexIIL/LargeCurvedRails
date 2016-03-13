@@ -11,7 +11,7 @@ public enum MessageHandler {
 
     public void preInit() {
         wrapper = NetworkRegistry.INSTANCE.newSimpleChannel("TrainCraft");
-        wrapper.registerMessage(messageHandler, requestMessageType, 0, Side.CLIENT);
+        wrapper.registerMessage(MessageUpdateTrackLocation.class, MessageUpdateTrackLocation.class, 0, Side.CLIENT);
     }
 
     public SimpleNetworkWrapper getWrapper() {

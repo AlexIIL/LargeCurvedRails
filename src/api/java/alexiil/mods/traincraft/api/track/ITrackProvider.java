@@ -10,6 +10,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
+import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 
 public interface ITrackProvider {
     BehaviourWrapper getTrackFromPoint(World accces, BlockPos pos, IBlockState state, Vec3 from);
@@ -19,6 +20,11 @@ public interface ITrackProvider {
     List<BehaviourWrapper> getTracksAsList(World world, BlockPos pos, IBlockState state);
 
     Stream<BehaviourWrapper> getTracksAsStream(World world, BlockPos pos, IBlockState state);
+
+    default BehaviourWrapper getTrackForIdent(World world, TrackIdentifier ident) {
+        return getTracksAsStream(world, ident.pos(), world.getBlockState(ident.pos())).filter(b -> b.getIdentifier().equals(ident)).findAny().orElse(
+                null);
+    }
 
     ITrackBlock getBlockFor(IBlockState state);
 

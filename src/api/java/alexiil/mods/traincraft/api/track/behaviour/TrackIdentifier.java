@@ -16,6 +16,7 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
     private int worldDimension;
     private BlockPos pos;
     private String trackIdentifier;
+    private boolean reversed;
 
     private TrackIdentifier() {}
 
@@ -27,6 +28,11 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
 
     public TrackIdentifier(TrackIdentifier old, String newName) {
         this(old.worldDimension, old.pos, newName);
+    }
+
+    public TrackIdentifier reverse() {
+        reversed = !reversed;
+        return this;
     }
 
     public static TrackIdentifier deserialize(ByteBuf buf) {
@@ -44,6 +50,7 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
         buffer.writeInt(pos.getZ());
         buffer.writeByte(Math.max(trackIdentifier.length(), 127));
         buf.writeString(trackIdentifier);
+        buf.writeBoolean(reversed);
     }
 
     @Override
@@ -52,7 +59,7 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
         pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
         int l = buffer.readUnsignedByte();
         trackIdentifier = new PacketBuffer(buffer).readStringFromBuffer(l);
-
+        reversed = buffer.readBoolean();
     }
 
     @Override
@@ -61,6 +68,7 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
         nbt.setInteger("dim", worldDimension);
         nbt.setIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         nbt.setString("identifier", trackIdentifier);
+        nbt.setBoolean("reversed", reversed);
         return nbt;
     }
 
@@ -72,6 +80,7 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
             pos = new BlockPos(arr[0], arr[1], arr[2]);
         }
         trackIdentifier = nbt.getString("identifier");
+        reversed = nbt.getBoolean("reversed");
     }
 
     public int worldDim() {
@@ -84,6 +93,10 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
 
     public String identifier() {
         return trackIdentifier;
+    }
+
+    public boolean isReversed() {
+        return reversed;
     }
 
     @Override

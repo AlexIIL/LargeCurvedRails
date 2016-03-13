@@ -5,20 +5,19 @@ import java.util.List;
 
 import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import alexiil.mods.traincraft.TrainCraft;
-import alexiil.mods.traincraft.api.lib.MCObjectUtils;
+import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+
+import alexiil.mods.traincraft.TrackPathProvider;
 import alexiil.mods.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mods.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mods.traincraft.api.track.path.ITrackPath;
 import alexiil.mods.traincraft.api.train.AlignmentFailureException;
 import alexiil.mods.traincraft.api.train.IRollingStock;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import alexiil.mods.traincraft.network.MessageHandler;
+import alexiil.mods.traincraft.network.MessageUpdateTrackLocation;
 
 public abstract class ComponentTrackFollower implements IComponentOuter {
     // Each component uses: [ int (flag), float (progress), blockpos (track), int (track index)]
@@ -40,7 +39,7 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
     private ITrackPath currentPath;
     /** The progress accross the current path, in meters. */
     private double progress = 0;
-    private double lastRecievedProgress = 0;
+    private boolean usingReverse = false, justUpdated = false;
 
     private Vec3 lookVec = new Vec3(0, 0, 1), lastPlace = new Vec3(0, 0, 0);
     public final int componentIndex;
@@ -48,7 +47,7 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
 
     public ComponentTrackFollower(IRollingStock stock, double offset, int componentIndex) {
         this.stock = stock;
-        constructorOffset = lastRecievedProgress = progress = offset;
+        constructorOffset = progress = offset;
         this.componentIndex = componentIndex;
     }
 
@@ -110,32 +109,16 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
 
         TrackIdentifier ident = currentTrack.getIdentifier();
 
-        ByteBuf buffer = Unpooled.buffer();
-        ident.serializeBuf(buffer);
-        byte[] bytes = new byte[buffer.readableBytes()];
-        buffer.readBytes(bytes);
-        StringBuilder builder = new StringBuilder();
-        for (byte b : bytes) {
-            builder.append(Integer.toHexString((b >> 4) & 0b1111));
-            builder.append(Integer.toHexString(b & 0b1111));
-        }
-
-        // FIMXE: OMFG THIS WILL BE SOOO HACKY!
-
-        TrainCraft.trainCraftLog.info("STRING: \"" + builder.toString() + "\"");
-
-        int index = 0;
-        boolean reversed = false;
-
-        DataWatcher dataWatcher = ent.getDataWatcher();
-        dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_TRACK_POS, currentPath.creatingBlock());
-        dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, FLAG_HAS_PATH + (reversed ? FLAG_PATH_REVERSED : 0));
-        dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PATH_INDEX, index);
-        dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PROGRESS, (float) progress);
+        if (usingReverse != ident.isReversed()) ident = ident.reverse();
+        MessageUpdateTrackLocation update = new MessageUpdateTrackLocation(ent.getEntityId(), componentIndex, ident, 0);
+        TargetPoint point = new TargetPoint(ent.getEntityWorld().provider.getDimensionId(), (int) ent.posX, (int) ent.posY, (int) ent.posZ, 9 * 16);
+        MessageHandler.INSTANCE.getWrapper().sendToAllAround(update, point);
     }
 
     public void receiveMessageUpdateTrackLocation(TrackIdentifier ident, float progress) {
-
+        currentTrack = TrackPathProvider.INSTANCE.getTrackForIdent(((Entity) stock()).getEntityWorld(), ident);
+        this.progress = progress;
+        justUpdated = true;
     }
 
     @Override
@@ -146,34 +129,9 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
         World world = ent.getEntityWorld();
 
         if (world.isRemote) {
-            // double speed = dataWatcher.getWatchableObjectFloat(DATA_WATCHER_SPEED);
-            // speedMPT = speed;
-
-            int flags = dataWatcher.getWatchableObjectInt(dataWatcherOffset + DATA_WATCHER_FLAGS);
-            if ((flags & FLAG_HAS_PATH) == FLAG_HAS_PATH) {
-                BlockPos currentTrack = MCObjectUtils.getWatchableObjectBlockPos(dataWatcher, dataWatcherOffset + DATA_WATCHER_TRACK_POS);
-                int index = dataWatcher.getWatchableObjectInt(dataWatcherOffset + DATA_WATCHER_PATH_INDEX);
-
-                // ITrackPath[] paths = TrackPathProvider.getPathsAsArray(world, currentPath,
-                // world.getBlockState(currentPath));
-                // if (index >= paths.length || index < 0) {
-                // Something went wrong...
-                // currentTrack = null;
-                // currentTrack = null;
-                // } else {
-                // currentTrack = paths[index];
-                // if ((flags & FLAG_PATH_REVERSED) == FLAG_PATH_REVERSED) {
-                // currentTrack = currentTrack.reverse();
-                // }
-                // }
-            } else {
-                currentTrack = null;
-            }
             // Update the server side progress seperatly from the client side progress
-            double prog = dataWatcher.getWatchableObjectFloat(dataWatcherOffset + DATA_WATCHER_PROGRESS);
-            if (prog != lastRecievedProgress) {
-                progress = prog;
-                lastRecievedProgress = prog;
+            if (justUpdated) {
+                justUpdated = false;
             } else if (currentTrack != null) {
                 // Only update it ourselves if we have gone a tick without seeing the server data
                 progress += distanceMoved;
@@ -212,18 +170,16 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
                 lastPlace = currentPath.interpolate(progress / currentPath.length());
 
                 lookVec = currentPath.direction(progress / currentPath.length());
-                int index = 0;// TrackPathProvider.pathIndex(ent.getEntityWorld(), currentPath);
-                boolean reversed = false;// TrackPathProvider.isPathReversed(ent.getEntityWorld(), currentPath);
 
-                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_TRACK_POS, currentPath.creatingBlock());
-                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, FLAG_HAS_PATH + (reversed ? FLAG_PATH_REVERSED : 0));
-                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PATH_INDEX, index);
-                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PROGRESS, (float) progress);
+                TrackIdentifier ident = currentTrack.getIdentifier();
+                if (usingReverse != ident.isReversed()) ident = ident.reverse();
+                MessageUpdateTrackLocation update = new MessageUpdateTrackLocation(ent.getEntityId(), componentIndex, ident, 0);
+                TargetPoint point = new TargetPoint(world.provider.getDimensionId(), (int) ent.posX, (int) ent.posY, (int) ent.posZ, 9 * 16);
+                MessageHandler.INSTANCE.getWrapper().sendToAllAround(update, point);
             } else {
-                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_TRACK_POS, new BlockPos(0, 0, 0));
-                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_FLAGS, 0);
-                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PATH_INDEX, -1);
-                dataWatcher.updateObject(dataWatcherOffset + DATA_WATCHER_PROGRESS, (float) progress);
+                MessageUpdateTrackLocation update = new MessageUpdateTrackLocation(ent.getEntityId(), componentIndex, null, 0);
+                TargetPoint point = new TargetPoint(world.provider.getDimensionId(), (int) ent.posX, (int) ent.posY, (int) ent.posZ, 9 * 16);
+                MessageHandler.INSTANCE.getWrapper().sendToAllAround(update, point);
             }
         }
 

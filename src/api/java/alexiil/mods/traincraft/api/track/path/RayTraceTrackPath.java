@@ -3,6 +3,7 @@ package alexiil.mods.traincraft.api.track.path;
 import net.minecraft.util.Vec3;
 
 public class RayTraceTrackPath {
+    /** The original path that the ray trace was perfomed on. */
     public final ITrackPath path;
     public final double interp;
     public final Vec3 closestPoint;

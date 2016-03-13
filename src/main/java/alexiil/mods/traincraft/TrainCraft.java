@@ -2,6 +2,7 @@ package alexiil.mods.traincraft;
 
 import org.apache.logging.log4j.Logger;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -55,6 +56,8 @@ public class TrainCraft {
 
         Proxy.proxy.preInit(event);
         MessageHandler.INSTANCE.preInit();
+
+        MinecraftForge.EVENT_BUS.register(CartCompat.INSTANCE);
     }
 
     @EventHandler

@@ -16,23 +16,32 @@ public final class BehaviourWrapper {
     private final TrackBehaviour behaviour;
     private final World world;
     private final BlockPos pos;
+    private final boolean reversed;
 
     public BehaviourWrapper(TrackBehaviour behaviour, World world, BlockPos pos) {
+        this(behaviour, world, pos, false);
+    }
+
+    public BehaviourWrapper(TrackBehaviour behaviour, World world, BlockPos pos, boolean reversed) {
         if (behaviour == null) throw new NullPointerException("behaviour");
         if (world == null) throw new NullPointerException("world");
         if (pos == null || pos instanceof MutableBlockPos) throw new NullPointerException("pos");
         this.behaviour = behaviour;
         this.world = world;
         this.pos = pos;
+        this.reversed = reversed;
     }
 
     // Delegate methods
     public ITrackPath getPath() {
+        if (reversed) return behaviour.getPath(world, pos, state()).reverse();
         return behaviour.getPath(world, pos, state());
     }
 
     public TrackIdentifier getIdentifier() {
-        return behaviour.getIdentifier(world, pos, state());
+        TrackIdentifier ident = behaviour.getIdentifier(world, pos, state());
+        if (reversed) ident.reverse();
+        return ident;
     }
 
     public void onStockPass(IRollingStock stock) {

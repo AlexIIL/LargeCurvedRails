@@ -32,24 +32,21 @@ archivesBaseName = "traincraft" // the name that all artifacts will use as a bas
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-//repositories {
-//  ivy {
-//    name "BuildCraft"
-//    layout "pattern", {
-//    	artifactPattern "https://github.com/AlexIIL/BC-Temp-releases/releases/download/[revision]/buildcraft-[revision].jar"
-//    	ivyPattern "https://raw.githubusercontent.com/AlexIIL/BC-Temp-releases/bc-dep/deps/[revision].xml"
-//    }
-//  }
-//}
+repositories {
+    ivy {
+        name "BuildCraft"
+        artifactPattern "http://www.mod-buildcraft.com/releases/BuildCraft/[revision]/[module]-[revision].[ext]"
+    }
+}
 
 dependencies {
+    deobfCompile name: "buildcraft", version: "7.2.0"
     testCompile "junit:junit:4.12"
-//    deobfCompile "com.mod-buildcraft:buildcraft:7.2.0-pre12"
 }
 
 minecraft {
-    mappings = "snapshot_20160123"
-    version = "1.8.9-11.15.0.1718"
+    version = "1.8.9-11.15.1.1764"
+    mappings = "stable_22"
 
     runDir = "run" // the directory for ForgeGradle to run Minecraft in
 
