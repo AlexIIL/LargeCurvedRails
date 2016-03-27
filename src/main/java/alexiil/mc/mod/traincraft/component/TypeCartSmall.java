@@ -1,0 +1,60 @@
+package alexiil.mc.mod.traincraft.component;
+
+import java.util.Collections;
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ResourceLocation;
+
+import alexiil.mc.mod.traincraft.api.component.ComponentTrackFollower;
+import alexiil.mc.mod.traincraft.api.component.IComponentInner;
+import alexiil.mc.mod.traincraft.api.component.IComponentOuter;
+import alexiil.mc.mod.traincraft.api.train.Connector;
+import alexiil.mc.mod.traincraft.api.train.IRollingStock;
+import alexiil.mc.mod.traincraft.api.train.IRollingStockType;
+import alexiil.mc.mod.traincraft.component.inner.InnerItemStorage;
+import alexiil.mc.mod.traincraft.item.TCItems;
+
+public enum TypeCartSmall implements IRollingStockType {
+    INSTANCE;
+
+    private static final ResourceLocation uniqueID = new ResourceLocation("traincraft:cart_small");
+
+    @Override
+    public ConstructedData createInstance(IRollingStock stock) {
+        ComponentTrackFollower wheel1 = new ComponentSmallWheel(stock, -0.25, 0);
+        ComponentTrackFollower wheel2 = new ComponentSmallWheel(stock, 0.25, 1);
+        IComponentInner openChest = new OpenChest(stock, 0, new AxisAlignedBB(0, 0.3, 0, 0, 0.3, 0), 9);
+        IComponentOuter cartComponent = new ComponentCart(stock, wheel1, wheel2, Collections.emptyList(), ImmutableList.of(openChest), 0.5);
+        Connector front = new Connector(stock, cartComponent, 0.55);
+        Connector back = new Connector(stock, cartComponent, -0.55);
+        return new ConstructedData(cartComponent, front, back);
+    }
+
+    @Override
+    public ResourceLocation uniqueID() {
+        return uniqueID;
+    }
+
+    @Override
+    public void addDroppedItemStacks(List<ItemStack> stacks) {
+        stacks.add(getPickedItem());
+    }
+
+    @Override
+    public ItemStack getPickedItem() {
+        return new ItemStack(TCItems.STOCK_SMALL_CART.getItem());
+    }
+
+    private static class OpenChest extends InnerItemStorage {
+        public OpenChest(IRollingStock stock, double originOffset, AxisAlignedBB boundingBox, int maxStacks) {
+            super(stock, originOffset, boundingBox, maxStacks);
+        }
+
+        @Override
+        public void render(IRollingStock stock, float partialTicks) {}
+    }
+}
