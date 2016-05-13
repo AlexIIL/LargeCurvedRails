@@ -11,20 +11,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import net.minecraftforge.client.event.ModelBakeEvent;
@@ -32,6 +30,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -64,7 +63,7 @@ public class ProxyClient extends Proxy {
         TrainCraftAPI.SPRITE_GETTER = CommonModelSpriteCache.INSTANCE;
 
         RenderingRegistry.registerEntityRenderingHandler(EntityGenericRollingStock.class, RenderRollingStockBase.Factory.INSTANCE);
-        OBJLoader.instance.addDomain("traincraft");
+        OBJLoader.INSTANCE.addDomain("traincraft");
         for (TCBlocks b : TCBlocks.values()) {
             Block block = b.getBlock();
             if (block instanceof BlockAbstractTrack) {
@@ -72,7 +71,7 @@ public class ProxyClient extends Proxy {
             }
         }
 
-        Block[] vanillaTracks = { Blocks.rail, Blocks.activator_rail, Blocks.detector_rail, Blocks.golden_rail };
+        Block[] vanillaTracks = { Blocks.RAIL, Blocks.ACTIVATOR_RAIL, Blocks.DETECTOR_RAIL, Blocks.GOLDEN_RAIL };
 
         for (Block rail : vanillaTracks) {
             ModelLoader.setCustomStateMapper(rail, VoidStateMapper.INSTANCE);
@@ -89,37 +88,37 @@ public class ProxyClient extends Proxy {
 
             if (b.getBlock() instanceof BlockTrackCurvedHalf) {
                 BlockTrackCurvedHalf curved = (BlockTrackCurvedHalf) b.getBlock();
-                bake.modelRegistry.putObject(mrl, new TrackCurvedHalfBlockModel(curved));
+                bake.getModelRegistry().putObject(mrl, new TrackCurvedHalfBlockModel(curved));
             }
 
             if (b.getBlock() instanceof BlockTrackPointer) {
-                bake.modelRegistry.putObject(mrl, TrackPointerBlockModel.INSTANCE);
+                bake.getModelRegistry().putObject(mrl, TrackPointerBlockModel.INSTANCE);
             }
 
             if (b.getBlock() instanceof BlockTrackAscending) {
                 BlockTrackAscending ascending = (BlockTrackAscending) b.getBlock();
-                bake.modelRegistry.putObject(mrl, new TrackAscendingBlockModel(ascending));
+                bake.getModelRegistry().putObject(mrl, new TrackAscendingBlockModel(ascending));
             }
 
             if (b.getBlock() instanceof BlockTrackStraight) {
-                bake.modelRegistry.putObject(mrl, new TrackStraightBlockModel());
+                bake.getModelRegistry().putObject(mrl, new TrackStraightBlockModel());
             }
 
             if (b.getBlock() instanceof BlockTrackCurvedFull) {
                 BlockTrackCurvedFull curved = (BlockTrackCurvedFull) b.getBlock();
-                bake.modelRegistry.putObject(mrl, new TrackCurvedFullBlockModel(curved));
+                bake.getModelRegistry().putObject(mrl, new TrackCurvedFullBlockModel(curved));
             }
 
             if (b.getBlock() instanceof BlockTrackMultiple) {
-                bake.modelRegistry.putObject(mrl, TrackGenericBlockModel_NEW_.INSTANCE);
+                bake.getModelRegistry().putObject(mrl, TrackGenericBlockModel_NEW_.INSTANCE);
             }
         }
 
-        Block[] vanillaTracks = { Blocks.rail, Blocks.activator_rail, Blocks.detector_rail, Blocks.golden_rail };
+        Block[] vanillaTracks = { Blocks.RAIL, Blocks.ACTIVATOR_RAIL, Blocks.DETECTOR_RAIL, Blocks.GOLDEN_RAIL };
 
         for (Block rail : vanillaTracks) {
-            ModelResourceLocation mrl = new ModelResourceLocation(Block.blockRegistry.getNameForObject(rail).toString());
-            bake.modelRegistry.putObject(mrl, TrackVanillaBlockModel.create(rail));
+            ModelResourceLocation mrl = new ModelResourceLocation(Block.REGISTRY.getNameForObject(rail).toString());
+            bake.getModelRegistry().putObject(mrl, TrackVanillaBlockModel.create(rail));
         }
         AddonManager.INSTANCE.modelBake(bake);
     }
@@ -151,11 +150,11 @@ public class ProxyClient extends Proxy {
     }
 
     private static void renderFakeTrain(RenderWorldLastEvent event) {
-        if (Minecraft.getMinecraft().getRenderManager().livingPlayer == null) return;
+        if (Minecraft.getMinecraft().getRenderManager().renderViewEntity == null) return;
 
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-        if (player.getHeldItem() == null || player.getHeldItem().stackSize == 0) return;
-        Item item = player.getHeldItem().getItem();
+        if (player.getHeldItemMainhand() == null || player.getHeldItemMainhand().stackSize == 0) return;
+        Item item = player.getHeldItemMainhand().getItem();
         if (!(item instanceof ItemPlacableTrain)) return;
 
         Minecraft.getMinecraft().mcProfiler.startSection("fake_train");
@@ -165,8 +164,8 @@ public class ProxyClient extends Proxy {
         EntityGenericRollingStock rollingStock = place.createRollingStock(player.worldObj);
         if (rollingStock != null) {
             GL11.glPushMatrix();
-            Vec3 lookVec = player.getLook(event.partialTicks).normalize();
-            Vec3 lookFrom = player.getPositionEyes(event.partialTicks);
+            Vec3d lookVec = player.getLook(event.getPartialTicks()).normalize();
+            Vec3d lookFrom = player.getPositionEyes(event.getPartialTicks());
             try {
                 if (rollingStock.alignFromPlayer(lookVec, lookFrom, true)) {
                     RenderRollingStockBase.enableCustomColour(0, 1, 0);
@@ -176,17 +175,17 @@ public class ProxyClient extends Proxy {
             } catch (AlignmentFailureException afe) {
                 // Re-create it so it doesn't partially mess up
                 rollingStock = place.createRollingStock(player.worldObj);
-                Vec3 maxLook = lookFrom.add(MathUtil.scale(lookVec, 4));
-                MovingObjectPosition mop = player.worldObj.rayTraceBlocks(lookFrom, maxLook);
-                Vec3 lookingAt = null;
+                Vec3d maxLook = lookFrom.add(MathUtil.scale(lookVec, 4));
+                RayTraceResult mop = player.worldObj.rayTraceBlocks(lookFrom, maxLook);
+                Vec3d lookingAt = null;
                 if (mop != null) lookingAt = mop.hitVec;
                 if (lookingAt == null) lookingAt = maxLook;
                 RenderRollingStockBase.enableCustomColour(1, 0, 0);
-                Vec3 renderOffset = lookingAt;
+                Vec3d renderOffset = lookingAt;
                 GL11.glTranslated(renderOffset.xCoord, renderOffset.yCoord, renderOffset.zCoord);
             }
 
-            Minecraft.getMinecraft().getRenderManager().renderEntitySimple(rollingStock, event.partialTicks);
+            Minecraft.getMinecraft().getRenderManager().renderEntityStatic(rollingStock, event.getPartialTicks(), false);
             RenderRollingStockBase.disableCustomColour();
 
             RenderHelper.disableStandardItemLighting();
@@ -198,28 +197,30 @@ public class ProxyClient extends Proxy {
     }
 
     private static void renderFakeItemBlock(RenderWorldLastEvent event) {
-        if (Minecraft.getMinecraft().getRenderManager().livingPlayer == null) return;
+        if (Minecraft.getMinecraft().getRenderManager().renderViewEntity == null) return;
 
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-        if (player.getHeldItem() == null || player.getHeldItem().stackSize == 0) return;
-        Item item = player.getHeldItem().getItem();
+        if (player.getHeldItemMainhand() == null || player.getHeldItemMainhand().stackSize == 0) return;
+        Item item = player.getHeldItemMainhand().getItem();
         if (!(item instanceof ItemBlockSeperatedTrack<?>)) return;
         ItemBlockSeperatedTrack<?> track = (ItemBlockSeperatedTrack<?>) item;
 
-        if (Minecraft.getMinecraft().objectMouseOver == null || Minecraft.getMinecraft().objectMouseOver.typeOfHit != MovingObjectType.BLOCK) {
+        if (Minecraft.getMinecraft().objectMouseOver == null || Minecraft.getMinecraft().objectMouseOver.typeOfHit != RayTraceResult.Type.BLOCK) {
             return;
         }
-        MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+        RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
 
         BlockPos hitPos = mop.getBlockPos();
         EnumFacing side = mop.sideHit;
-        Vec3 hitVec = mop.hitVec;
+        Vec3d hitVec = mop.hitVec;
 
         float hitX = (float) (hitVec.xCoord - hitPos.getX());
         float hitY = (float) (hitVec.yCoord - hitPos.getY());
         float hitZ = (float) (hitVec.zCoord - hitPos.getZ());
 
-        TrackBehaviourStateful state = track.statefulState(player.worldObj, hitPos, player, player.getHeldItem(), side, hitX, hitY, hitZ);
+        hitPos = hitPos.offset(side);
+
+        TrackBehaviourStateful state = track.statefulState(player.worldObj, hitPos, player, player.getHeldItemMainhand(), side, hitX, hitY, hitZ);
         if (state == null) return;
 
         // FIXME: This check doesn't work. Also the "hitPos" is actually wrong.
@@ -234,8 +235,8 @@ public class ProxyClient extends Proxy {
         else if (req == EnumTrackRequirement.SPACE_ABOVE) col = new float[] { 0, 0, 0 };
         else if (req == EnumTrackRequirement.OTHER) col = new float[] { 0.6f, 0, 0 };
 
-        Vec3 diff = new Vec3(hitPos);
-        diff = diff.subtract(player.getPositionEyes(event.partialTicks));
+        Vec3d diff = new Vec3d(hitPos);
+        diff = diff.subtract(player.getPositionEyes(event.getPartialTicks()));
         diff = diff.addVector(0, 1 + player.getEyeHeight(), 0);
 
         GlStateManager.disableTexture2D();
@@ -246,11 +247,11 @@ public class ProxyClient extends Proxy {
     }
 
     private static void renderDebug(RenderWorldLastEvent event) {
-        if (MinecraftServer.getServer() == null) return;
+        if (Minecraft.getMinecraft().thePlayer == null) return;
         if (!Minecraft.getMinecraft().gameSettings.showDebugInfo) return;
         BlockPos around = new BlockPos(Minecraft.getMinecraft().thePlayer.getPositionVector());
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-        World world = MinecraftServer.getServer().worldServerForDimension(Minecraft.getMinecraft().theWorld.provider.getDimensionId());
+        World world = DimensionManager.getWorld(Minecraft.getMinecraft().theWorld.provider.getDimension());
         if (world == null) return;
         Minecraft.getMinecraft().mcProfiler.startSection("debug");
 
@@ -262,13 +263,13 @@ public class ProxyClient extends Proxy {
         GL11.glLineWidth(3);
 
         Tessellator tess = Tessellator.getInstance();
-        WorldRenderer wr = tess.getWorldRenderer();
+        VertexBuffer vb = tess.getBuffer();
         VertexFormat format = DefaultVertexFormats.POSITION_COLOR;
 
-        wr.begin(GL11.GL_LINES, format);
-        Vec3 interp = player.getPositionEyes(event.partialTicks);
+        vb.begin(GL11.GL_LINES, format);
+        Vec3d interp = player.getPositionEyes(event.getPartialTicks());
         interp = interp.addVector(0, -player.getEyeHeight(), 0);
-        wr.setTranslation(-interp.xCoord, -interp.yCoord, -interp.zCoord);
+        vb.setTranslation(-interp.xCoord, -interp.yCoord, -interp.zCoord);
 
         final int radius = 15;
         for (int x = -radius; x <= radius; x++) {
@@ -285,36 +286,36 @@ public class ProxyClient extends Proxy {
                         int steps = (int) (path.length() / STEP_DIST);
                         for (int s = 0; s < steps; s++) {
                             double pos = s / (double) steps;
-                            Vec3 point = path.interpolate(pos);
+                            Vec3d point = path.interpolate(pos);
 
-                            wr.pos(point.xCoord, point.yCoord, point.zCoord).color(255, 0, 0, 255).endVertex();
+                            vb.pos(point.xCoord, point.yCoord, point.zCoord).color(255, 0, 0, 255).endVertex();
 
-                            Vec3 dir = path.direction(pos);
-                            dir = new Vec3(dir.xCoord * STEP_DIST, dir.yCoord * STEP_DIST, dir.zCoord * STEP_DIST);
-                            Vec3 point2 = point.add(dir);
+                            Vec3d dir = path.direction(pos);
+                            dir = new Vec3d(dir.xCoord * STEP_DIST, dir.yCoord * STEP_DIST, dir.zCoord * STEP_DIST);
+                            Vec3d point2 = point.add(dir);
 
-                            wr.pos(point2.xCoord, point2.yCoord, point2.zCoord).color(255, 0, 0, 255).endVertex();
+                            vb.pos(point2.xCoord, point2.yCoord, point2.zCoord).color(255, 0, 0, 255).endVertex();
                         }
 
                         BlockPos c = path.creatingBlock();
-                        wr.pos(c.getX() + 0.5, c.getY() + 0.3, c.getZ() + 0.5).color(0, 0, 0, 255).endVertex();
-                        wr.pos(c.getX() + 0.5, c.getY() + 0.7, c.getZ() + 0.5).color(0, 0, 0, 255).endVertex();
+                        vb.pos(c.getX() + 0.5, c.getY() + 0.3, c.getZ() + 0.5).color(0, 0, 0, 255).endVertex();
+                        vb.pos(c.getX() + 0.5, c.getY() + 0.7, c.getZ() + 0.5).color(0, 0, 0, 255).endVertex();
 
-                        Vec3 s = path.start();
-                        wr.pos(s.xCoord, s.yCoord, s.zCoord).color(0, 255, 0, 255).endVertex();
-                        wr.pos(s.xCoord, s.yCoord + 0.3, s.zCoord).color(0, 255, 0, 255).endVertex();
+                        Vec3d s = path.start();
+                        vb.pos(s.xCoord, s.yCoord, s.zCoord).color(0, 255, 0, 255).endVertex();
+                        vb.pos(s.xCoord, s.yCoord + 0.3, s.zCoord).color(0, 255, 0, 255).endVertex();
 
-                        Vec3 e = path.end();
-                        wr.pos(e.xCoord, e.yCoord, e.zCoord).color(0, 255, 0, 255).endVertex();
-                        wr.pos(e.xCoord, e.yCoord + 0.3, e.zCoord).color(0, 255, 0, 255).endVertex();
+                        Vec3d e = path.end();
+                        vb.pos(e.xCoord, e.yCoord, e.zCoord).color(0, 255, 0, 255).endVertex();
+                        vb.pos(e.xCoord, e.yCoord + 0.3, e.zCoord).color(0, 255, 0, 255).endVertex();
 
-                        path.renderInfo(wr);
+                        path.renderInfo(vb);
                     }
                 }
             }
         }
         tess.draw();
-        wr.setTranslation(0, 0, 0);
+        vb.setTranslation(0, 0, 0);
         GL11.glLineWidth(2);
         GlStateManager.enableDepth();
         GlStateManager.enableTexture2D();

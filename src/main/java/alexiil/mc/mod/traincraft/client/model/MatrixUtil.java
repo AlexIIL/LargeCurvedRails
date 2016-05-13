@@ -5,13 +5,11 @@ import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
-import net.minecraft.util.Vec3;
-
-import alexiil.mc.mod.traincraft.TrainCraft;
+import net.minecraft.util.math.Vec3d;
 
 public class MatrixUtil {
     /** Rotates towards the given vector from (0, 0, 1) by firstly rotating around the X axis and the the Y axis. */
-    public static Matrix4f rotateTo(Vec3 direction) {
+    public static Matrix4f rotateTo(Vec3d direction) {
         direction = direction.normalize();
 
         float xRot = (float) Math.asin(direction.yCoord);
@@ -32,7 +30,7 @@ public class MatrixUtil {
         return total;
     }
 
-    public static Matrix4f translation(Vec3 pos) {
+    public static Matrix4f translation(Vec3d pos) {
         Matrix4f matrix = new Matrix4f();
         matrix.setIdentity();
         matrix.setTranslation(new Vector3f((float) pos.xCoord, (float) pos.yCoord, (float) pos.zCoord));

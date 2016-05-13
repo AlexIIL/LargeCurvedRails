@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -32,7 +32,7 @@ public abstract class TrackPathCompositeBase implements ITrackPath {
     }
 
     @Override
-    public Vec3 interpolate(double position) {
+    public Vec3d interpolate(double position) {
         double interp = position * length;
         for (ITrackPath p : paths) {
             if (interp <= p.length()) {
@@ -44,7 +44,7 @@ public abstract class TrackPathCompositeBase implements ITrackPath {
     }
 
     @Override
-    public Vec3 direction(double position) {
+    public Vec3d direction(double position) {
         double interp = position * length;
         for (ITrackPath p : paths) {
             if (interp <= p.length()) {
@@ -67,9 +67,9 @@ public abstract class TrackPathCompositeBase implements ITrackPath {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void renderInfo(WorldRenderer wr) {
+    public void renderInfo(VertexBuffer vb) {
         for (ITrackPath p : paths) {
-            p.renderInfo(wr);
+            p.renderInfo(vb);
         }
     }
 

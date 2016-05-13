@@ -8,14 +8,14 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 import alexiil.mc.mod.traincraft.api.lib.MCObjectUtils;
 import alexiil.mc.mod.traincraft.client.model.MutableQuad;
-import alexiil.mc.mod.traincraft.client.model.Plane;
-import alexiil.mc.mod.traincraft.client.model.Polygon;
 import alexiil.mc.mod.traincraft.client.model.MutableQuad.Vertex;
+import alexiil.mc.mod.traincraft.client.model.Plane;
 import alexiil.mc.mod.traincraft.client.model.Plane.Face;
+import alexiil.mc.mod.traincraft.client.model.Polygon;
 import alexiil.mc.mod.traincraft.client.model.Polygon.LinkedVertex;
 
 @Deprecated class Bisector {
@@ -169,14 +169,14 @@ import alexiil.mc.mod.traincraft.client.model.Polygon.LinkedVertex;
             vertex.texf(sprite.getMinU(), sprite.getMinV());
             vertex.colourf(1, 1, 1, 1);
             vertex.lighti(0, 0);
-            vertex.normalvd(face == Face.TOWARDS ? new Vec3(0, 0, 0).subtract(p.normal) : p.normal);
+            vertex.normalvd(face == Face.TOWARDS ? new Vec3d(0, 0, 0).subtract(p.normal) : p.normal);
             verticies[v] = vertex;
         }
 
         return new Polygon(verticies, -1, null);
     }
 
-    private LinkedVertex getLinkedVertex(Vec3 positionvd) {
+    private LinkedVertex getLinkedVertex(Vec3d positionvd) {
         for (LinkedVertex v : linked) {
             if (MCObjectUtils.equals(positionvd, v.pos)) return v;
         }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 import alexiil.mc.mod.traincraft.client.model.MutableQuad.Vertex;
 import alexiil.mc.mod.traincraft.client.model.Plane.Face;
@@ -112,9 +112,9 @@ public class Polygon {
     public static class LinkedVertex {
         public final List<Polygon> linkedPolys = new ArrayList<>();
         public final List<LinkedVertex> linkedVerticies = new ArrayList<>();
-        public final Vec3 pos;
+        public final Vec3d pos;
 
-        public LinkedVertex(Vec3 pos) {
+        public LinkedVertex(Vec3d pos) {
             this.pos = pos;
         }
 

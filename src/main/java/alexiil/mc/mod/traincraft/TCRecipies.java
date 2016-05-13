@@ -19,8 +19,8 @@ public class TCRecipies {
                 "ISI",
                 "ISI",
                 "ISI",
-                'I', Items.iron_ingot,
-                'S', Items.stick
+                'I', Items.IRON_INGOT,
+                'S', Items.STICK
                 // @formatter:on
         );
 
@@ -29,8 +29,8 @@ public class TCRecipies {
                 "I  ",
                 "SI ",
                 "ISI",
-                'I', Items.iron_ingot,
-                'S', Items.stick
+                'I', Items.IRON_INGOT,
+                'S', Items.STICK
                 // @formatter:on
         );
     }

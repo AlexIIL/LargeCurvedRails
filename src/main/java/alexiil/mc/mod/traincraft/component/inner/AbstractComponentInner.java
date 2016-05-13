@@ -1,6 +1,6 @@
 package alexiil.mc.mod.traincraft.component.inner;
 
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 
 import alexiil.mc.mod.traincraft.api.component.IComponentInner;
 import alexiil.mc.mod.traincraft.api.component.IComponentOuter;

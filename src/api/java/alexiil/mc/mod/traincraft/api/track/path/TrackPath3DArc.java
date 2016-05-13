@@ -1,7 +1,7 @@
 package alexiil.mc.mod.traincraft.api.track.path;
 
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 public class TrackPath3DArc implements ITrackPath {
     public TrackPath3DArc() {
@@ -9,12 +9,12 @@ public class TrackPath3DArc implements ITrackPath {
     }
 
     @Override
-    public Vec3 interpolate(double position) {
+    public Vec3d interpolate(double position) {
         throw new AbstractMethodError("Not yet implemented");
     }
 
     @Override
-    public Vec3 direction(double position) {
+    public Vec3d direction(double position) {
         throw new AbstractMethodError("Not yet implemented");
     }
 

@@ -3,9 +3,8 @@ package alexiil.mc.mod.traincraft.api.component;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
@@ -41,7 +40,7 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
     private double progress = 0;
     private boolean usingReverse = false, justUpdated = false;
 
-    private Vec3 lookVec = new Vec3(0, 0, 1), lastPlace = new Vec3(0, 0, 0);
+    private Vec3d lookVec = new Vec3d(0, 0, 1), lastPlace = new Vec3d(0, 0, 0);
     public final int componentIndex;
     protected final double constructorOffset;
 
@@ -77,14 +76,14 @@ public abstract class ComponentTrackFollower implements IComponentOuter {
     }
 
     @Override
-    public Vec3 getTrackPos(float partialTicks) {
+    public Vec3d getTrackPos(float partialTicks) {
         if (currentPath == null) return lastPlace;
         if (partialTicks == 0) return lastPlace = currentPath.interpolate(progress / currentPath.length());
         return lastPlace = currentPath.interpolate((progress + partialTicks * stock.speed() / 20) / currentPath.length());
     }
 
     @Override
-    public Vec3 getTrackDirection(float partialTicks) {
+    public Vec3d getTrackDirection(float partialTicks) {
         if (currentPath == null) return lookVec;
         if (partialTicks == 0) return lookVec = currentPath.direction(progress / currentPath.length());
         return lookVec = currentPath.direction((progress + partialTicks * stock.speed() / 20) / currentPath.length());

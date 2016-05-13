@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.track.ITrackBlock;

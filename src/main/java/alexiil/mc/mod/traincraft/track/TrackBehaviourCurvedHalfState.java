@@ -5,14 +5,14 @@ import java.util.Set;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour;
-import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
+import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 import alexiil.mc.mod.traincraft.api.train.IRollingStock;
 import alexiil.mc.mod.traincraft.block.BlockTrackCurvedHalf;

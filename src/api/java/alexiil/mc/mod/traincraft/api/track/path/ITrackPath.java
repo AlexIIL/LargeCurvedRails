@@ -2,10 +2,10 @@ package alexiil.mc.mod.traincraft.api.track.path;
 
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -14,19 +14,19 @@ import alexiil.mc.mod.traincraft.api.lib.MathUtil;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour;
 
 public interface ITrackPath {
-    /** Gets a Vec3 position that has been interpolated between
+    /** Gets a Vec3d position that has been interpolated between
      * 
      * @param position A position between (and including) 0 and 1. Other values might not return what you expected. */
-    Vec3 interpolate(double position);
+    Vec3d interpolate(double position);
 
     /** Get the direction of the track path at a particular interpolated point. */
-    Vec3 direction(double position);
+    Vec3d direction(double position);
 
-    default Vec3 start() {
+    default Vec3d start() {
         return interpolate(0);
     }
 
-    default Vec3 end() {
+    default Vec3d end() {
         return interpolate(1);
     }
 
@@ -45,11 +45,11 @@ public interface ITrackPath {
     @Deprecated
     ITrackPath offset(BlockPos pos);
 
-    public static Vec3 interpolate(Vec3 start, Vec3 end, double position) {
+    public static Vec3d interpolate(Vec3d start, Vec3d end, double position) {
         double x = start.xCoord * (1 - position) + end.xCoord * position;
         double y = start.yCoord * (1 - position) + end.yCoord * position;
         double z = start.zCoord * (1 - position) + end.zCoord * position;
-        return new Vec3(x, y, z);
+        return new Vec3d(x, y, z);
     }
 
     default TrackBehaviour creatingBehaviour() {
@@ -62,7 +62,7 @@ public interface ITrackPath {
 
     /** Will attempt to find the best progress value that, when fed to {@link #interpolate(double)} returns the vector
      * that is closest to lastPlace */
-    default double progress(Vec3 lastPlace) {
+    default double progress(Vec3d lastPlace) {
         double pointP = 0.5;
         for (int i = 3; i < 20; i++) {
             double diff = 2 / (double) i;
@@ -79,18 +79,18 @@ public interface ITrackPath {
      * @param wr The world renderer that has been set up to render with {@link DefaultVertexFormats#POSITION_COLOR} and
      *            {@link GL11#GL_LINES} */
     @SideOnly(Side.CLIENT)
-    default void renderInfo(WorldRenderer wr) {}
+    default void renderInfo(VertexBuffer vb) {}
 
-    default RayTraceTrackPath rayTrace(Vec3 start, Vec3 direction) {
+    default RayTraceTrackPath rayTrace(Vec3d start, Vec3d direction) {
         double ia = 0, ib = 1;
         double da = 0, db = 0;
         double id = 0.5;
-        Vec3 va, vb;
+        Vec3d va, vb;
 
         RayTraceTrackPath best = null;
         for (int i = 0; i < 10; i++) {
-            Vec3 a = interpolate(ia);
-            Vec3 b = interpolate(ib);
+            Vec3d a = interpolate(ia);
+            Vec3d b = interpolate(ib);
             va = closestPointOnLineToPoint(a, start, direction);
             vb = closestPointOnLineToPoint(b, start, direction);
             da = a.squareDistanceTo(va);
@@ -110,15 +110,15 @@ public interface ITrackPath {
         return new RayTraceTrackPath(this, best.interp, best.closestPoint, Math.sqrt(best.distance));
     }
 
-    public static Vec3 closestPointOnLineToPoint(Vec3 point, Vec3 linePoint, Vec3 lineVector) {
-        Vec3 v = lineVector.normalize();
-        Vec3 p1 = linePoint;
-        Vec3 p2 = point;
+    public static Vec3d closestPointOnLineToPoint(Vec3d point, Vec3d linePoint, Vec3d lineVector) {
+        Vec3d v = lineVector.normalize();
+        Vec3d p1 = linePoint;
+        Vec3d p2 = point;
 
         // Its maths. Its allowed to deviate from normal naming rules.
-        Vec3 p2_minus_p1 = p2.subtract(p1);
+        Vec3d p2_minus_p1 = p2.subtract(p1);
         double _dot_v = MathUtil.dot(p2_minus_p1, v);
-        Vec3 _scale_v = MathUtil.scale(v, _dot_v);
+        Vec3d _scale_v = MathUtil.scale(v, _dot_v);
         return p1.add(_scale_v);
     }
 }

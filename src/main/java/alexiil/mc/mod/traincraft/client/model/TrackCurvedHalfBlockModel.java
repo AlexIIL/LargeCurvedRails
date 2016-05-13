@@ -17,6 +17,6 @@ public class TrackCurvedHalfBlockModel extends TrackGenericBlockModel {
     public ITrackPath path(IBlockState state) {
         EnumFacing facing = state.getValue(BlockTrackCurvedHalf.PROPERTY_FACING);
         boolean positive = state.getValue(BlockTrackCurvedHalf.PROPERTY_DIRECTION);
-        return curved.path(positive, facing);
+        return curved.curve.halfFactory.getPath(facing, positive);
     }
 }

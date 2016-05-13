@@ -2,18 +2,18 @@ package alexiil.mc.mod.traincraft.api.track.path;
 
 import java.util.Objects;
 
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import alexiil.mc.mod.traincraft.api.lib.MCObjectUtils;
 
 /** Designates a path between any number of points. */
 public class TrackPathStraight implements ITrackPath {
     private final BlockPos creator;
-    private final Vec3 start, end, direction;
+    private final Vec3d start, end, direction;
     private final double length;
 
-    public TrackPathStraight(Vec3 start, Vec3 end, BlockPos creator) {
+    public TrackPathStraight(Vec3d start, Vec3d end, BlockPos creator) {
         this.creator = creator;
         this.start = start;
         this.end = end;
@@ -22,12 +22,12 @@ public class TrackPathStraight implements ITrackPath {
     }
 
     @Override
-    public Vec3 interpolate(double position) {
+    public Vec3d interpolate(double position) {
         return ITrackPath.interpolate(start, end, position);
     }
 
     @Override
-    public Vec3 direction(double position) {
+    public Vec3d direction(double position) {
         return direction;
     }
 
@@ -38,7 +38,7 @@ public class TrackPathStraight implements ITrackPath {
 
     @Override
     public ITrackPath offset(BlockPos by) {
-        Vec3 vec3 = new Vec3(by);
+        Vec3d vec3 = new Vec3d(by);
         return new TrackPathStraight(start.add(vec3), end.add(vec3), creator.add(by));
     }
 
@@ -49,7 +49,7 @@ public class TrackPathStraight implements ITrackPath {
 
     @Override
     public int hashCode() {
-        // Vec3 does not define hashCode and equals so we must use our own.
+        // Vec3d does not define hashCode and equals so we must use our own.
         return MCObjectUtils.hash(creator, start, end, direction, length);
     }
 
@@ -62,7 +62,7 @@ public class TrackPathStraight implements ITrackPath {
         // @formatter:off
         return length == other.length &&
                 Objects.equals(creator, other.creator) &&
-                // Vec3 does not define hashCode and equals so we must use our own.
+                // Vec3d does not define hashCode and equals so we must use our own.
                 MCObjectUtils.equals(start, other.start) &&
                 MCObjectUtils.equals(end, other.end) &&
                 MCObjectUtils.equals(direction, other.direction);

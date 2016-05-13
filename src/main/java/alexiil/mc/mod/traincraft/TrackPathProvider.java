@@ -10,8 +10,8 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.track.ITrackBlock;
@@ -23,7 +23,7 @@ public enum TrackPathProvider implements ITrackProvider {
     private Map<Block, ITrackBlock> registeredBlocks = new HashMap<>();
 
     @Override
-    public BehaviourWrapper getTrackFromPoint(World accces, BlockPos pos, IBlockState state, Vec3 from) {
+    public BehaviourWrapper getTrackFromPoint(World accces, BlockPos pos, IBlockState state, Vec3d from) {
         ITrackBlock block = getBlockFor(state);
         if (block == null) return null;
         return block.currentBehaviour(accces, pos, state, from);

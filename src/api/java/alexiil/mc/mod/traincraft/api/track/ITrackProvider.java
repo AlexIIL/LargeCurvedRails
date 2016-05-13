@@ -5,15 +5,15 @@ import java.util.stream.Stream;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 
 public interface ITrackProvider {
-    BehaviourWrapper getTrackFromPoint(World accces, BlockPos pos, IBlockState state, Vec3 from);
+    BehaviourWrapper getTrackFromPoint(World accces, BlockPos pos, IBlockState state, Vec3d from);
 
     BehaviourWrapper[] getTracksAsArray(World world, BlockPos pos, IBlockState state);
 

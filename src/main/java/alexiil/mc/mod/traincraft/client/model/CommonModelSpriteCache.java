@@ -6,12 +6,12 @@ import java.util.List;
 import javax.vecmath.Matrix4f;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.IModel;
@@ -110,11 +110,11 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
         for (int i = 0; i < numSleepers; i++) {
             List<BakedQuad> sleeper = sleepers.get(sleeperIndex);
             if (reverse) {
-                sleeper = ModelUtil.multiplyMatrix(sleeper, MatrixUtil.rotateTo(new Vec3(0, 0, -1)));
+                sleeper = ModelUtil.multiplyMatrix(sleeper, MatrixUtil.rotateTo(new Vec3d(0, 0, -1)));
             }
             sleeper = ModelUtil.multiplyMatrix(sleeper, MatrixUtil.rotateTo(path.direction(offset)));
 
-            Vec3 translationVec = path.interpolate(offset).subtract(new Vec3(path.creatingBlock()));
+            Vec3d translationVec = path.interpolate(offset).subtract(new Vec3d(path.creatingBlock()));
             Matrix4f translation = MatrixUtil.translation(translationVec);
             sleeper = ModelUtil.multiplyMatrix(sleeper, translation);
 
@@ -172,17 +172,17 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
         for (int i = 0; i < numRailJoints; i++) {
             if (currentV + railDist > 1) currentV = 0;
             double vL = 16 * currentV;
-            Vec3 railStartMiddle = path.interpolate(offset).addVector(0, args.yOffset(), 0);
-            Vec3 railStartDir = path.direction(offset);
+            Vec3d railStartMiddle = path.interpolate(offset).addVector(0, args.yOffset(), 0);
+            Vec3d railStartDir = path.direction(offset);
 
             offset += railDist;
             currentV += railDist;
             double vH = 16 * currentV;
 
-            Vec3 railEndMiddle = path.interpolate(offset).addVector(0, args.yOffset(), 0);
-            Vec3 railEndDir = path.direction(offset);
+            Vec3d railEndMiddle = path.interpolate(offset).addVector(0, args.yOffset(), 0);
+            Vec3d railEndDir = path.direction(offset);
             if (args.left()) {
-                Vec3[][] vecs = { { railStartMiddle, railStartDir }, { railEndMiddle, railEndDir } };
+                Vec3d[][] vecs = { { railStartMiddle, railStartDir }, { railEndMiddle, railEndDir } };
                 float[][] uvs = { //
                     { args.railSprite().getInterpolatedU(args.uMin()), args.railSprite().getInterpolatedU(args.uMax()) },//
                     { args.railSprite().getInterpolatedV(vL), args.railSprite().getInterpolatedV(vH) } //
@@ -190,7 +190,7 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
                 list.addAll(makeQuads(vecs, uvs, args.radius(), args.width()));
             }
             if (args.right()) {
-                Vec3[][] vecs = { { railStartMiddle, railStartDir }, { railEndMiddle, railEndDir } };
+                Vec3d[][] vecs = { { railStartMiddle, railStartDir }, { railEndMiddle, railEndDir } };
                 float[][] uvs = { //
                     { args.railSprite().getInterpolatedU(args.uMax()), args.railSprite().getInterpolatedU(args.uMin()) },//
                     { args.railSprite().getInterpolatedV(vL), args.railSprite().getInterpolatedV(vH) } //
@@ -222,28 +222,28 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
      * @param centerDist
      * @param width
      * @return */
-    private static List<BakedQuad> makeQuads(Vec3[][] coords, float[][] uvs, double centerDist, double width) {
-        Vec3 otherDirStart = MathUtil.cross(coords[0][1], new Vec3(0, 1, 0)).normalize();
-        Vec3 otherDirEnd = MathUtil.cross(coords[1][1], new Vec3(0, 1, 0)).normalize();
+    private static List<BakedQuad> makeQuads(Vec3d[][] coords, float[][] uvs, double centerDist, double width) {
+        Vec3d otherDirStart = MathUtil.cross(coords[0][1], new Vec3d(0, 1, 0)).normalize();
+        Vec3d otherDirEnd = MathUtil.cross(coords[1][1], new Vec3d(0, 1, 0)).normalize();
 
-        Vec3[] normal = { // All faces:
-            new Vec3(0, 1, 0), // up
-            new Vec3(0, -1, 0), // down
+        Vec3d[] normal = { // All faces:
+            new Vec3d(0, 1, 0), // up
+            new Vec3d(0, -1, 0), // down
             replaceY(0, coords[0][1]).normalize(), // forwards
-            replaceY(0, coords[1][1]).normalize().subtractReverse(new Vec3(0, 0, 0)), // backwards
+            replaceY(0, coords[1][1]).normalize().subtractReverse(new Vec3d(0, 0, 0)), // backwards
             otherDirStart, // left
             otherDirEnd // right
         };
-        Vec3[] t = { // This comment actually just keeps the formatter happy
+        Vec3d[] t = { // This comment actually just keeps the formatter happy
             coords[0][0].add(MathUtil.scale(otherDirStart, centerDist + width / 2)), // Start Outer
             coords[0][0].add(MathUtil.scale(otherDirStart, centerDist - width / 2)),// Start Inner
             coords[1][0].add(MathUtil.scale(otherDirEnd, centerDist + width / 2)), // End Outer
             coords[1][0].add(MathUtil.scale(otherDirEnd, centerDist - width / 2)),// End Inner
         };
 
-        Vec3[] b = { down(t[0]), down(t[1]), down(t[2]), down(t[3]) };// Same as tops but down
+        Vec3d[] b = { down(t[0]), down(t[1]), down(t[2]), down(t[3]) };// Same as tops but down
 
-        Vec3[][][] pos = {// Very happy formatter right now
+        Vec3d[][][] pos = {// Very happy formatter right now
             { { t[0], t[1] }, { t[2], t[3] } }, // Up
             { { b[1], b[0] }, { b[3], b[2] } }, // Down
             { { t[1], t[0] }, { b[1], b[0] } }, // Forwards
@@ -264,15 +264,15 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
         return makeQuads(pos, tex, normal);
     }
 
-    private static Vec3 replaceY(int y, Vec3 v) {
-        return new Vec3(v.xCoord, y, v.zCoord);
+    private static Vec3d replaceY(int y, Vec3d v) {
+        return new Vec3d(v.xCoord, y, v.zCoord);
     }
 
-    private static Vec3 down(Vec3 vec) {
+    private static Vec3d down(Vec3d vec) {
         return vec.addVector(0, -1 / 16d, 0);
     }
 
-    private static List<BakedQuad> makeQuads(Vec3[][][] pos, float[][][] tex, Vec3[] normal) {
+    private static List<BakedQuad> makeQuads(Vec3d[][][] pos, float[][][] tex, Vec3d[] normal) {
         List<MutableQuad> quads = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             quads.add(makeQuad(pos[i], tex[i], normal[i]));
@@ -281,7 +281,7 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
         return ModelSplitter.makeVanilla(quads, MutableQuad.ITEM_LMAP);
     }
 
-    private static MutableQuad makeQuad(Vec3[][] pos, float[][] tex, Vec3 normal) {
+    private static MutableQuad makeQuad(Vec3d[][] pos, float[][] tex, Vec3d normal) {
         Vertex[] verticies = new Vertex[] { new Vertex(), new Vertex(), new Vertex(), new Vertex() };
         verticies[0].positionvd(pos[0][1]).colourf(1, 1, 1, 1).lighti(0, 0).texf(tex[0][1], tex[1][0]).normalvd(normal);
         verticies[1].positionvd(pos[0][0]).colourf(1, 1, 1, 1).lighti(0, 0).texf(tex[0][0], tex[1][0]).normalvd(normal);

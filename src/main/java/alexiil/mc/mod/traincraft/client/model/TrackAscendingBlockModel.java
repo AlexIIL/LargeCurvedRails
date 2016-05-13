@@ -6,11 +6,11 @@ import java.util.List;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
@@ -62,19 +62,19 @@ public class TrackAscendingBlockModel extends TrackGenericBlockModel {
         if (dir == EnumDirection.EAST_WEST) mf = mf.getOpposite();
         // It must be an ascending track that goes along a normal axis.
         TrackPathStraight straight = (TrackPathStraight) path;
-        Vec3 planePoint = straight.interpolate(0.5).addVector(0, -BlockAbstractTrack.TRACK_HEIGHT, 0);
-        Vec3 planeNormal = new Vec3(0, ascending.length, 0);
-        planeNormal = planeNormal.add(new Vec3(BlockPos.ORIGIN.offset(mf, -1)));
+        Vec3d planePoint = straight.interpolate(0.5).addVector(0, -BlockAbstractTrack.TRACK_HEIGHT, 0);
+        Vec3d planeNormal = new Vec3d(0, ascending.length, 0);
+        planeNormal = planeNormal.add(new Vec3d(BlockPos.ORIGIN.offset(mf, -1)));
         Plane plane = new Plane(planePoint, planeNormal);
 
-        List<BakedQuad> materialQuads = new ArrayList<>(materialBaked.getGeneralQuads());
+        List<BakedQuad> materialQuads = new ArrayList<>(materialBaked.getQuads(materialState, null, 0));
         for (EnumFacing face : EnumFacing.values())
-            materialQuads.addAll(materialBaked.getFaceQuads(face));
+            materialQuads.addAll(materialBaked.getQuads(materialState, face, 0));
 
         List<MutableQuad> mutableMaterial = ModelSplitter.makeMutable(materialQuads, DefaultVertexFormats.BLOCK);
         List<MutableQuad> allOffsets = new ArrayList<>();
         for (BlockPos offset : ascending.slaveOffsets(straight)) {
-            allOffsets.addAll(ModelSplitter.offset(mutableMaterial, new Vec3(offset)));
+            allOffsets.addAll(ModelSplitter.offset(mutableMaterial, new Vec3d(offset)));
         }
         List<MutableQuad>[] bisected = ModelSplitter.bisect(allOffsets, plane);
         List<MutableQuad> squishedQuadList = ModelSplitter.squashBisected(bisected, plane, Face.AWAY);

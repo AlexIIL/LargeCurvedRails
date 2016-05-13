@@ -12,9 +12,9 @@ import com.google.common.collect.Table;
 
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -32,8 +32,7 @@ import alexiil.mc.mod.traincraft.property.TrainCraftExtendedProperty;
 public class BlockTrackAscending extends BlockTrackSeperated {
     /** Designates whether this track ascends towards the first or second axis given by {@link EnumDirection}. */
     public static final PropertyBool ASCEND_DIRECTION = PropertyBool.create("ascend_direction");
-    public static final TrainCraftExtendedProperty<BlockStatePropWrapper> MATERIAL_TYPE = new TrainCraftExtendedProperty<>("material_type",
-            BlockStatePropWrapper.class);
+    public static final TrainCraftExtendedProperty<BlockStatePropWrapper> MATERIAL_TYPE = new TrainCraftExtendedProperty<>("material_type", BlockStatePropWrapper.class);
 
     public final int length;
     private final Table<EnumDirection, Boolean, ITrackPath> pathTable = HashBasedTable.create();
@@ -52,23 +51,23 @@ public class BlockTrackAscending extends BlockTrackSeperated {
         }
 
         // NORTH_SOUTH
-        TrackPathStraight straight = new TrackPathStraight(new Vec3(0.5, TRACK_HEIGHT, 0), new Vec3(0.5, TRACK_HEIGHT + 1, length), creator);
+        TrackPathStraight straight = new TrackPathStraight(new Vec3d(0.5, TRACK_HEIGHT, 0), new Vec3d(0.5, TRACK_HEIGHT + 1, length), creator);
         pathTable.put(EnumDirection.NORTH_SOUTH, true, straight);
         Set<BlockPos> positions = IntStream.range(0, length).mapToObj((i) -> new BlockPos(0, 0, i)).collect(Collectors.toSet());
         slaveOffsets.put(straight, positions);
 
-        straight = new TrackPathStraight(new Vec3(0.5, TRACK_HEIGHT, 1), new Vec3(0.5, TRACK_HEIGHT + 1, 1 - length), creator);
+        straight = new TrackPathStraight(new Vec3d(0.5, TRACK_HEIGHT, 1), new Vec3d(0.5, TRACK_HEIGHT + 1, 1 - length), creator);
         pathTable.put(EnumDirection.NORTH_SOUTH, false, straight);
         positions = IntStream.range(0, length).mapToObj((i) -> new BlockPos(0, 0, -i)).collect(Collectors.toSet());
         slaveOffsets.put(straight, positions);
 
         // EAST_WEST
-        straight = new TrackPathStraight(new Vec3(0, TRACK_HEIGHT, 0.5), new Vec3(length, TRACK_HEIGHT + 1, 0.5), creator);
+        straight = new TrackPathStraight(new Vec3d(0, TRACK_HEIGHT, 0.5), new Vec3d(length, TRACK_HEIGHT + 1, 0.5), creator);
         pathTable.put(EnumDirection.EAST_WEST, true, straight);
         positions = IntStream.range(0, length).mapToObj((i) -> new BlockPos(i, 0, 0)).collect(Collectors.toSet());
         slaveOffsets.put(straight, positions);
 
-        straight = new TrackPathStraight(new Vec3(1, TRACK_HEIGHT, 0.5), new Vec3(1 - length, TRACK_HEIGHT + 1, 0.5), creator);
+        straight = new TrackPathStraight(new Vec3d(1, TRACK_HEIGHT, 0.5), new Vec3d(1 - length, TRACK_HEIGHT + 1, 0.5), creator);
         pathTable.put(EnumDirection.EAST_WEST, false, straight);
         positions = IntStream.range(0, length).mapToObj((i) -> new BlockPos(-i, 0, 0)).collect(Collectors.toSet());
         slaveOffsets.put(straight, positions);
@@ -118,7 +117,7 @@ public class BlockTrackAscending extends BlockTrackSeperated {
     }
 
     @Override
-    public boolean shouldSideBeRendered(IBlockAccess access, BlockPos pos, EnumFacing side) {
+    public boolean shouldSideBeRendered(IBlockState state, IBlockAccess access, BlockPos pos, EnumFacing side) {
         return true;
     }
 

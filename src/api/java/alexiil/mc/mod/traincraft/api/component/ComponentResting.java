@@ -4,11 +4,10 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 
 import alexiil.mc.mod.traincraft.api.track.behaviour.BehaviourWrapper;
-import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 import alexiil.mc.mod.traincraft.api.train.AlignmentFailureException;
 import alexiil.mc.mod.traincraft.api.train.IRollingStock;
 
@@ -137,20 +136,20 @@ public abstract class ComponentResting implements IComponentOuter {
     }
 
     @Override
-    public Vec3 getTrackPos(float partialTicks) {
-        Vec3 front = scale(childFront.getTrackPos(partialTicks), frontBack);
-        Vec3 back = scale(childBack.getTrackPos(partialTicks), 1 - frontBack);
+    public Vec3d getTrackPos(float partialTicks) {
+        Vec3d front = scale(childFront.getTrackPos(partialTicks), frontBack);
+        Vec3d back = scale(childBack.getTrackPos(partialTicks), 1 - frontBack);
         return front.add(back);
     }
 
-    public static Vec3 scale(Vec3 v, double s) {
-        return new Vec3(v.xCoord * s, v.yCoord * s, v.zCoord * s);
+    public static Vec3d scale(Vec3d v, double s) {
+        return new Vec3d(v.xCoord * s, v.yCoord * s, v.zCoord * s);
     }
 
     @Override
-    public Vec3 getTrackDirection(float partialTicks) {
-        Vec3 front = childFront.getTrackPos(partialTicks);
-        Vec3 back = childBack.getTrackPos(partialTicks);
+    public Vec3d getTrackDirection(float partialTicks) {
+        Vec3d front = childFront.getTrackPos(partialTicks);
+        Vec3d back = childBack.getTrackPos(partialTicks);
         return back.subtract(front).normalize();
     }
 

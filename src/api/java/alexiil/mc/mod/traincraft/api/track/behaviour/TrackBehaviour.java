@@ -8,9 +8,9 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.INBTSerializable;
@@ -64,9 +64,9 @@ public abstract class TrackBehaviour {
         // Calculate slaves
         for (int i = 0; i < path.length() * 5; i++) {
             double offset = (i + 0.5) / path.length();
-            Vec3 pos = path.interpolate(offset);
-            Vec3 dir = path.direction(offset);
-            dir = MathUtil.cross(dir, new Vec3(0, 1, 0)).normalize();
+            Vec3d pos = path.interpolate(offset);
+            Vec3d dir = path.direction(offset);
+            dir = MathUtil.cross(dir, new Vec3d(0, 1, 0)).normalize();
 
             tmpSet.add(new BlockPos(pos.add(MathUtil.scale(dir, 0.4))));
             tmpSet.add(new BlockPos(pos));

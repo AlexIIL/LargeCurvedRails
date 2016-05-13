@@ -3,13 +3,13 @@ package alexiil.mc.mod.traincraft.block;
 import java.util.*;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -40,6 +40,8 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
         /** D */ // UNUSED
         // @formatter:on
 
+        public static final EnumOffset[] VALUES = values();
+
         public final BlockPos offset;
         private final String dispName;
 
@@ -47,6 +49,10 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
             this.offset = new BlockPos(x, y, z);
             dispName = name().replace("_", "_with_").replace("N", "_negative_").replace("P", "_positive_").toLowerCase(Locale.ROOT);
             OFFSET_MAP.put(offset, this);
+        }
+
+        public static EnumOffset fromMeta(int meta) {
+            return VALUES[meta & 15];
         }
 
         @Override
@@ -62,30 +68,29 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
      * future they are all accounted for. */
     private static final int MAX_TRIES = 90;
 
-    protected BlockTrackPointer(IProperty<?>... properties) {
-        super(properties);
-    }
+    public BlockTrackPointer() {}
 
-    public BlockTrackPointer() {
-        super(PROP_OFFSET);
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, PROP_OFFSET);
     }
 
     @Override
-    public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
-        return BOUNDING_BOX.offset(pos.getX(), pos.getY(), pos.getZ());
+    public int getMetaFromState(IBlockState state) {
+        return state.getValue(PROP_OFFSET).ordinal();
     }
 
     @Override
-    public AxisAlignedBB getSelectedBoundingBox(World worldIn, BlockPos pos) {
-        return BOUNDING_BOX.offset(pos.getX(), pos.getY(), pos.getZ());
+    public IBlockState getStateFromMeta(int meta) {
+        return getDefaultState().withProperty(PROP_OFFSET, EnumOffset.fromMeta(meta));
     }
 
     @Override
-    public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-        setBlockBounds(0, 0, 0, 1, TRACK_HEIGHT, 1);
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        return BOUNDING_BOX;
     }
 
-    /** Attemots to find the master for this block. If it cannot be found the null is returned. */
+    /** Attempts to find the master for this block. If it cannot be found the null is returned. */
     public BlockPos master(World world, BlockPos pos, IBlockState state) {
         try {
             return findMaster(world, pos, state);

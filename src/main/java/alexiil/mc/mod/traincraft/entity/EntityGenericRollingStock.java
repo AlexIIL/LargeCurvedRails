@@ -12,7 +12,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.*;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.capabilities.Capability;
@@ -47,7 +52,7 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
     private Connector connectorFront, connectorBack;
 
     private StockPathFinder pathFinder = new StockPathFinder(this);
-    private Vec3 lookVec = new Vec3(0, 0, 1);
+    private Vec3d lookVec = new Vec3d(0, 0, 1);
 
     /** Speed (in meters per tick). This will always have the same sign as all other stocks in this train, and will be
      * inverted if this joins a train going in the other direction. */
@@ -85,10 +90,10 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
     }
 
     /** Rotates the given bounding box from poiting towards (0, 0, 1) to the given direction. */
-    private static AxisAlignedBB rotate(AxisAlignedBB aabb, Vec3 dir) {
+    private static AxisAlignedBB rotate(AxisAlignedBB aabb, Vec3d dir) {
         Matrix4f matrix = MatrixUtil.rotateTo(dir);
-        Vec3 min = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-        Vec3 max = new Vec3(-Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE);
+        Vec3d min = new Vec3d(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+        Vec3d max = new Vec3d(-Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE);
         boolean[] arr = { false, true };
         for (boolean x : arr) {
             for (boolean y : arr) {
@@ -100,12 +105,12 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
                     );
                     Point3f pf = new Point3f(pd);
                     matrix.transform(pf);
-                    min = new Vec3(//
+                    min = new Vec3d(//
                             Math.min(min.xCoord, pf.x),//
                             Math.min(min.yCoord, pf.y),//
                             Math.min(min.zCoord, pf.z) //
                     );
-                    max = new Vec3(//
+                    max = new Vec3d(//
                             Math.max(max.xCoord, pf.x),//
                             Math.max(max.yCoord, pf.y),//
                             Math.max(max.zCoord, pf.z) //
@@ -120,7 +125,7 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
     public void applyEntityCollision(Entity entity) {
         if (entity.riddenByEntity != this && entity.ridingEntity != this) {
             if (!entity.noClip && !this.noClip) {
-                Vec3 look = mainComponent.getTrackDirection();
+                Vec3d look = mainComponent.getTrackDirection();
                 double speed = speedMPT * 10;
                 entity.motionX += look.xCoord * speed;
                 entity.motionY += look.yCoord * speed + 0.1;
@@ -147,22 +152,22 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
     }
 
     @Override
-    public Vec3 getPathPosition() {
+    public Vec3d getPathPosition() {
         return mainComponent.getTrackPos();
     }
 
     @Override
-    public Vec3 getPathDirection(Face direction) {
+    public Vec3d getPathDirection(Face direction) {
         return mainComponent.getTrackDirection();
     }
 
     @SideOnly(Side.CLIENT)
-    public Vec3 getInterpolatedPosition(float partialTicks) {
+    public Vec3d getInterpolatedPosition(float partialTicks) {
         return mainComponent.getTrackPos(partialTicks);
     }
 
     @SideOnly(Side.CLIENT)
-    public Vec3 getInterpolatedDirection(float partialTicks) {
+    public Vec3d getInterpolatedDirection(float partialTicks) {
         return mainComponent.getTrackDirection(partialTicks);
     }
 
@@ -193,7 +198,7 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
     public void onUpdate() {
         super.onUpdate();
         mainComponent.tick();
-        Vec3 pos = getPathPosition();
+        Vec3d pos = getPathPosition();
         setPosition(pos.xCoord, pos.yCoord, pos.zCoord);
         lookVec = mainComponent.getTrackDirection();
 
@@ -264,7 +269,7 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
     @Override
     protected void writeEntityToNBT(NBTTagCompound tagCompound) {}
 
-    public boolean alignFromPlayer(Vec3 lookDir, Vec3 lookPoint, boolean simulate) throws AlignmentFailureException {
+    public boolean alignFromPlayer(Vec3d lookDir, Vec3d lookPoint, boolean simulate) throws AlignmentFailureException {
         MovingObjectPosition pos = worldObj.rayTraceBlocks(lookPoint, lookPoint.add(MathUtil.scale(lookDir, 4)), false);
         if (pos == null) throw new AlignmentFailureException();
         List<BehaviourWrapper> paths = new ArrayList<>();
@@ -297,7 +302,7 @@ public final class EntityGenericRollingStock extends Entity implements IRollingS
     public boolean alignToPath(BehaviourWrapper behaviour, double interp, boolean simulate) throws AlignmentFailureException {
         pathFinder = new StockPathFinder(this, behaviour);
         mainComponent.alignTo(behaviour, behaviour.getPath().length() * interp, simulate);
-        Vec3 vec = getPathPosition();
+        Vec3d vec = getPathPosition();
         setPosition(vec.xCoord, vec.yCoord, vec.zCoord);
 
         boolean connected = connectorFront.attemptJoinAround(simulate);

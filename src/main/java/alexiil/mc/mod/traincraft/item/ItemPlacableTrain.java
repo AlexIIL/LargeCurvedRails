@@ -3,7 +3,7 @@ package alexiil.mc.mod.traincraft.item;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.train.AlignmentFailureException;
@@ -15,8 +15,8 @@ public abstract class ItemPlacableTrain extends Item {
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
         EntityGenericRollingStock entity = createRollingStock(world);
         try {
-            Vec3 lookVec = player.getLookVec().normalize();
-            Vec3 lookFrom = new Vec3(player.posX, player.posY + player.getEyeHeight(), player.posZ);
+            Vec3d lookVec = player.getLookVec().normalize();
+            Vec3d lookFrom = new Vec3d(player.posX, player.posY + player.getEyeHeight(), player.posZ);
             entity.alignFromPlayer(lookVec, lookFrom, false);
             if (!world.isRemote) world.spawnEntityInWorld(entity);
         } catch (AlignmentFailureException afe) {

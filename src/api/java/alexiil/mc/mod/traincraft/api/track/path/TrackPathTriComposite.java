@@ -1,6 +1,6 @@
 package alexiil.mc.mod.traincraft.api.track.path;
 
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 public class TrackPathTriComposite<A extends ITrackPath, B extends ITrackPath, C extends ITrackPath> extends TrackPathCompositeBase {
     private final A pathA;

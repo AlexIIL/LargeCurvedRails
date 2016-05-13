@@ -2,12 +2,12 @@ package alexiil.mc.mod.traincraft.client.model;
 
 import javax.vecmath.Vector3d;
 
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 public class Plane {
-    public final Vec3 point, normal;
+    public final Vec3d point, normal;
 
-    public Plane(Vec3 onPlane, Vec3 normal) {
+    public Plane(Vec3d onPlane, Vec3d normal) {
         point = onPlane;
         this.normal = normal.normalize();
     }
@@ -20,7 +20,7 @@ public class Plane {
         return Split.PASSES_THROUGH_PLANE;
     }
 
-    public Face getSide(Vec3 point) {
+    public Face getSide(Vec3d point) {
         Vector3d pMinusPlaneP = convertToMutable(point);
         pMinusPlaneP.sub(convertToMutable(this.point));
         double dot = pMinusPlaneP.dot(convertToMutable(normal));
@@ -29,14 +29,14 @@ public class Plane {
         return Face.AWAY;
     }
 
-    private static Vector3d convertToMutable(Vec3 p) {
+    private static Vector3d convertToMutable(Vec3d p) {
         return new Vector3d(p.xCoord, p.yCoord, p.zCoord);
     }
 
     /** Gets a point that is contained by the line, but only if the line returns {@link Split#PASSES_THROUGH_PLANE} from
      * {@link #getSplit(Line)}
      * 
-     * @return a point that returns {@value Face#IN_PLANE} when passed to {@link #getSide(Vec3)} */
+     * @return a point that returns {@value Face#IN_PLANE} when passed to {@link #getSide(Vec3d)} */
     public Interpolation getOnPlane(Line line) {
         if (getSplit(line) != Split.PASSES_THROUGH_PLANE) throw new IllegalArgumentException("The line did not pass through the plane!");
         Vector3d linePoint = convertToMutable(line.start);
@@ -49,37 +49,37 @@ public class Plane {
         double pointMinusLdotN = pointMinusL.dot(normal);
 
         double interp = Math.abs(pointMinusLdotN / lDotN);
-        Vec3 pos = line.start.add(scale(line.end.subtract(line.start), interp));
+        Vec3d pos = line.start.add(scale(line.end.subtract(line.start), interp));
         return new Interpolation(line, pos, interp);
     }
 
     public static class Line {
-        public final Vec3 start, end;
+        public final Vec3d start, end;
 
-        public Line(Vec3 start, Vec3 end) {
+        public Line(Vec3d start, Vec3d end) {
             this.start = start;
             this.end = end;
         }
 
-        public static Line createLongLine(Vec3 start, Vec3 direction) {
+        public static Line createLongLine(Vec3d start, Vec3d direction) {
             return new Line(start, scale(direction, 1024));
         }
 
-        public Vec3 interpolate(double interp) {
+        public Vec3d interpolate(double interp) {
             return scale(start, 1 - interp).add(scale(end, interp));
         }
     }
 
-    private static Vec3 scale(Vec3 vec, double by) {
-        return new Vec3(vec.xCoord * by, vec.yCoord * by, vec.zCoord * by);
+    private static Vec3d scale(Vec3d vec, double by) {
+        return new Vec3d(vec.xCoord * by, vec.yCoord * by, vec.zCoord * by);
     }
 
     public static class Interpolation {
         public final Line lineFrom;
-        public final Vec3 point;
+        public final Vec3d point;
         public final double interp;
 
-        public Interpolation(Line lineFrom, Vec3 point, double interp) {
+        public Interpolation(Line lineFrom, Vec3d point, double interp) {
             this.lineFrom = lineFrom;
             this.point = point;
             this.interp = interp;

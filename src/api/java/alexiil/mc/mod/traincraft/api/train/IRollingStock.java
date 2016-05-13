@@ -1,7 +1,7 @@
 package alexiil.mc.mod.traincraft.api.train;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 import alexiil.mc.mod.traincraft.api.component.IComponentOuter;
 import alexiil.mc.mod.traincraft.api.control.DumbController;
@@ -51,9 +51,9 @@ public interface IRollingStock {
     /** Gets the current position this rolling stock considers itself to be in. This is used by
      * {@link StockPathFinder#requestNextTrackPath(IRollingStock, ITrackPath)} if the given path is null or is not
      * contained by the train in order to find a path to follow. */
-    Vec3 getPathPosition();
+    Vec3d getPathPosition();
 
-    Vec3 getPathDirection(Face direction);
+    Vec3d getPathDirection(Face direction);
 
     Connector getConnector(Face direction);
 

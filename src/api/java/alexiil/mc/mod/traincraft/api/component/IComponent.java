@@ -1,8 +1,8 @@
 package alexiil.mc.mod.traincraft.api.component;
 
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
@@ -17,17 +17,17 @@ public interface IComponent {
 
     void tick();
 
-    default Vec3 getTrackPos() {
+    default Vec3d getTrackPos() {
         return getTrackPos(0);
     }
 
-    Vec3 getTrackPos(float partialTicks);
+    Vec3d getTrackPos(float partialTicks);
 
-    default Vec3 getTrackDirection() {
+    default Vec3d getTrackDirection() {
         return getTrackDirection(0);
     }
 
-    Vec3 getTrackDirection(float partialTicks);
+    Vec3d getTrackDirection(float partialTicks);
 
     @SideOnly(Side.CLIENT)
     void render(IRollingStock stock, float partialTicks);

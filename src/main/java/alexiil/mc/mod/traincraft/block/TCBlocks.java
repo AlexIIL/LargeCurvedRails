@@ -16,17 +16,17 @@ import alexiil.mc.mod.traincraft.track.Curve;
 public enum TCBlocks {
     TRACK_STRAIGHT(() -> new BlockTrackStraight()),
     /* 45 degree turns */
-    TRACK_CURVED_HALF_3_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_3, 1, 2)),
-    TRACK_CURVED_HALF_5_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_5, 1.5, 3.5)),
-    TRACK_CURVED_HALF_7_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_7, 2, 5)),
-    TRACK_CURVED_HALF_9_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_9, 2.5, 6.5)),
-    TRACK_CURVED_HALF_11_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_11, 3, 8)),
+    TRACK_CURVED_HALF_3_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_3)),
+    TRACK_CURVED_HALF_5_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_5)),
+    TRACK_CURVED_HALF_7_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_7)),
+    TRACK_CURVED_HALF_9_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_9)),
+    TRACK_CURVED_HALF_11_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_11)),
     /* 90 degree turns */
-    TRACK_CURVED_FULL_3_RADIUS(() -> new BlockTrackCurvedFull(Curve.RADIUS_3, 3.5)),
-    TRACK_CURVED_FULL_5_RADIUS(() -> new BlockTrackCurvedFull(Curve.RADIUS_5, 5.5)),
-    TRACK_CURVED_FULL_7_RADIUS(() -> new BlockTrackCurvedFull(Curve.RADIUS_7, 7.5)),
-    TRACK_CURVED_FULL_9_RADIUS(() -> new BlockTrackCurvedFull(Curve.RADIUS_9, 9.5)),
-    TRACK_CURVED_FULL_11_RADIUS(() -> new BlockTrackCurvedFull(Curve.RADIUS_11, 11.5)),
+    TRACK_CURVED_FULL_3_RADIUS(() -> new BlockTrackCurvedFull(Curve.RADIUS_3)),
+    TRACK_CURVED_FULL_5_RADIUS(() -> new BlockTrackCurvedFull(Curve.RADIUS_5)),
+    TRACK_CURVED_FULL_7_RADIUS(() -> new BlockTrackCurvedFull(Curve.RADIUS_7)),
+    TRACK_CURVED_FULL_9_RADIUS(() -> new BlockTrackCurvedFull(Curve.RADIUS_9)),
+    TRACK_CURVED_FULL_11_RADIUS(() -> new BlockTrackCurvedFull(Curve.RADIUS_11)),
     /* Ascending tracks */
     TRACK_ASCENDING_3_LONG(() -> new BlockTrackAscending(3)),
     TRACK_ASCENDING_4_LONG(() -> new BlockTrackAscending(4)),

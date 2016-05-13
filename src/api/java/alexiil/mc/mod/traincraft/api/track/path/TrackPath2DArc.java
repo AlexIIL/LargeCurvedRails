@@ -2,10 +2,10 @@ package alexiil.mc.mod.traincraft.api.track.path;
 
 import java.util.Objects;
 
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -14,14 +14,14 @@ import alexiil.mc.mod.traincraft.api.lib.MCObjectUtils;
 
 public class TrackPath2DArc implements ITrackPath {
     private final BlockPos creator;
-    private final Vec3 center;
+    private final Vec3d center;
     private final double radius, angleStart, angleEnd, length;
 
-    public static TrackPath2DArc createDegrees(BlockPos creator, Vec3 center, double radius, int start, int end) {
+    public static TrackPath2DArc createDegrees(BlockPos creator, Vec3d center, double radius, int start, int end) {
         return new TrackPath2DArc(creator, center, radius, start * Math.PI / 180, end * Math.PI / 180);
     }
 
-    public TrackPath2DArc(BlockPos creator, Vec3 center, double radius, double start, double end) {
+    public TrackPath2DArc(BlockPos creator, Vec3d center, double radius, double start, double end) {
         this.creator = creator;
         this.center = center;
         this.radius = radius;
@@ -36,14 +36,14 @@ public class TrackPath2DArc implements ITrackPath {
     }
 
     @Override
-    public Vec3 interpolate(double position) {
+    public Vec3d interpolate(double position) {
         float angle = (float) (angleStart * (1 - position) + angleEnd * position);
-        Vec3 vec = new Vec3(radius * MathHelper.cos(angle), 0, radius * MathHelper.sin(angle));
-        return center.add(vec).add(new Vec3(creator));
+        Vec3d vec = new Vec3d(radius * MathHelper.cos(angle), 0, radius * MathHelper.sin(angle));
+        return center.add(vec).add(new Vec3d(creator));
     }
 
     @Override
-    public Vec3 direction(double position) {
+    public Vec3d direction(double position) {
         if (position < 1) return interpolate(position + 0.01).subtract(interpolate(position)).normalize();
 
         // WARNING: MATHS!
@@ -72,7 +72,7 @@ public class TrackPath2DArc implements ITrackPath {
         // float z = r * g;
         float dz_do = r * dg_do;
 
-        return new Vec3(dx_do, 0, dz_do).normalize();
+        return new Vec3d(dx_do, 0, dz_do).normalize();
     }
 
     @Override
@@ -87,19 +87,19 @@ public class TrackPath2DArc implements ITrackPath {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void renderInfo(WorldRenderer wr) {
-        Vec3 c = center.add(new Vec3(creator));
+    public void renderInfo(VertexBuffer vb) {
+        Vec3d c = center.add(new Vec3d(creator));
 
-        Vec3 s = start();
-        wr.pos(c.xCoord, c.yCoord, c.zCoord).color(0, 0, 255, 255).endVertex();
-        wr.pos(s.xCoord, s.yCoord, s.zCoord).color(0, 0, 255, 255).endVertex();
+        Vec3d s = start();
+        vb.pos(c.xCoord, c.yCoord, c.zCoord).color(0, 0, 255, 255).endVertex();
+        vb.pos(s.xCoord, s.yCoord, s.zCoord).color(0, 0, 255, 255).endVertex();
 
-        Vec3 e = end();
-        wr.pos(c.xCoord, c.yCoord, c.zCoord).color(0, 0, 255, 255).endVertex();
-        wr.pos(e.xCoord, e.yCoord, e.zCoord).color(0, 0, 255, 255).endVertex();
+        Vec3d e = end();
+        vb.pos(c.xCoord, c.yCoord, c.zCoord).color(0, 0, 255, 255).endVertex();
+        vb.pos(e.xCoord, e.yCoord, e.zCoord).color(0, 0, 255, 255).endVertex();
 
-        wr.pos(c.xCoord, c.yCoord, c.zCoord).color(255, 255, 0, 255).endVertex();
-        wr.pos(c.xCoord, c.yCoord + 0.3, c.zCoord).color(255, 255, 0, 255).endVertex();
+        vb.pos(c.xCoord, c.yCoord, c.zCoord).color(255, 255, 0, 255).endVertex();
+        vb.pos(c.xCoord, c.yCoord + 0.3, c.zCoord).color(255, 255, 0, 255).endVertex();
     }
 
     @Override

@@ -8,17 +8,17 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.TrackPlacer;
 import alexiil.mc.mod.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mc.mod.traincraft.block.BlockTrackPointer;
+import alexiil.mc.mod.traincraft.block.BlockTrackPointer.EnumOffset;
 import alexiil.mc.mod.traincraft.block.BlockTrackSeperated;
 import alexiil.mc.mod.traincraft.block.TCBlocks;
-import alexiil.mc.mod.traincraft.block.BlockTrackPointer.EnumOffset;
 
 public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> extends ItemBlockTrack {
     public final T seperated;

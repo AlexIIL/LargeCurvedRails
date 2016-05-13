@@ -6,15 +6,19 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
 
 import alexiil.mc.mod.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mc.mod.traincraft.api.track.model.TrackModelProperty;
@@ -26,8 +30,28 @@ public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntit
     public static final PropertyBool TICKABLE = PropertyBool.create("tickable");
     public static final PropertyBool POINTS = PropertyBool.create("points");
 
-    public BlockTrackMultiple() {
-        super(TICKABLE, POINTS, TrackModelProperty.INSTANCE);
+    public BlockTrackMultiple() {}
+
+    @Override
+    protected BlockStateContainer createBlockState() {
+        IProperty<?>[] props = { TICKABLE, POINTS };
+        IUnlistedProperty<?>[] unlisted = { TrackModelProperty.INSTANCE };
+        return new ExtendedBlockState(this, props, unlisted);
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        boolean tickable = (meta & 1) == 1;
+        boolean points = (meta & 2) == 2;
+        return getDefaultState().withProperty(TICKABLE, tickable).withProperty(POINTS, points);
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        int meta = 0;
+        if (state.getValue(TICKABLE)) meta = 1;
+        if (state.getValue(POINTS)) meta |= 2;
+        return meta;
     }
 
     @Override
@@ -45,7 +69,7 @@ public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntit
     }
 
     @Override
-    public BehaviourWrapper currentBehaviour(World world, BlockPos pos, IBlockState state, Vec3 from) {
+    public BehaviourWrapper currentBehaviour(World world, BlockPos pos, IBlockState state, Vec3d from) {
         TileEntity tile = world.getTileEntity(pos);
         if (tile instanceof TileTrackMultiple) {
             TileTrackMultiple mult = (TileTrackMultiple) tile;

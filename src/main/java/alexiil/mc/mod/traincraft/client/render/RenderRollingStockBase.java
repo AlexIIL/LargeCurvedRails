@@ -11,14 +11,14 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -121,7 +121,7 @@ public class RenderRollingStockBase extends Render<EntityGenericRollingStock> {
 
         /* If we are on a track the ignore the actual position of the entity and use whatever rail we are currently
          * on */
-        Vec3 interpPlayerPos = renderManager.livingPlayer.getPositionEyes(partialTicks);
+        Vec3d interpPlayerPos = renderManager.livingPlayer.getPositionEyes(partialTicks);
         interpPlayerPos = interpPlayerPos.subtract(0, renderManager.livingPlayer.getEyeHeight(), 0);
 
         /* Bit hacky, but this basically ignores the position of this entity so we can ignore it entierly and just use

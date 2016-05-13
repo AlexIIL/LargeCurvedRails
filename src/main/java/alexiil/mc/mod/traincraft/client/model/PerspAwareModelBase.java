@@ -1,6 +1,5 @@
 package alexiil.mc.mod.traincraft.client.model;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.vecmath.Matrix4f;
@@ -10,31 +9,25 @@ import com.google.common.collect.ImmutableMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.util.EnumFacing;
 
-import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
-import net.minecraftforge.client.model.TRSRTransformation;
+import net.minecraftforge.common.model.TRSRTransformation;
 
 public class PerspAwareModelBase implements IPerspectiveAwareModel {
-    private final VertexFormat format;
-    // TODO: BakedQuad -> UnpackedBakedQuad
-    // (mc -> forge)
     private final ImmutableList<BakedQuad> quads;
     private final TextureAtlasSprite particle;
-    @SuppressWarnings("deprecation")
     private final ImmutableMap<TransformType, TRSRTransformation> transforms;
 
-    public PerspAwareModelBase(VertexFormat format, ImmutableList<BakedQuad> quads, TextureAtlasSprite particle,
-            @SuppressWarnings("deprecation") ImmutableMap<TransformType, TRSRTransformation> transforms) {
-        this.format = format;
+    public PerspAwareModelBase(ImmutableList<BakedQuad> quads, TextureAtlasSprite particle, ImmutableMap<TransformType, TRSRTransformation> transforms) {
         this.quads = quads == null ? ImmutableList.<BakedQuad> of() : quads;
         this.particle = particle;
         if (transforms == null) {
@@ -47,18 +40,13 @@ public class PerspAwareModelBase implements IPerspectiveAwareModel {
     }
 
     @Override
-    public VertexFormat getFormat() {
-        return format;
+    public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
+        return side == null ? quads : ImmutableList.of();
     }
 
     @Override
-    public List<BakedQuad> getFaceQuads(EnumFacing p_177551_1_) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<BakedQuad> getGeneralQuads() {
-        return quads;
+    public ItemOverrideList getOverrides() {
+        return ItemOverrideList.NONE;
     }
 
     @Override
@@ -82,14 +70,12 @@ public class PerspAwareModelBase implements IPerspectiveAwareModel {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public ItemCameraTransforms getItemCameraTransforms() {
         return ItemCameraTransforms.DEFAULT;
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public Pair<? extends IFlexibleBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
+    public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
         return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, transforms, cameraTransformType);
     }
 }

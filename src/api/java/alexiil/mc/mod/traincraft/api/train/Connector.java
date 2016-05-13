@@ -4,8 +4,8 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.component.IComponentOuter;
@@ -29,8 +29,8 @@ public class Connector {
     public boolean attemptJoin(Connector to, boolean simulate) {
         if (joinedTo != null) return false;
         if (to.joinedTo != null) return false;
-        Vec3 joinPos = componentOuter.getTrackPos().add(MathUtil.scale(componentOuter.getTrackDirection(), offset));
-        Vec3 otherPos = to.componentOuter.getTrackPos().add(MathUtil.scale(to.componentOuter.getTrackDirection(), to.offset));
+        Vec3d joinPos = componentOuter.getTrackPos().add(MathUtil.scale(componentOuter.getTrackDirection(), offset));
+        Vec3d otherPos = to.componentOuter.getTrackPos().add(MathUtil.scale(to.componentOuter.getTrackDirection(), to.offset));
         double dist = joinPos.distanceTo(otherPos);
         if (dist > 0.3) return false;
         if (!simulate) {

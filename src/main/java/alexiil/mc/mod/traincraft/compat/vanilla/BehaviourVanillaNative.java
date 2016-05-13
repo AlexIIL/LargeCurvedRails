@@ -8,16 +8,16 @@ import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.BlockRailBase.EnumRailDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour;
-import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourNative;
+import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.model.DefaultTrackModel;
 import alexiil.mc.mod.traincraft.api.track.model.ITrackModel;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
@@ -31,12 +31,12 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
     static {
         double trackHeight = 2 / 16.0;
 
-        Vec3 north = new Vec3(0.5, trackHeight, 0);
-        Vec3 south = new Vec3(0.5, trackHeight, 1);
-        Vec3 west = new Vec3(0, trackHeight, 0.5);
-        Vec3 east = new Vec3(1, trackHeight, 0.5);
+        Vec3d north = new Vec3d(0.5, trackHeight, 0);
+        Vec3d south = new Vec3d(0.5, trackHeight, 1);
+        Vec3d west = new Vec3d(0, trackHeight, 0.5);
+        Vec3d east = new Vec3d(1, trackHeight, 0.5);
 
-        Vec3 up = new Vec3(0, 1, 0);
+        Vec3d up = new Vec3d(0, 1, 0);
 
         BlockPos from = new BlockPos(0, 0, 0);
 
@@ -47,10 +47,10 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         pathMap.put(EnumRailDirection.ASCENDING_NORTH, new TrackPathStraight(south, north.add(up), from));
         pathMap.put(EnumRailDirection.ASCENDING_SOUTH, new TrackPathStraight(north, south.add(up), from));
 
-        pathMap.put(EnumRailDirection.SOUTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3(1, trackHeight, 1), 0.5, 180, 270));
-        pathMap.put(EnumRailDirection.SOUTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3(0, trackHeight, 1), 0.5, 270, 360));
-        pathMap.put(EnumRailDirection.NORTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3(0, trackHeight, 0), 0.5, 0, 90));
-        pathMap.put(EnumRailDirection.NORTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3(1, trackHeight, 0), 0.5, 90, 180));
+        pathMap.put(EnumRailDirection.SOUTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3d(1, trackHeight, 1), 0.5, 180, 270));
+        pathMap.put(EnumRailDirection.SOUTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3d(0, trackHeight, 1), 0.5, 270, 360));
+        pathMap.put(EnumRailDirection.NORTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3d(0, trackHeight, 0), 0.5, 0, 90));
+        pathMap.put(EnumRailDirection.NORTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3d(1, trackHeight, 0), 0.5, 90, 180));
     }
 
     protected final BlockRailBase rail;

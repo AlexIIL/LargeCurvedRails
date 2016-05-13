@@ -6,8 +6,8 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 
 import alexiil.mc.mod.traincraft.api.component.ComponentTrackFollower;
 import alexiil.mc.mod.traincraft.api.component.IComponentInner;

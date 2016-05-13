@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
@@ -31,10 +31,10 @@ public interface IComponentOuter extends IComponent {
     @Override
     @SideOnly(Side.CLIENT)
     default void preRenderOffsets(IRollingStock stock, float partialTicks) {
-        Vec3 actualPos = getTrackPos(partialTicks);
+        Vec3d actualPos = getTrackPos(partialTicks);
         GlStateManager.translate(actualPos.xCoord, actualPos.yCoord, actualPos.zCoord);
 
-        Vec3 lookVec = rotatingComponent().getTrackDirection(partialTicks);
+        Vec3d lookVec = rotatingComponent().getTrackDirection(partialTicks);
 
         double tan = Math.atan2(lookVec.xCoord, lookVec.zCoord);
         // The tan is in radians but OpenGL uses degrees

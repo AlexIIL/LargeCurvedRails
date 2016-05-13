@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumType;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
@@ -267,7 +267,7 @@ public class MutableQuad {
             return positionf(vec.x, vec.y, vec.z);
         }
 
-        public Vertex positionvd(Vec3 vec) {
+        public Vertex positionvd(Vec3d vec) {
             return positiond(vec.xCoord, vec.yCoord, vec.zCoord);
         }
 
@@ -286,8 +286,8 @@ public class MutableQuad {
             return new Vector3f(position);
         }
 
-        public Vec3 positionvd() {
-            return new Vec3(position[0], position[1], position[2]);
+        public Vec3d positionvd() {
+            return new Vec3d(position[0], position[1], position[2]);
         }
 
         /** Sets the current normal for this vertex based off the given vector.
@@ -299,7 +299,7 @@ public class MutableQuad {
             return this;
         }
 
-        public Vertex normalvd(Vec3 vec) {
+        public Vertex normalvd(Vec3d vec) {
             return normalf((float) vec.xCoord, (float) vec.yCoord, (float) vec.zCoord);
         }
 

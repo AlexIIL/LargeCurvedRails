@@ -2,9 +2,11 @@ package alexiil.mc.mod.traincraft.block;
 
 import java.util.Set;
 
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -16,25 +18,29 @@ public class BlockTrackCurvedFull extends BlockTrackSeperated {
 
     public final Curve curve;
 
-    public BlockTrackCurvedFull(Curve curve, double radius) {
-        super(PROPERTY_FACING);
+    public BlockTrackCurvedFull(Curve curve) {
         this.curve = curve;
         curve.fullBlock = this;
     }
 
     @Override
-    public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
-        return BOUNDING_BOX.offset(pos.getX(), pos.getY(), pos.getZ());
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, PROPERTY_FACING);
     }
 
     @Override
-    public AxisAlignedBB getSelectedBoundingBox(World worldIn, BlockPos pos) {
-        return BOUNDING_BOX.offset(pos.getX(), pos.getY(), pos.getZ());
+    public IBlockState getStateFromMeta(int meta) {
+        return getDefaultState().withProperty(PROPERTY_FACING, EnumFacing.getHorizontal(meta & 3));
     }
 
     @Override
-    public void setBlockBoundsBasedOnState(IBlockAccess access, BlockPos pos) {
-        setBlockBounds(0, 0, 0, 1, TRACK_HEIGHT, 1);
+    public int getMetaFromState(IBlockState state) {
+        return state.getValue(PROPERTY_FACING).getHorizontalIndex();
+    }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        return BOUNDING_BOX;
     }
 
     @Override

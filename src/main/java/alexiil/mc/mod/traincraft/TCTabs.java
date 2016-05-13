@@ -7,11 +7,11 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 
 public enum TCTabs {
-    TRAINCRAFT("traincraft", () -> Items.minecart);
+    TRAINCRAFT("traincraft", () -> Items.MINECART);
 
     public final TCTab tab;
     private final Supplier<Item> itemSupplier;
-    private Item shownItem = Items.minecart;
+    private Item shownItem = Items.MINECART;
 
     private TCTabs(String name, Supplier<Item> itemSupplier) {
         this.tab = new TCTab(name);

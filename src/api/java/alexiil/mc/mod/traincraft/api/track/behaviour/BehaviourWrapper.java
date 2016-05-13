@@ -1,8 +1,8 @@
 package alexiil.mc.mod.traincraft.api.track.behaviour;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.BlockPos.MutableBlockPos;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
@@ -77,7 +77,7 @@ public final class BehaviourWrapper {
         result = prime * result + ((behaviour == null) ? 0 : behaviour.hashCode());
         result = prime * result + ((pos == null) ? 0 : pos.hashCode());
         // We don't need to compute the entire WORLD's hash (and it changes)
-        result = prime * result + ((world == null) ? 0 : world.provider.getDimensionId());
+        result = prime * result + ((world == null) ? 0 : world.provider.getDimension());
         return result;
     }
 

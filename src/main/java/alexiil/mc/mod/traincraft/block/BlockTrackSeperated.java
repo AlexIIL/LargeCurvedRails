@@ -3,10 +3,9 @@ package alexiil.mc.mod.traincraft.block;
 import java.util.Set;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.TrainCraft;
@@ -15,8 +14,8 @@ import alexiil.mc.mod.traincraft.block.BlockTrackPointer.IllegalPathException;
 import alexiil.mc.mod.traincraft.tile.TileTrackMultiple;
 
 public abstract class BlockTrackSeperated extends BlockAbstractTrackSingle {
-    public BlockTrackSeperated(IProperty<?>... properties) {
-        super(properties);
+    public BlockTrackSeperated() {
+        super();
     }
 
     /** Tests to see if the given block is a slave to this master block. This tests both the offset position relative to

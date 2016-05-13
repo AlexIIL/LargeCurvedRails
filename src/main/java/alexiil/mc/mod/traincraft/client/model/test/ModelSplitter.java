@@ -7,13 +7,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 import alexiil.mc.mod.traincraft.client.model.MutableQuad;
-import alexiil.mc.mod.traincraft.client.model.Plane;
 import alexiil.mc.mod.traincraft.client.model.MutableQuad.Vertex;
+import alexiil.mc.mod.traincraft.client.model.Plane;
 import alexiil.mc.mod.traincraft.client.model.Plane.Face;
 
 public class ModelSplitter {
@@ -21,7 +20,7 @@ public class ModelSplitter {
         return quads.stream().parallel().map((mutable) -> func.apply(new MutableQuad(mutable))).collect(Collectors.toList());
     }
 
-    public static List<MutableQuad> offset(List<MutableQuad> quads, Vec3 by) {
+    public static List<MutableQuad> offset(List<MutableQuad> quads, Vec3d by) {
         return function(quads, (mutable) -> {
             for (int i = 0; i < 4; i++) {
                 Vertex v = mutable.getVertex(i);
@@ -58,7 +57,7 @@ public class ModelSplitter {
         for (MutableQuad q : toSquish) {
             MutableQuad post = new MutableQuad(q);
             for (Vertex v : post.verticies()) {
-                Vec3 pos = v.positionvd();
+                Vec3d pos = v.positionvd();
                 pos = squish(pos, plane);
                 v.positionvd(pos);
             }
@@ -67,7 +66,7 @@ public class ModelSplitter {
         return squished;
     }
 
-    private static Vec3 squish(Vec3 vec, Plane plane) {
+    private static Vec3d squish(Vec3d vec, Plane plane) {
         // v* is the vector that we want (we are given x and z, we want y)
         double vx = vec.xCoord, vz = vec.zCoord;
         // p* is the plane point
@@ -84,7 +83,7 @@ public class ModelSplitter {
         // vy = py - ([vx-px]*nx+[vz-pz]*nz)/ny
         /** Computing */
         double vy = py - ((vx - px) * nx + (vz - pz) * nz) / ny;
-        return new Vec3(vec.xCoord, vy, vec.zCoord);
+        return new Vec3d(vec.xCoord, vy, vec.zCoord);
     }
 
     public static List<MutableQuad>[] bisect(List<MutableQuad> quads, Plane p) {

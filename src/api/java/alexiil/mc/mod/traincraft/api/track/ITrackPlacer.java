@@ -3,7 +3,7 @@ package alexiil.mc.mod.traincraft.api.track;
 import java.util.Set;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour;

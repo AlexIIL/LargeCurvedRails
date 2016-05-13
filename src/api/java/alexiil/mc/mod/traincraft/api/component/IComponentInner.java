@@ -3,7 +3,7 @@ package alexiil.mc.mod.traincraft.api.component;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -16,10 +16,10 @@ public interface IComponentInner extends IComponent {
     @Override
     @SideOnly(Side.CLIENT)
     default void preRenderOffsets(IRollingStock stock, float partialTicks) {
-        Vec3 actualPos = parent().getTrackPos(partialTicks);
+        Vec3d actualPos = parent().getTrackPos(partialTicks);
         GlStateManager.translate(actualPos.xCoord, actualPos.yCoord, actualPos.zCoord);
 
-        Vec3 lookVec = parent().getTrackDirection(partialTicks);
+        Vec3d lookVec = parent().getTrackDirection(partialTicks);
 
         double tan = Math.atan2(lookVec.xCoord, lookVec.zCoord);
         // The tan is in radians but OpenGL uses degrees
@@ -29,12 +29,12 @@ public interface IComponentInner extends IComponent {
     }
 
     @Override
-    default Vec3 getTrackDirection(float partialTicks) {
+    default Vec3d getTrackDirection(float partialTicks) {
         return parent().getTrackDirection(partialTicks);
     }
     
     @Override
-    default Vec3 getTrackPos(float partialTicks) {
+    default Vec3d getTrackPos(float partialTicks) {
         return parent().getTrackPos(partialTicks);
     }
 }

@@ -2,16 +2,14 @@ package alexiil.mc.mod.traincraft.block;
 
 import java.util.Locale;
 
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import alexiil.mc.mod.traincraft.api.track.path.TrackPathStraight;
-
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.Vec3;
 
 import io.netty.buffer.ByteBuf;
 
@@ -26,19 +24,21 @@ public enum EnumDirection implements IStringSerializable {
     SOUTH_WEST(EnumFacing.SOUTH, EnumFacing.WEST);
 
     public final EnumFacing from, to;
-    public final Vec3 vecFrom, vecTo;
+    public final Vec3d vecFrom, vecTo;
     public final TrackPathStraight path;
+
+    public static final EnumDirection[] VALUES = values();
 
     private EnumDirection(EnumFacing from, EnumFacing to) {
         this.from = from;
         this.to = to;
         // @formatter:off
-        vecFrom = new Vec3(
+        vecFrom = new Vec3d(
                 from.getAxis() == Axis.X ? (from.getAxisDirection().getOffset() * 0.5 + 0.5) : 0.5, BlockAbstractTrack.TRACK_HEIGHT, 
                 from.getAxis() == Axis.Z ? (from.getAxisDirection().getOffset() * 0.5 + 0.5) : 0.5);
-        vecTo = new Vec3(
+        vecTo = new Vec3d(
                 to.getAxis() == Axis.X ? (to.getAxisDirection().getOffset() * 0.5 + 0.5) : 0.5, BlockAbstractTrack.TRACK_HEIGHT, 
-                to.getAxis() == Axis.Z ? (to.getAxisDirection().getOffset() * .5 + 0.5) : 0.5);
+                to.getAxis() == Axis.Z ? (to.getAxisDirection().getOffset() * 0.5 + 0.5) : 0.5);
         // @formatter:on
         path = new TrackPathStraight(vecFrom, vecTo, BlockPos.ORIGIN);
     }
@@ -46,10 +46,10 @@ public enum EnumDirection implements IStringSerializable {
     static {
         BlockPos creator = new BlockPos(0, 0, 0);
 
-        Vec3 north = new Vec3(0.5, BlockAbstractTrack.TRACK_HEIGHT, 0);
-        Vec3 south = new Vec3(0.5, BlockAbstractTrack.TRACK_HEIGHT, 1);
-        Vec3 west = new Vec3(0, BlockAbstractTrack.TRACK_HEIGHT, 0.5);
-        Vec3 east = new Vec3(1, BlockAbstractTrack.TRACK_HEIGHT, 0.5);
+        Vec3d north = new Vec3d(0.5, BlockAbstractTrack.TRACK_HEIGHT, 0);
+        Vec3d south = new Vec3d(0.5, BlockAbstractTrack.TRACK_HEIGHT, 1);
+        Vec3d west = new Vec3d(0, BlockAbstractTrack.TRACK_HEIGHT, 0.5);
+        Vec3d east = new Vec3d(1, BlockAbstractTrack.TRACK_HEIGHT, 0.5);
 
         // Testing assertions. Actually very useful.
         assert NORTH_SOUTH.path.equals(new TrackPathStraight(north, south, creator));
@@ -59,6 +59,10 @@ public enum EnumDirection implements IStringSerializable {
         assert NORTH_WEST.path.equals(new TrackPathStraight(north, west, creator));
         assert SOUTH_EAST.path.equals(new TrackPathStraight(south, east, creator));
         assert SOUTH_WEST.path.equals(new TrackPathStraight(south, west, creator));
+    }
+
+    public static EnumDirection fromMeta(int meta) {
+        return VALUES[((meta % 6) + 6) % 6];
     }
 
     @Override

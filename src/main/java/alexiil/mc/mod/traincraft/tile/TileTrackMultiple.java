@@ -9,18 +9,18 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
 
 import alexiil.mc.mod.traincraft.TrackPathProvider;
 import alexiil.mc.mod.traincraft.TrackRegistry;
-import alexiil.mc.mod.traincraft.api.lib.MCObjectUtils.Vec3Key;
+import alexiil.mc.mod.traincraft.api.lib.MCObjectUtils.Vec3dKey;
 import alexiil.mc.mod.traincraft.api.track.behaviour.BehaviourWrapper;
-import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.StatefulFactory;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
+import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 import alexiil.mc.mod.traincraft.block.BlockTrackMultiple;
 
@@ -28,7 +28,7 @@ public class TileTrackMultiple extends TileAbstractTrack {
     protected final List<BehaviourWrapper> pointingTo = new ArrayList<>(), umPointingTo = Collections.unmodifiableList(pointingTo);
     protected final List<BehaviourWrapper> containing = new ArrayList<>(), umContaining = Collections.unmodifiableList(containing);
     protected final List<BehaviourWrapper> allWrapped = new ArrayList<>(), umAllWrapped = Collections.unmodifiableList(allWrapped);
-    protected final Multimap<Vec3Key, BehaviourWrapper> joinMap = HashMultimap.create();
+    protected final Multimap<Vec3dKey, BehaviourWrapper> joinMap = HashMultimap.create();
 
     private NBTTagCompound postLoad;
     private List<TrackIdentifier> postLoadIdents = new ArrayList<>();
@@ -58,8 +58,8 @@ public class TileTrackMultiple extends TileAbstractTrack {
         }
     }
 
-    public BehaviourWrapper currentBehaviour(Vec3 from) {
-        Collection<BehaviourWrapper> behaviours = joinMap.get(new Vec3Key(from));
+    public BehaviourWrapper currentBehaviour(Vec3d from) {
+        Collection<BehaviourWrapper> behaviours = joinMap.get(new Vec3dKey(from));
         Iterator<BehaviourWrapper> it = behaviours.iterator();
         if (!it.hasNext()) return null;
         return it.next();
@@ -144,8 +144,8 @@ public class TileTrackMultiple extends TileAbstractTrack {
         joinMap.clear();
         for (BehaviourWrapper track : allWrapped) {
             ITrackPath path = track.getPath();
-            joinMap.put(new Vec3Key(path.start()), track);
-            joinMap.put(new Vec3Key(path.end()), track);
+            joinMap.put(new Vec3dKey(path.start()), track);
+            joinMap.put(new Vec3dKey(path.end()), track);
         }
     }
 

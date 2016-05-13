@@ -1,14 +1,10 @@
 package alexiil.mc.mod.traincraft.api.track.model;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
-import net.minecraft.block.properties.IProperty;
 
 import net.minecraftforge.common.property.IUnlistedProperty;
 
-public class TrackModelProperty implements IUnlistedProperty<TrackModelWrapper[]>, IProperty {
+public class TrackModelProperty implements IUnlistedProperty<TrackModelWrapper[]> {
     public static final TrackModelProperty INSTANCE = new TrackModelProperty();
 
     private TrackModelProperty() {}
@@ -35,20 +31,5 @@ public class TrackModelProperty implements IUnlistedProperty<TrackModelWrapper[]
     @Override
     public String valueToString(TrackModelWrapper[] value) {
         return Arrays.toString(value);
-    }
-
-    @Override
-    public Collection getAllowedValues() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Class getValueClass() {
-        return Void.class;
-    }
-
-    @Override
-    public String getName(Comparable value) {
-        return "";
     }
 }

@@ -2,7 +2,7 @@ package alexiil.mc.mod.traincraft.api.track.model;
 
 import java.util.Objects;
 
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 

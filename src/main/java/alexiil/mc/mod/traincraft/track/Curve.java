@@ -7,10 +7,10 @@ import java.util.Set;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.lib.MathUtil;
@@ -57,11 +57,11 @@ public enum Curve {
         // fullNative = new TrackBehaviourCurvedFullNative(/* this */);
     }
 
-    private static Vec3 perp(Vec3 vec) {
+    private static Vec3d perp(Vec3d vec) {
         return MathUtil.perp(vec);
     }
 
-    private static Vec3 scale(Vec3 vec, double scale) {
+    private static Vec3d scale(Vec3d vec, double scale) {
         return MathUtil.scale(vec, scale);
     }
 
@@ -88,21 +88,21 @@ public enum Curve {
 
                 Axis axis = horizontal.getAxis();
                 int thing = (int) (horizontal.getAxisDirection().getOffset() * -0.5 + 0.5);
-                Vec3 startPoint = new Vec3(axis == Axis.Z ? 0.5 : thing, BlockAbstractTrack.TRACK_HEIGHT, axis == Axis.X ? 0.5 : thing);
+                Vec3d startPoint = new Vec3d(axis == Axis.Z ? 0.5 : thing, BlockAbstractTrack.TRACK_HEIGHT, axis == Axis.X ? 0.5 : thing);
 
                 for (boolean positive : new boolean[] { false, true }) {
-                    Vec3 A = startPoint;
-                    Vec3 aDir = new Vec3(horizontal.getFrontOffsetX(), 0, horizontal.getFrontOffsetZ());
+                    Vec3d A = startPoint;
+                    Vec3d aDir = new Vec3d(horizontal.getFrontOffsetX(), 0, horizontal.getFrontOffsetZ());
 
                     double offset = width * (positive ? 1 : -1);
-                    Vec3 B = A.addVector(//
+                    Vec3d B = A.addVector(//
                             axis == Axis.X ? horizontal.getFrontOffsetX() * length : offset,//
                             0,// Never change the Y
                             axis == Axis.Z ? horizontal.getFrontOffsetZ() * length : offset //
                     );
 
                     double pOffset = positive ? 1 : -1;
-                    Vec3 bDir = aDir.addVector(//
+                    Vec3d bDir = aDir.addVector(//
                             axis == Axis.X ? 0 : pOffset,//
                             0,//
                             axis == Axis.Z ? 0 : pOffset //
@@ -123,17 +123,17 @@ public enum Curve {
                      * E
                      * 
                      * Calculate r as the distance FD */
-                    Vec3 C = MathUtil.findCommonPoint(A, aDir, B, bDir);
+                    Vec3d C = MathUtil.findCommonPoint(A, aDir, B, bDir);
 
                     double ac = A.distanceTo(C);
                     double bc = B.distanceTo(C);
                     double d = Math.min(ac, bc);
 
-                    Vec3 D = d == ac ? A : C.add(scale(A.subtract(C), d / ac));
+                    Vec3d D = d == ac ? A : C.add(scale(A.subtract(C), d / ac));
 
-                    Vec3 E = d == bc ? B : C.add(scale(B.subtract(C), d / bc));
+                    Vec3d E = d == bc ? B : C.add(scale(B.subtract(C), d / bc));
 
-                    Vec3 F = MathUtil.findCommonPoint(D, perp(aDir), E, perp(bDir));
+                    Vec3d F = MathUtil.findCommonPoint(D, perp(aDir), E, perp(bDir));
 
                     double r = F.distanceTo(D);
 
@@ -196,17 +196,17 @@ public enum Curve {
                 { 270, 360 },// East
             };
 
-            Vec3[] centers = {//
-                new Vec3(0.5 + radius, 0.125, 1),// North
-                new Vec3(0.5 - radius, 0.125, 0),// South
-                new Vec3(1, 0.125, 0.5 - radius),// West
-                new Vec3(0, 0.125, 0.5 + radius),// East
+            Vec3d[] centers = {//
+                new Vec3d(0.5 + radius, 0.125, 1),// North
+                new Vec3d(0.5 - radius, 0.125, 0),// South
+                new Vec3d(1, 0.125, 0.5 - radius),// West
+                new Vec3d(0, 0.125, 0.5 + radius),// East
             };
 
             BlockPos creator = new BlockPos(0, 0, 0);
             for (EnumFacing horizontal : EnumFacing.HORIZONTALS) {
                 int[] ang = angles[horizontal.getIndex() - 2];
-                Vec3 center = centers[horizontal.getIndex() - 2];
+                Vec3d center = centers[horizontal.getIndex() - 2];
 
                 TrackPath2DArc path = TrackPath2DArc.createDegrees(creator, center, radius, ang[0], ang[1]);
                 trackPaths.put(horizontal, path);

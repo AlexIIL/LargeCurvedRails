@@ -10,8 +10,8 @@ import com.google.common.collect.Sets;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.TrainCraftAPI;
@@ -43,7 +43,7 @@ public class StockPathFinder {
         return ((Entity) stock).getEntityWorld();
     }
 
-    private Stream<BehaviourWrapper> findPaths(Vec3 attachPoint, int pos, Vec3 direction) {
+    private Stream<BehaviourWrapper> findPaths(Vec3d attachPoint, int pos, Vec3d direction) {
         World world = world();
         BlockPos toTry = new BlockPos(attachPoint);
 
@@ -61,11 +61,11 @@ public class StockPathFinder {
         });
     }
 
-    private Stream<BehaviourWrapper> findPathsForward(Vec3 attachPoint, Vec3 direction) {
+    private Stream<BehaviourWrapper> findPathsForward(Vec3d attachPoint, Vec3d direction) {
         return findPaths(attachPoint, 0, direction);
     }
 
-    private Stream<BehaviourWrapper> findPathsBackward(Vec3 attachPoint, Vec3 direction) {
+    private Stream<BehaviourWrapper> findPathsBackward(Vec3d attachPoint, Vec3d direction) {
         return findPaths(attachPoint, 1, direction);
     }
 
@@ -73,8 +73,8 @@ public class StockPathFinder {
         PathNode node = paths.get(path);
         if (node == null) return null;
         if (node.forward != null) return node.forward;
-        Vec3 nextStart = path.getPath().end();
-        Vec3 direction = path.getPath().direction(1);
+        Vec3d nextStart = path.getPath().end();
+        Vec3d direction = path.getPath().direction(1);
         BehaviourWrapper next = stock.controller().findBehaviour(findPathsForward(nextStart, direction));
         if (next == null) return null;
         node.forward = next;
@@ -88,8 +88,8 @@ public class StockPathFinder {
         PathNode node = paths.get(path);
         if (node == null) return null;
         if (node.back != null) return node.back;
-        Vec3 nextEnd = path.getPath().start();
-        Vec3 direction = path.getPath().direction(0);
+        Vec3d nextEnd = path.getPath().start();
+        Vec3d direction = path.getPath().direction(0);
         BehaviourWrapper next = stock.controller().findBehaviour(findPathsBackward(nextEnd, direction));
         if (next == null) return null;
         node.back = next;

@@ -3,8 +3,8 @@ package alexiil.mc.mod.traincraft.track;
 import java.util.Set;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -12,8 +12,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mc.mod.traincraft.TrainCraft;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour;
-import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourNative;
+import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.model.DefaultTrackModel;
 import alexiil.mc.mod.traincraft.api.track.model.ITrackModel;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
