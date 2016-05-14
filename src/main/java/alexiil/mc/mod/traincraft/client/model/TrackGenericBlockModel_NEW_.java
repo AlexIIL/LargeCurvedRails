@@ -24,6 +24,11 @@ public class TrackGenericBlockModel_NEW_ extends PerspAwareModelBase {
     }
 
     @Override
+    public boolean isAmbientOcclusion() {
+        return false;
+    }
+
+    @Override
     public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
         if (side != null) return ImmutableList.of();
         return handleBlockState(state);

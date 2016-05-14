@@ -1,7 +1,6 @@
 package alexiil.mc.mod.traincraft.client.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.vecmath.Matrix4f;
@@ -94,12 +93,8 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
                     List<BakedQuad> sleeper = new ArrayList<>();
                     for (BakedQuad q : ModelUtil.extractQuadList(Blocks.AIR.getDefaultState(), baked)) {
                         MutableQuad mutable = MutableQuad.create(q);
-
-                        int[] data = q.getVertexData();
-                        data = Arrays.copyOf(data, data.length);
-                        TrainCraft.trainCraftLog.info("quad[" + q.getTintIndex() + ", " + q.getFace() + "]");
-                        BakedQuad copy = new BakedQuad(data, q.getTintIndex(), q.getFace(), q.getSprite(), q.shouldApplyDiffuseLighting(), q.getFormat());
-
+                        mutable.diffuse = false;
+                        // Convert it to ITEM_LMAP
                         sleeper.add(mutable.toUnpacked(MutableQuad.ITEM_LMAP));
                     }
                     sleepers.add(sleeper);
