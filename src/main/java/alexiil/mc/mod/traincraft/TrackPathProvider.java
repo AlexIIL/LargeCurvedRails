@@ -1,12 +1,10 @@
 package alexiil.mc.mod.traincraft;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -31,20 +29,22 @@ public enum TrackPathProvider implements ITrackProvider {
 
     @Override
     public BehaviourWrapper[] getTracksAsArray(World world, BlockPos pos, IBlockState state) {
-        ITrackBlock block = getBlockFor(state);
-        if (block == null) return new BehaviourWrapper[0];
-        Collection<BehaviourWrapper> collection = block.behaviours(world, pos, state);
-        return collection.toArray(new BehaviourWrapper[collection.size()]);
+        List<BehaviourWrapper> lst = getTracksAsList(world, pos, state);
+        return lst.toArray(new BehaviourWrapper[lst.size()]);
     }
 
     @Override
     public List<BehaviourWrapper> getTracksAsList(World world, BlockPos pos, IBlockState state) {
-        return ImmutableList.copyOf(getTracksAsArray(world, pos, state));
+
+        Stream<BehaviourWrapper> stream = getTracksAsStream(world, pos, state);
+        return stream.collect(Collectors.toList());
     }
 
     @Override
     public Stream<BehaviourWrapper> getTracksAsStream(World world, BlockPos pos, IBlockState state) {
-        return Stream.of(getTracksAsArray(world, pos, state));
+        ITrackBlock block = getBlockFor(state);
+        if (block == null) return Stream.empty();
+        return block.behaviours(world, pos, state);
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -14,7 +15,6 @@ import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
-import alexiil.mc.mod.traincraft.api.train.IRollingStock;
 import alexiil.mc.mod.traincraft.block.BlockAbstractTrack;
 import alexiil.mc.mod.traincraft.block.EnumDirection;
 import alexiil.mc.mod.traincraft.block.TCBlocks;
@@ -29,7 +29,7 @@ public class TrackBehaviourStraightState extends TrackBehaviourStateful {
     private TrackIdentifier identifier;
 
     public TrackBehaviourStraightState(World world, BlockPos pos) {
-        identifier = new TrackIdentifier(world.provider.getDimensionId(), pos, IDENTIFIER);
+        identifier = new TrackIdentifier(world.provider.getDimension(), pos, IDENTIFIER);
         setDir(EnumDirection.EAST_WEST);
     }
 
@@ -80,7 +80,7 @@ public class TrackBehaviourStraightState extends TrackBehaviourStateful {
 
     @Override
     public ITrackPath getPath() {
-        return dir.path.offset(identifier.pos());
+        return dir.path;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class TrackBehaviourStraightState extends TrackBehaviourStateful {
     }
 
     @Override
-    public void onStockPass(IRollingStock stock) {}
+    public void onMinecartPass(EntityMinecart cart) {}
 
     @Override
     public Set<BlockPos> getSlaveOffsets() {

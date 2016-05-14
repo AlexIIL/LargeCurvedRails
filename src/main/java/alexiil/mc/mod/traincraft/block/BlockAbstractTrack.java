@@ -20,6 +20,11 @@ public abstract class BlockAbstractTrack extends Block implements ITrackBlock {
     }
 
     @Override
+    public boolean getUseNeighborBrightness(IBlockState state) {
+        return true;
+    }
+
+    @Override
     public BlockRenderLayer getBlockLayer() {
         return BlockRenderLayer.CUTOUT;
     }
@@ -33,5 +38,4 @@ public abstract class BlockAbstractTrack extends Block implements ITrackBlock {
     public boolean isFullCube(IBlockState state) {
         return false;
     }
-
 }

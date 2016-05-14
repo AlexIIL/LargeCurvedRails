@@ -9,6 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
+import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 import alexiil.mc.mod.traincraft.block.BlockTrackCurvedHalf;
 import alexiil.mc.mod.traincraft.block.TCBlocks;
 import alexiil.mc.mod.traincraft.track.TrackBehaviourCurvedHalfState;
@@ -20,8 +21,7 @@ public class ItemTrackCurved extends ItemBlockSeperatedTrack<BlockTrackCurvedHal
     }
 
     @Override
-    protected IBlockState targetState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY,
-            float hitZ) {
+    protected IBlockState targetState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
         IBlockState state = seperated.getDefaultState();
         EnumFacing horizontal = player.getHorizontalFacing();
         state = state.withProperty(BlockTrackCurvedHalf.PROPERTY_FACING, horizontal);
@@ -44,8 +44,7 @@ public class ItemTrackCurved extends ItemBlockSeperatedTrack<BlockTrackCurvedHal
     }
 
     @Override
-    public TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
-            float hitY, float hitZ) {
+    public TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
         TrackBehaviourCurvedHalfState state = new TrackBehaviourCurvedHalfState(world, pos, seperated.curve.halfFactory);
         EnumFacing horizontal = player.getHorizontalFacing();
         float x = ((hitX % 1) + 1) % 1;
@@ -67,8 +66,15 @@ public class ItemTrackCurved extends ItemBlockSeperatedTrack<BlockTrackCurvedHal
     }
 
     @Override
-    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ,
-            IBlockState newState) {
+    public ITrackPath getPreviewPath(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
+        IBlockState state = targetState(world, pos, player, stack, side, hitX, hitY, hitZ);
+        EnumFacing face = state.getValue(BlockTrackCurvedHalf.PROPERTY_FACING);
+        boolean positive = state.getValue(BlockTrackCurvedHalf.PROPERTY_DIRECTION);
+        return seperated.curve.halfFactory.getPath(face, positive);
+    }
+
+    @Override
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState) {
         if (super.placeBlockAt(stack, player, world, pos, side, hitX, hitY, hitZ, newState)) {
             // if (!world.isRemote) TrackJoiner.INSTANCE.tryJoin(world, pos);
             return true;

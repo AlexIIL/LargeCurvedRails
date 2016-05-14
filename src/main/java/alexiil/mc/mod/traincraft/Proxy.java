@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import alexiil.mc.mod.traincraft.tile.TileTrackAscendingPointer;
 
 public abstract class Proxy {
-    @SidedProxy(clientSide = "alexiil.mods.traincraft.ProxyClient", serverSide = "alexiil.mods.traincraft.ProxyServer")
+    @SidedProxy(clientSide = "alexiil.mc.mod.traincraft.ProxyClient", serverSide = "alexiil.mc.mod.traincraft.ProxyServer")
     public static Proxy proxy;
 
     public void preInit(FMLPreInitializationEvent event) {

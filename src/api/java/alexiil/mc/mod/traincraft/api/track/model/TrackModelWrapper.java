@@ -2,8 +2,6 @@ package alexiil.mc.mod.traincraft.api.track.model;
 
 import java.util.Objects;
 
-import net.minecraft.util.math.BlockPos;
-
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 
 public final class TrackModelWrapper {
@@ -11,11 +9,7 @@ public final class TrackModelWrapper {
     public final ITrackModel model;
 
     public TrackModelWrapper(ITrackPath path, ITrackModel model) {
-        if (path.creatingBlock().equals(BlockPos.ORIGIN)) {
-            this.path = path;
-        } else {
-            this.path = path.offset(BlockPos.ORIGIN.subtract(path.creatingBlock()));
-        }
+        this.path = path;
         this.model = model;
     }
 

@@ -3,6 +3,7 @@ package alexiil.mc.mod.traincraft.track;
 import java.util.Set;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -10,7 +11,6 @@ import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourNative;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
-import alexiil.mc.mod.traincraft.api.train.IRollingStock;
 import alexiil.mc.mod.traincraft.block.BlockAbstractTrack;
 import alexiil.mc.mod.traincraft.block.TCBlocks;
 
@@ -33,16 +33,16 @@ public class TrackBehaviourStraightNative extends TrackBehaviourNative {
     @Override
     public ITrackPath getPath(World world, BlockPos pos, IBlockState state) {
         if (state.getBlock() != TCBlocks.TRACK_STRAIGHT.getBlock()) return null;
-        return state.getValue(BlockAbstractTrack.TRACK_DIRECTION).path.offset(pos);
+        return state.getValue(BlockAbstractTrack.TRACK_DIRECTION).path;
     }
 
     @Override
     public TrackIdentifier getIdentifier(World world, BlockPos pos, IBlockState state) {
-        return new TrackIdentifier(world.provider.getDimensionId(), pos, IDENTIFIER);
+        return new TrackIdentifier(world.provider.getDimension(), pos, IDENTIFIER);
     }
 
     @Override
-    public void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {}
+    public void onMinecartPass(World world, BlockPos pos, IBlockState state, EntityMinecart cart) {}
 
     @Override
     public boolean canOverlap(TrackBehaviour otherTrack) {

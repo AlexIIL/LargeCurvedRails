@@ -9,6 +9,7 @@ import net.minecraft.block.BlockRailBase.EnumRailDirection;
 import net.minecraft.block.BlockRailDetector;
 import net.minecraft.block.BlockRailPowered;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -24,7 +25,6 @@ import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.model.DefaultTrackModel;
 import alexiil.mc.mod.traincraft.api.track.model.ITrackModel;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
-import alexiil.mc.mod.traincraft.api.train.IRollingStock;
 import alexiil.mc.mod.traincraft.lib.NBTUtils;
 
 import io.netty.buffer.ByteBuf;
@@ -41,8 +41,8 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
         this.rail = rail;
         this.name = name;
         this.dir = EnumRailDirection.EAST_WEST;
-        this.path = BehaviourVanillaNative.getPath(dir).offset(pos);
-        this.identifier = new TrackIdentifier(world.provider.getDimensionId(), pos, name + "::" + dir.name());
+        this.path = BehaviourVanillaNative.getPath(dir);
+        this.identifier = new TrackIdentifier(world.provider.getDimension(), pos, name + "::" + dir.name());
     }
 
     public BehaviourVanillaState setDir(EnumRailDirection dir) {
@@ -65,7 +65,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
         this.dir = NBTUtils.deserializeEnum(nbt.getTag("direction"), EnumRailDirection.class, dir);
-        this.path = BehaviourVanillaNative.getPath(dir).offset(identifier.pos());
+        this.path = BehaviourVanillaNative.getPath(dir);
         this.identifier = new TrackIdentifier(identifier.worldDim(), identifier.pos(), name + "::" + dir.name());
     }
 
@@ -78,7 +78,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
     public void deserializeBuf(ByteBuf buffer) {
         // TODO: Investigate Should this send over the dim and pos?
         dir = EnumRailDirection.byMetadata(buffer.readByte());
-        path = BehaviourVanillaNative.getPath(dir).offset(identifier.pos());
+        path = BehaviourVanillaNative.getPath(dir);
         identifier = new TrackIdentifier(identifier.worldDim(), identifier.pos(), name + "::" + dir.name());
     }
 
@@ -93,7 +93,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
     }
 
     @Override
-    public void onStockPass(IRollingStock stock) {}
+    public void onMinecartPass(EntityMinecart cart) {}
 
     @Override
     public boolean convertToNative(TileEntity owner) {
@@ -148,7 +148,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
 
     public static class Normal extends BehaviourVanillaState {
         public Normal(String name, World world, BlockPos pos) {
-            super(name, (BlockRailBase) Blocks.rail, world, pos);
+            super(name, (BlockRailBase) Blocks.RAIL, world, pos);
         }
 
         @Override
@@ -194,7 +194,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
 
     public static class Activator extends Redstone {
         public Activator(String name, World world, BlockPos pos) {
-            super(name, (BlockRailPowered) Blocks.activator_rail, world, pos);
+            super(name, (BlockRailPowered) Blocks.ACTIVATOR_RAIL, world, pos);
         }
 
         @Override
@@ -212,7 +212,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
 
     public static class Detector extends Redstone {
         public Detector(String name, World world, BlockPos pos) {
-            super(name, (BlockRailDetector) Blocks.detector_rail, world, pos);
+            super(name, (BlockRailDetector) Blocks.DETECTOR_RAIL, world, pos);
         }
 
         @Override
@@ -230,7 +230,7 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
 
     public static class Golden extends Redstone {
         public Golden(String name, World world, BlockPos pos) {
-            super(name, (BlockRailPowered) Blocks.golden_rail, world, pos);
+            super(name, (BlockRailPowered) Blocks.GOLDEN_RAIL, world, pos);
         }
 
         @Override

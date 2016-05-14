@@ -7,6 +7,7 @@ import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockStone;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -21,8 +22,21 @@ import alexiil.mc.mod.traincraft.tile.TileTrackAscendingPointer;
 public class BlockTrackPointerAscending extends BlockTrackPointer {
     public static final IProperty<EnumMaterialType> PROPERTY_MATERIAL_TYPE = PropertyEnum.create("material", EnumMaterialType.class);
 
-    public BlockTrackPointerAscending() {
-        super(PROPERTY_MATERIAL_TYPE);
+    public BlockTrackPointerAscending() {}
+
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, PROPERTY_MATERIAL_TYPE);
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        return getDefaultState().withProperty(PROPERTY_MATERIAL_TYPE, EnumMaterialType.fromMeta(meta));
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        return state.getValue(PROPERTY_MATERIAL_TYPE).ordinal();
     }
 
     @Override
@@ -60,23 +74,25 @@ public class BlockTrackPointerAscending extends BlockTrackPointer {
 
     public enum EnumMaterialType implements IStringSerializable {
         // @formatter:off
-        /** 0 */ COBBLESTONE (Blocks.cobblestone.getDefaultState()),
-        /** 1 */ ANDERSITE   (Blocks.stone.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE)),
-        /** 2 */ DIORITE     (Blocks.stone.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE)),
-        /** 3 */ GRANITE     (Blocks.stone.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE)),
-        /** 4 */ OAK         (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.OAK)),
-        /** 5 */ SPRUCE      (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.SPRUCE)),
-        /** 6 */ BIRCH       (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.BIRCH)),
-        /** 7 */ JUNGLE      (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.JUNGLE)),
-        /** 8 */ ACACIA      (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.ACACIA)),
-        /** 9 */ DARK_OAK    (Blocks.planks.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.DARK_OAK)),
+        /** 0 */ COBBLESTONE (Blocks.COBBLESTONE.getDefaultState()),
+        /** 1 */ ANDERSITE   (Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE)),
+        /** 2 */ DIORITE     (Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE)),
+        /** 3 */ GRANITE     (Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE)),
+        /** 4 */ OAK         (Blocks.PLANKS.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.OAK)),
+        /** 5 */ SPRUCE      (Blocks.PLANKS.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.SPRUCE)),
+        /** 6 */ BIRCH       (Blocks.PLANKS.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.BIRCH)),
+        /** 7 */ JUNGLE      (Blocks.PLANKS.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.JUNGLE)),
+        /** 8 */ ACACIA      (Blocks.PLANKS.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.ACACIA)),
+        /** 9 */ DARK_OAK    (Blocks.PLANKS.getDefaultState().withProperty(BlockPlanks.VARIANT, BlockPlanks.EnumType.DARK_OAK)),
         /** A */ UNUSED_A    (null),
         /** B */ UNUSED_B    (null),
         /** C */ UNUSED_C    (null),
         /** D */ UNUSED_D    (null),
         /** E */ UNUSED_E    (null),
-        /** F */ OTHER       (Blocks.cobblestone.getDefaultState());
+        /** F */ OTHER       (Blocks.COBBLESTONE.getDefaultState());
         // @formatter:on
+
+        public static final EnumMaterialType[] VALUES = values();
 
         public final IBlockState state;
 
@@ -84,10 +100,13 @@ public class BlockTrackPointerAscending extends BlockTrackPointer {
             this.state = state;
         }
 
+        public static EnumMaterialType fromMeta(int meta) {
+            return VALUES[meta & 15];
+        }
+
         @Override
         public String getName() {
             return name().toLowerCase(Locale.ROOT);
         }
-
     }
 }

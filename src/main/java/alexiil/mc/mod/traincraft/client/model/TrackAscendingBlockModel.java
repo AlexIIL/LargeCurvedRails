@@ -78,6 +78,7 @@ public class TrackAscendingBlockModel extends TrackGenericBlockModel {
         }
         List<MutableQuad>[] bisected = ModelSplitter.bisect(allOffsets, plane);
         List<MutableQuad> squishedQuadList = ModelSplitter.squashBisected(bisected, plane, Face.AWAY);
+        // squishedQuadList.forEach(quad -> quad.diffuse = false);
         quads.addAll(ModelSplitter.makeVanilla(squishedQuadList, DefaultVertexFormats.BLOCK));
     }
 

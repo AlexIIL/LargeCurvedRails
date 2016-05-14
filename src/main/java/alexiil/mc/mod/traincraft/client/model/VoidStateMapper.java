@@ -10,6 +10,6 @@ public class VoidStateMapper extends StateMapperBase {
 
     @Override
     protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
-        return new ModelResourceLocation(Block.blockRegistry.getNameForObject(state.getBlock()), "normal");
+        return new ModelResourceLocation(Block.REGISTRY.getNameForObject(state.getBlock()), "normal");
     }
 }

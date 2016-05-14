@@ -1,6 +1,9 @@
 package alexiil.mc.mod.traincraft;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
@@ -12,19 +15,14 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import alexiil.mc.mod.traincraft.api.track.behaviour.BehaviourWrapper;
 import alexiil.mc.mod.traincraft.api.track.path.RayTraceTrackPath;
-import alexiil.mc.mod.traincraft.api.train.IMinecartCompat;
 
 public enum CartCompat {
     INSTANCE;
 
     private final Set<Class<? extends EntityMinecart>> blacklistClasses = new HashSet<>();
-    private final Map<Class<? extends EntityMinecart>, IMinecartCompat.IMinecartExternalCompat<?>> extenalHandlers = new HashMap<>();
 
     private boolean canUpdateCart(EntityMinecart minecart) {
         if (minecart == null) return false;
-        if (minecart instanceof IMinecartCompat) {
-            return ((IMinecartCompat) minecart).canUpdateManually();
-        }
         return !blacklistClasses.contains(minecart.getClass());
     }
 

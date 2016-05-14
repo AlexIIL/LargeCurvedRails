@@ -1,9 +1,6 @@
 package alexiil.mc.mod.traincraft.api.track.path;
 
-import java.util.Objects;
-
 import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -13,16 +10,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import alexiil.mc.mod.traincraft.api.lib.MCObjectUtils;
 
 public class TrackPath2DArc implements ITrackPath {
-    private final BlockPos creator;
     private final Vec3d center;
     private final double radius, angleStart, angleEnd, length;
 
-    public static TrackPath2DArc createDegrees(BlockPos creator, Vec3d center, double radius, int start, int end) {
-        return new TrackPath2DArc(creator, center, radius, start * Math.PI / 180, end * Math.PI / 180);
+    public static TrackPath2DArc createDegrees(Vec3d center, double radius, int start, int end) {
+        return new TrackPath2DArc(center, radius, start * Math.PI / 180, end * Math.PI / 180);
     }
 
-    public TrackPath2DArc(BlockPos creator, Vec3d center, double radius, double start, double end) {
-        this.creator = creator;
+    public TrackPath2DArc(Vec3d center, double radius, double start, double end) {
         this.center = center;
         this.radius = radius;
         this.angleStart = start;
@@ -31,15 +26,10 @@ public class TrackPath2DArc implements ITrackPath {
     }
 
     @Override
-    public BlockPos creatingBlock() {
-        return creator;
-    }
-
-    @Override
     public Vec3d interpolate(double position) {
         float angle = (float) (angleStart * (1 - position) + angleEnd * position);
         Vec3d vec = new Vec3d(radius * MathHelper.cos(angle), 0, radius * MathHelper.sin(angle));
-        return center.add(vec).add(new Vec3d(creator));
+        return center.add(vec);
     }
 
     @Override
@@ -81,14 +71,9 @@ public class TrackPath2DArc implements ITrackPath {
     }
 
     @Override
-    public ITrackPath offset(BlockPos pos) {
-        return new TrackPath2DArc(creator.add(pos), center, radius, angleStart, angleEnd);
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public void renderInfo(VertexBuffer vb) {
-        Vec3d c = center.add(new Vec3d(creator));
+        Vec3d c = center;
 
         Vec3d s = start();
         vb.pos(c.xCoord, c.yCoord, c.zCoord).color(0, 0, 255, 255).endVertex();
@@ -104,7 +89,7 @@ public class TrackPath2DArc implements ITrackPath {
 
     @Override
     public int hashCode() {
-        return MCObjectUtils.hash(creator, center, radius, angleStart, angleEnd);
+        return MCObjectUtils.hash(center, radius, angleStart, angleEnd);
     }
 
     @Override
@@ -114,8 +99,7 @@ public class TrackPath2DArc implements ITrackPath {
         if (obj == this) return true;
         TrackPath2DArc arc = (TrackPath2DArc) obj;
         // @formatter:off
-        return Objects.equals(creator, arc.creator) && 
-                MCObjectUtils.equals(center, arc.center) &&
+        return MCObjectUtils.equals(center, arc.center) &&
                 radius == arc.radius &&
                 angleStart == arc.angleStart &&
                 angleEnd == arc.angleEnd &&

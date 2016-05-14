@@ -6,7 +6,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 import alexiil.mc.mod.traincraft.api.track.path.TrackPathStraight;
@@ -40,25 +39,23 @@ public enum EnumDirection implements IStringSerializable {
                 to.getAxis() == Axis.X ? (to.getAxisDirection().getOffset() * 0.5 + 0.5) : 0.5, BlockAbstractTrack.TRACK_HEIGHT, 
                 to.getAxis() == Axis.Z ? (to.getAxisDirection().getOffset() * 0.5 + 0.5) : 0.5);
         // @formatter:on
-        path = new TrackPathStraight(vecFrom, vecTo, BlockPos.ORIGIN);
+        path = new TrackPathStraight(vecFrom, vecTo);
     }
 
     static {
-        BlockPos creator = new BlockPos(0, 0, 0);
-
         Vec3d north = new Vec3d(0.5, BlockAbstractTrack.TRACK_HEIGHT, 0);
         Vec3d south = new Vec3d(0.5, BlockAbstractTrack.TRACK_HEIGHT, 1);
         Vec3d west = new Vec3d(0, BlockAbstractTrack.TRACK_HEIGHT, 0.5);
         Vec3d east = new Vec3d(1, BlockAbstractTrack.TRACK_HEIGHT, 0.5);
 
         // Testing assertions. Actually very useful.
-        assert NORTH_SOUTH.path.equals(new TrackPathStraight(north, south, creator));
-        assert EAST_WEST.path.equals(new TrackPathStraight(east, west, creator));
+        assert NORTH_SOUTH.path.equals(new TrackPathStraight(north, south));
+        assert EAST_WEST.path.equals(new TrackPathStraight(east, west));
 
-        assert NORTH_EAST.path.equals(new TrackPathStraight(north, east, creator));
-        assert NORTH_WEST.path.equals(new TrackPathStraight(north, west, creator));
-        assert SOUTH_EAST.path.equals(new TrackPathStraight(south, east, creator));
-        assert SOUTH_WEST.path.equals(new TrackPathStraight(south, west, creator));
+        assert NORTH_EAST.path.equals(new TrackPathStraight(north, east));
+        assert NORTH_WEST.path.equals(new TrackPathStraight(north, west));
+        assert SOUTH_EAST.path.equals(new TrackPathStraight(south, east));
+        assert SOUTH_WEST.path.equals(new TrackPathStraight(south, west));
     }
 
     public static EnumDirection fromMeta(int meta) {

@@ -1,10 +1,8 @@
 package alexiil.mc.mod.traincraft.block;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
-
-import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -22,10 +20,10 @@ public abstract class BlockAbstractTrackSingle extends BlockAbstractTrack {
     }
 
     @Override
-    public Collection<BehaviourWrapper> behaviours(World world, BlockPos pos, IBlockState state) {
+    public Stream<BehaviourWrapper> behaviours(World world, BlockPos pos, IBlockState state) {
         BehaviourWrapper behaviour = singleBehaviour(world, pos, state);
-        if (behaviour == null) return ImmutableList.of();
-        return ImmutableList.of(behaviour);
+        if (behaviour == null) return Stream.empty();
+        return Stream.of(behaviour);
     }
 
     @Override

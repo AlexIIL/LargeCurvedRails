@@ -50,6 +50,7 @@ public class MutableQuad {
         int[] data = quad.getVertexData();
         int stride = data.length / 4;
         MutableQuad mutable = new MutableQuad(quad.getTintIndex(), quad.getFace());
+        mutable.diffuse = quad.shouldApplyDiffuseLighting();
         for (int v = 0; v < 4; v++) {
             Vertex vertex = mutable.getVertex(v);
             float x = fromBits(data[stride * v + X]);
@@ -81,6 +82,7 @@ public class MutableQuad {
     private final Vertex[] verticies = new Vertex[4];
     int tintIndex = -1;
     EnumFacing face = null;
+    boolean diffuse;
 
     public MutableQuad(int tintIndex, EnumFacing face) {
         this.tintIndex = tintIndex;
@@ -136,7 +138,7 @@ public class MutableQuad {
                 }
             }
         }
-        return new UnpackedBakedQuad(data, tintIndex, face, format);
+        return new UnpackedBakedQuad(data, tintIndex, face, null, diffuse, format);
     }
 
     public Vertex getVertex(int v) {
@@ -435,8 +437,8 @@ public class MutableQuad {
 
         @Override
         public String toString() {
-            return "\tVertex [\n\t\tposition=" + Arrays.toString(position) + ",\n\t\tnormal=" + Arrays.toString(normal) + ",\n\t\tcolour=" + Arrays
-                    .toString(colour) + ",\n\t\tuv=" + Arrays.toString(uv) + ",\n\t\tlight=" + Arrays.toString(light) + "\n\t]";
+            return "\tVertex [\n\t\tposition=" + Arrays.toString(position) + ",\n\t\tnormal=" + Arrays.toString(normal) + ",\n\t\tcolour=" + Arrays.toString(colour) + ",\n\t\tuv=" + Arrays.toString(uv) + ",\n\t\tlight=" + Arrays.toString(light)
+                + "\n\t]";
         }
     }
 }

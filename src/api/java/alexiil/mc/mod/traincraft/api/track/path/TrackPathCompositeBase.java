@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -13,10 +12,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class TrackPathCompositeBase implements ITrackPath {
     private final ITrackPath[] paths;
-    private final BlockPos creatingBlock;
     private final double length;
 
-    public TrackPathCompositeBase(BlockPos creator, ITrackPath... paths) {
+    public TrackPathCompositeBase(ITrackPath... paths) {
         List<ITrackPath> total = new ArrayList<>();
         double totalLength = 0;
         for (ITrackPath p : paths) {
@@ -27,7 +25,6 @@ public abstract class TrackPathCompositeBase implements ITrackPath {
         }
         if (total.size() == 0 || totalLength <= 0) throw new IllegalArgumentException("No actual paths!");
         this.paths = total.toArray(new ITrackPath[total.size()]);
-        this.creatingBlock = creator;
         this.length = totalLength;
     }
 
@@ -58,11 +55,6 @@ public abstract class TrackPathCompositeBase implements ITrackPath {
     @Override
     public double length() {
         return length;
-    }
-
-    @Override
-    public BlockPos creatingBlock() {
-        return creatingBlock;
     }
 
     @Override

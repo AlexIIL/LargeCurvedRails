@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 
 import alexiil.mc.mod.traincraft.TrackPlacer;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
+import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 import alexiil.mc.mod.traincraft.block.BlockTrackStraight;
 import alexiil.mc.mod.traincraft.block.EnumDirection;
 import alexiil.mc.mod.traincraft.block.TCBlocks;
@@ -22,8 +23,7 @@ public class ItemTrackStraight extends ItemBlockTrack {
     }
 
     @Override
-    protected IBlockState targetState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY,
-            float hitZ) {
+    protected IBlockState targetState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
         EnumFacing entFacing = player.getHorizontalFacing();
         IBlockState state = TCBlocks.TRACK_STRAIGHT.getBlock().getDefaultState();
         if (entFacing.getAxis() == Axis.X) return state.withProperty(BlockTrackStraight.TRACK_DIRECTION, EnumDirection.EAST_WEST);
@@ -31,8 +31,7 @@ public class ItemTrackStraight extends ItemBlockTrack {
     }
 
     @Override
-    public TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX,
-            float hitY, float hitZ) {
+    public TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
         TrackBehaviourStraightState state = new TrackBehaviourStraightState(world, pos);
         EnumFacing entFacing = player.getHorizontalFacing();
         if (entFacing.getAxis() == Axis.X) state.setDir(EnumDirection.EAST_WEST);
@@ -41,16 +40,25 @@ public class ItemTrackStraight extends ItemBlockTrack {
     }
 
     @Override
-    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ,
-            IBlockState newState) {
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState) {
         IBlockState targetState = targetState(world, pos, player, stack, side, hitX, hitY, hitZ);
 
-        if (canPlaceTrack(world, pos, player, side, stack, pos) == null) {
+        if (canPlaceTrack(world, pos, player, side, stack) == null) {
             return world.setBlockState(pos, targetState);
         } else {
             TrackBehaviourStateful stateful = statefulState(world, pos, player, stack, side, hitX, hitY, hitZ);
             if (stateful == null) return false;
             return TrackPlacer.INSTANCE.tryPlaceTrack(stateful, world, pos);
+        }
+    }
+
+    @Override
+    public ITrackPath getPreviewPath(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
+        EnumFacing entFacing = player.getHorizontalFacing();
+        if (entFacing.getAxis() == Axis.X) {
+            return EnumDirection.EAST_WEST.path;
+        } else {
+            return EnumDirection.NORTH_SOUTH.path;
         }
     }
 }

@@ -1,9 +1,8 @@
 package alexiil.mc.mod.traincraft.block;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.properties.IProperty;
@@ -27,30 +26,27 @@ import alexiil.mc.mod.traincraft.tile.TileTrackMultiple;
 import alexiil.mc.mod.traincraft.tile.TileTrackMultiplePoints;
 
 public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntityProvider {
-    public static final PropertyBool TICKABLE = PropertyBool.create("tickable");
     public static final PropertyBool POINTS = PropertyBool.create("points");
 
     public BlockTrackMultiple() {}
 
     @Override
     protected BlockStateContainer createBlockState() {
-        IProperty<?>[] props = { TICKABLE, POINTS };
+        IProperty<?>[] props = { POINTS };
         IUnlistedProperty<?>[] unlisted = { TrackModelProperty.INSTANCE };
         return new ExtendedBlockState(this, props, unlisted);
     }
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        boolean tickable = (meta & 1) == 1;
-        boolean points = (meta & 2) == 2;
-        return getDefaultState().withProperty(TICKABLE, tickable).withProperty(POINTS, points);
+        boolean points = (meta & 1) == 1;
+        return getDefaultState().withProperty(POINTS, points);
     }
 
     @Override
     public int getMetaFromState(IBlockState state) {
         int meta = 0;
-        if (state.getValue(TICKABLE)) meta = 1;
-        if (state.getValue(POINTS)) meta |= 2;
+        if (state.getValue(POINTS)) meta = 1;
         return meta;
     }
 
@@ -79,19 +75,19 @@ public class BlockTrackMultiple extends BlockAbstractTrack implements ITileEntit
     }
 
     @Override
-    public Collection<BehaviourWrapper> behaviours(World world, BlockPos pos, IBlockState state) {
+    public Stream<BehaviourWrapper> behaviours(World world, BlockPos pos, IBlockState state) {
         TileEntity tile = world.getTileEntity(pos);
         if (tile instanceof TileTrackMultiple) {
             TileTrackMultiple mult = (TileTrackMultiple) tile;
-            return mult.getWrappedBehaviours();
+            return mult.getWrappedBehaviours().stream();
         }
-        return Collections.emptyList();
+        return Stream.empty();
     }
 
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
         IBlockState state = getStateFromMeta(meta);
-        if (state.getValue(TICKABLE)) return new TileTrackMultiplePoints();
+        if (state.getValue(POINTS)) return new TileTrackMultiplePoints();
         return new TileTrackMultiple();
     }
 }

@@ -1,15 +1,19 @@
 package alexiil.mc.mod.traincraft.client.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.vecmath.Matrix4f;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 
@@ -18,7 +22,6 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.obj.OBJLoader;
 
 import alexiil.mc.mod.traincraft.TrainCraft;
-import alexiil.mc.mod.traincraft.TrainRegistry;
 import alexiil.mc.mod.traincraft.api.lib.MathUtil;
 import alexiil.mc.mod.traincraft.api.track.model.IModelSpriteGetter;
 import alexiil.mc.mod.traincraft.api.track.model.RailGeneneratorParams;
@@ -41,9 +44,10 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
     }
 
     public void textureStitchPre(TextureStitchEvent.Pre event) {
-        railSprite = event.map.registerSprite(new ResourceLocation("traincraft:block/track_straight"));
-        railSpriteMirrored = event.map.registerSprite(new ResourceLocation("traincraft:block/track_straight_mirror"));
-        spriteVanillaExtras = event.map.registerSprite(new ResourceLocation("traincraft:block/track_straight_vanilla_extra"));
+        TextureMap map = event.getMap();
+        railSprite = map.registerSprite(new ResourceLocation("traincraft:block/track_straight"));
+        railSpriteMirrored = map.registerSprite(new ResourceLocation("traincraft:block/track_straight_mirror"));
+        spriteVanillaExtras = map.registerSprite(new ResourceLocation("traincraft:block/track_straight_vanilla_extra"));
     }
 
     @Override
@@ -77,7 +81,7 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
         throw new IllegalArgumentException("Unknown sheet! " + sheet);
     }
 
-    /** Loads (or returns immediatly from the cache) a list of all the available sleeper models. All of the lists are
+    /** Loads (or returns immediately from the cache) a list of all the available sleeper models. All of the lists are
      * the true lists, so you should duplicate the quads if you want to change them. */
     public List<List<BakedQuad>> loadSleepers() {
         if (sleepers.size() == 0) {
@@ -85,9 +89,17 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
             try {
                 while (i < 4) {
                     ResourceLocation loc = new ResourceLocation("traincraft:models/parts/sleeper_" + i + ".obj");
-                    IModel model = OBJLoader.instance.loadModel(loc);
-                    IBakedModel baked = model.bake(ModelRotation.X0_Y0, DefaultVertexFormats.BLOCK, TrainRegistry.INSTANCE.getSpriteFunction());
-                    sleepers.add(ModelUtil.extractQuadList(baked));
+                    IModel model = OBJLoader.INSTANCE.loadModel(loc);
+                    IBakedModel baked = model.bake(ModelRotation.X0_Y0, DefaultVertexFormats.BLOCK, getSpriteFunction());
+                    List<BakedQuad> sleeper = new ArrayList<>();
+                    for (BakedQuad q : ModelUtil.extractQuadList(Blocks.AIR.getDefaultState(), baked)) {
+                        int[] data = q.getVertexData();
+                        data = Arrays.copyOf(data, data.length);
+                        TrainCraft.trainCraftLog.info("quad[" + q.getTintIndex() + ", " + q.getFace() + "]");
+                        BakedQuad copy = new BakedQuad(data, q.getTintIndex(), q.getFace(), q.getSprite(), q.shouldApplyDiffuseLighting(), q.getFormat());
+                        sleeper.add(copy);
+                    }
+                    sleepers.add(sleeper);
                     i++;
                 }
             } catch (Throwable t) {
@@ -96,6 +108,15 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
             }
         }
         return sleepers;
+    }
+
+    /** NOTE: This is GOOGLE's function as forge doesn't have java 8! */
+    public static com.google.common.base.Function<ResourceLocation, TextureAtlasSprite> getSpriteFunction() {
+        return CommonModelSpriteCache::getSprite;
+    }
+
+    public static TextureAtlasSprite getSprite(ResourceLocation location) {
+        return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
     }
 
     public static List<BakedQuad> generateSleepers(ITrackPath path, List<List<BakedQuad>> sleepers, boolean reverse) {
@@ -114,7 +135,7 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
             }
             sleeper = ModelUtil.multiplyMatrix(sleeper, MatrixUtil.rotateTo(path.direction(offset)));
 
-            Vec3d translationVec = path.interpolate(offset).subtract(new Vec3d(path.creatingBlock()));
+            Vec3d translationVec = path.interpolate(offset);
             Matrix4f translation = MatrixUtil.translation(translationVec);
             sleeper = ModelUtil.multiplyMatrix(sleeper, translation);
 
@@ -126,38 +147,6 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
         }
 
         return list;
-    }
-
-    public static List<BakedQuad> generateRails(ITrackPath path, TextureAtlasSprite railSprite) {
-        return generateRails(path, new GenerateRailsArguments(path, railSprite));
-    }
-
-    // TODO: Replace all instances with RailGeneratorParams
-    @Deprecated
-    public static class GenerateRailsArguments {
-        private TextureAtlasSprite railSprite;
-        private double railGap = CommonModelSpriteCache.RAIL_COUNT_PER_METER;
-        private float uMin = 1, uMax = 3;
-        private boolean left = true, right = true;
-        private double width = 2 / 16.0, radius = 5 / 16.0;
-        private double yOffset = 0;
-
-        public GenerateRailsArguments(ITrackPath path, TextureAtlasSprite railSprite) {
-            this.railSprite = railSprite;
-        }
-
-        // @formatter:off
-        public GenerateRailsArguments path(ITrackPath path) { throw new IllegalArgumentException("NOT IMPLEMETED"); }
-        public GenerateRailsArguments railSprite(TextureAtlasSprite railSprite) { this.railSprite = railSprite; return this; }
-        public GenerateRailsArguments railGap(double railGap) { this.railGap = railGap; return this; }
-        public GenerateRailsArguments uMin(float uMin) { this.uMin = uMin; return this; }
-        public GenerateRailsArguments uMax(float uMax) { this.uMax = uMax; return this; }
-        public GenerateRailsArguments left(boolean l) {this.left = l; return this; }
-        public GenerateRailsArguments right(boolean r) {this.right = r; return this; }
-        public GenerateRailsArguments width(double w) {this.width = w; return this; }
-        public GenerateRailsArguments radius(double r) {this.radius = r; return this; }
-        public GenerateRailsArguments yOffset(double y) {this.yOffset = y; return this; }
-        // @formatter:on
     }
 
     public static List<BakedQuad> generateRails(ITrackPath path, RailGeneneratorParams args) {
@@ -200,21 +189,6 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
         }
 
         return list;
-    }
-
-    @Deprecated
-    public static List<BakedQuad> generateRails(ITrackPath path, GenerateRailsArguments args) {
-        return generateRails(path, new RailGeneneratorParams(args.railSprite)
-                // @formatter:off
-                .railGap(args.railGap)
-                .uMin(args.uMin)
-                .uMax(args.uMax)
-                .left(args.left)
-                .right(args.right)
-                .width(args.width)
-                .radius(args.radius)
-                .yOffset(args.yOffset));
-                // @formatter:on
     }
 
     /** @param coords An array of {{start, startDir}, {end, endDir}}

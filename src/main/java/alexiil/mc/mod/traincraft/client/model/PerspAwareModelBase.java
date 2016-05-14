@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
@@ -35,8 +36,9 @@ public class PerspAwareModelBase implements IPerspectiveAwareModel {
         } else this.transforms = transforms;
     }
 
-    public static IBakedModel missingModel() {
-        return Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getMissingModel();
+    public static List<BakedQuad> missingModel() {
+        IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getMissingModel();
+        return model.getQuads(Blocks.AIR.getDefaultState(), null, 0);
     }
 
     @Override

@@ -83,7 +83,6 @@ public enum Curve {
                 { { 90, 45 }, { 270, 315 } },// East
             };
 
-            BlockPos creator = new BlockPos(0, 0, 0);
             for (EnumFacing horizontal : EnumFacing.HORIZONTALS) {
 
                 Axis axis = horizontal.getAxis();
@@ -140,12 +139,12 @@ public enum Curve {
                     int angD = angles[horizontal.getIndex() - 2][positive ? 1 : 0][0];
                     int angE = angles[horizontal.getIndex() - 2][positive ? 1 : 0][1];
 
-                    TrackPathStraight pathAD = new TrackPathStraight(A, D, creator);
-                    TrackPath2DArc pathDE = TrackPath2DArc.createDegrees(creator, F, r, angD, angE);
-                    TrackPathStraight pathEB = new TrackPathStraight(E, B, creator);
+                    TrackPathStraight pathAD = new TrackPathStraight(A, D);
+                    TrackPath2DArc pathDE = TrackPath2DArc.createDegrees(F, r, angD, angE);
+                    TrackPathStraight pathEB = new TrackPathStraight(E, B);
 
                     TrackPathTriComposite<TrackPathStraight, TrackPath2DArc, TrackPathStraight> composite;
-                    composite = new TrackPathTriComposite<>(creator, pathAD, pathDE, pathEB);
+                    composite = new TrackPathTriComposite<>(pathAD, pathDE, pathEB);
                     trackPaths.put(horizontal, positive, composite);
 
                     slaveOffsets.put(horizontal, positive, TrackBehaviourStateful.createSlaveOffsets(composite));
@@ -203,12 +202,11 @@ public enum Curve {
                 new Vec3d(0, 0.125, 0.5 + radius),// East
             };
 
-            BlockPos creator = new BlockPos(0, 0, 0);
             for (EnumFacing horizontal : EnumFacing.HORIZONTALS) {
                 int[] ang = angles[horizontal.getIndex() - 2];
                 Vec3d center = centers[horizontal.getIndex() - 2];
 
-                TrackPath2DArc path = TrackPath2DArc.createDegrees(creator, center, radius, ang[0], ang[1]);
+                TrackPath2DArc path = TrackPath2DArc.createDegrees(center, radius, ang[0], ang[1]);
                 trackPaths.put(horizontal, path);
                 slaveOffsets.put(horizontal, TrackBehaviourNative.createSlaveOffsets(path));
             }

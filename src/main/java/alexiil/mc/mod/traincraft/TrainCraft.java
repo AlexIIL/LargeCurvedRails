@@ -10,15 +10,11 @@ import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
 
 import alexiil.mc.mod.traincraft.api.AddonManager;
 import alexiil.mc.mod.traincraft.api.TrainCraftAPI;
 import alexiil.mc.mod.traincraft.block.TCBlocks;
 import alexiil.mc.mod.traincraft.compat.TCCompat;
-import alexiil.mc.mod.traincraft.component.TypeCartSmall;
-import alexiil.mc.mod.traincraft.component.TypeSteamSmall;
-import alexiil.mc.mod.traincraft.entity.EntityGenericRollingStock;
 import alexiil.mc.mod.traincraft.item.TCItems;
 import alexiil.mc.mod.traincraft.network.MessageHandler;
 import alexiil.mc.mod.traincraft.track.TCTracks;
@@ -39,7 +35,7 @@ public class TrainCraft {
         TrainCraftAPI.TRACK_PROVIDER = TrackPathProvider.INSTANCE;
         TrainCraftAPI.TRACK_STATE_REGISTRY = TrackRegistry.INSTANCE;
         TrainCraftAPI.TRACK_PLACER = TrackPlacer.INSTANCE;
-        TrainCraftAPI.TRAIN_REGISTRY = TrainRegistry.INSTANCE;
+        // TrainCraftAPI.TRAIN_REGISTRY = TrainRegistry.INSTANCE;
 
         TCTracks.preInit();
         TCBlocks.preInit();
@@ -47,10 +43,11 @@ public class TrainCraft {
         TCTabs.preInit();
         TCCompat.preInit();
 
-        EntityRegistry.registerModEntity(EntityGenericRollingStock.class, "genericRollingStock", 0, instance, 60, 64, false);
+        // EntityRegistry.registerModEntity(EntityGenericRollingStock.class, "genericRollingStock", 0, instance, 60, 64,
+        // false);
 
-        TrainCraftAPI.TRAIN_REGISTRY.registerTrain(TypeCartSmall.INSTANCE);
-        TrainCraftAPI.TRAIN_REGISTRY.registerTrain(TypeSteamSmall.INSTANCE);
+        // TrainCraftAPI.TRAIN_REGISTRY.registerTrain(TypeCartSmall.INSTANCE);
+        // TrainCraftAPI.TRAIN_REGISTRY.registerTrain(TypeSteamSmall.INSTANCE);
 
         AddonManager.INSTANCE.preInit();
 

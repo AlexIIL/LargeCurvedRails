@@ -1,8 +1,6 @@
 package alexiil.mc.mod.traincraft.compat.vanilla;
 
-import java.util.Collection;
-
-import com.google.common.collect.ImmutableList;
+import java.util.stream.Stream;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -19,7 +17,7 @@ public class VanillaTrackBlock implements ITrackBlock {
     }
 
     @Override
-    public Collection<BehaviourWrapper> behaviours(World world, BlockPos pos, IBlockState state) {
-        return ImmutableList.of(new BehaviourWrapper(behaviour, world, pos));
+    public Stream<BehaviourWrapper> behaviours(World world, BlockPos pos, IBlockState state) {
+        return Stream.of(new BehaviourWrapper(behaviour, world, pos));
     }
 }

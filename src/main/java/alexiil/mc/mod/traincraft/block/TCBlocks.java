@@ -67,9 +67,7 @@ public enum TCBlocks {
     public static void init() {
         // Special case tile entities
         GameRegistry.registerTileEntity(TileTrackMultiple.class, "traincraft.track.multiple");
-        GameRegistry.registerTileEntity(TileTrackMultiple.Tickable.class, "traincraft.track.multiple.tickable");
         GameRegistry.registerTileEntity(TileTrackMultiplePoints.class, "traincraft.track.multiple.points");
-        GameRegistry.registerTileEntity(TileTrackMultiplePoints.Tickable.class, "traincraft.track.multiple.points.tickable");
     }
 
     public Block getBlock() {

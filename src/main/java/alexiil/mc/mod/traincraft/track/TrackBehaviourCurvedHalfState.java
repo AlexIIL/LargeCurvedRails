@@ -3,6 +3,7 @@ package alexiil.mc.mod.traincraft.track;
 import java.util.Set;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -14,7 +15,6 @@ import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
-import alexiil.mc.mod.traincraft.api.train.IRollingStock;
 import alexiil.mc.mod.traincraft.block.BlockTrackCurvedHalf;
 import alexiil.mc.mod.traincraft.lib.NBTUtils;
 
@@ -30,7 +30,7 @@ public class TrackBehaviourCurvedHalfState extends TrackBehaviourStateful {
 
     public TrackBehaviourCurvedHalfState(World world, BlockPos pos, Curve.HalfFactory factory) {
         this.factory = factory;
-        identifier = new TrackIdentifier(world.provider.getDimensionId(), pos, IDENTIFIER);
+        identifier = new TrackIdentifier(world.provider.getDimension(), pos, IDENTIFIER);
         setDir(EnumFacing.NORTH, false);
     }
 
@@ -98,7 +98,7 @@ public class TrackBehaviourCurvedHalfState extends TrackBehaviourStateful {
 
     @Override
     public ITrackPath getPath() {
-        return factory.getPath(facing, positive).offset(identifier.pos());
+        return factory.getPath(facing, positive);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class TrackBehaviourCurvedHalfState extends TrackBehaviourStateful {
     }
 
     @Override
-    public void onStockPass(IRollingStock stock) {}
+    public void onMinecartPass(EntityMinecart stock) {}
 
     @Override
     public Set<BlockPos> getSlaveOffsets() {

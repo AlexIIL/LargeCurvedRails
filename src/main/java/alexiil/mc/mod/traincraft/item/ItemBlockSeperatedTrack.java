@@ -54,10 +54,10 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
             IBlockState newState) {
         IBlockState targetState = targetState(world, pos, player, stack, side, hitX, hitY, hitZ);
 
-        Set<BlockPos> slaves = getTrackBlockSetters(targetState, stack).keySet();
+        Set<BlockPos> allSetters = getTrackBlockSetters(targetState, stack).keySet();
 
-        if (!TrackPlacer.INSTANCE.canPlaceSlaves(slaves, world, pos)) return false;
-        if (canPlaceTrack(world, pos, player, side, stack, pos) == null) {
+        if (!TrackPlacer.INSTANCE.canPlaceSlaves(allSetters, world, pos)) return false;
+        if (canPlaceTrack(world, pos, player, side, stack) == null) {
             world.setBlockState(pos, targetState, 2);
             BehaviourWrapper wrapper = seperated.singleBehaviour(world, pos, targetState);
             if (wrapper == null) {
@@ -65,16 +65,16 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
                 return false;
             }
             TrackPlacer.INSTANCE.placeSlaves(wrapper.behaviour(), world, pos);
-            for (BlockPos p : slaves) {
-                world.notifyBlockOfStateChange(pos.add(p), Blocks.air);
+            for (BlockPos p : allSetters) {
+                world.notifyBlockOfStateChange(pos.add(p), Blocks.AIR);
             }
             return true;
         } else {
             TrackBehaviourStateful stateful = statefulState(world, pos, player, stack, side, hitX, hitY, hitZ);
             if (stateful == null) return false;
             if (!TrackPlacer.INSTANCE.tryPlaceTrackAndSlaves(stateful, world, pos)) return false;
-            for (BlockPos p : slaves) {
-                world.notifyBlockOfStateChange(pos.add(p), Blocks.air);
+            for (BlockPos p : allSetters) {
+                world.notifyBlockOfStateChange(pos.add(p), Blocks.AIR);
             }
             return true;
         }

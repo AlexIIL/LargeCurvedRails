@@ -7,6 +7,7 @@ import java.util.Set;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.BlockRailBase.EnumRailDirection;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -23,7 +24,6 @@ import alexiil.mc.mod.traincraft.api.track.model.ITrackModel;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 import alexiil.mc.mod.traincraft.api.track.path.TrackPath2DArc;
 import alexiil.mc.mod.traincraft.api.track.path.TrackPathStraight;
-import alexiil.mc.mod.traincraft.api.train.IRollingStock;
 
 public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
     private static final Map<EnumRailDirection, ITrackPath> pathMap = new EnumMap<>(EnumRailDirection.class);
@@ -38,19 +38,17 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
 
         Vec3d up = new Vec3d(0, 1, 0);
 
-        BlockPos from = new BlockPos(0, 0, 0);
+        pathMap.put(EnumRailDirection.NORTH_SOUTH, new TrackPathStraight(north, south));
+        pathMap.put(EnumRailDirection.EAST_WEST, new TrackPathStraight(east, west));
+        pathMap.put(EnumRailDirection.ASCENDING_EAST, new TrackPathStraight(west, east.add(up)));
+        pathMap.put(EnumRailDirection.ASCENDING_WEST, new TrackPathStraight(east, west.add(up)));
+        pathMap.put(EnumRailDirection.ASCENDING_NORTH, new TrackPathStraight(south, north.add(up)));
+        pathMap.put(EnumRailDirection.ASCENDING_SOUTH, new TrackPathStraight(north, south.add(up)));
 
-        pathMap.put(EnumRailDirection.NORTH_SOUTH, new TrackPathStraight(north, south, from));
-        pathMap.put(EnumRailDirection.EAST_WEST, new TrackPathStraight(east, west, from));
-        pathMap.put(EnumRailDirection.ASCENDING_EAST, new TrackPathStraight(west, east.add(up), from));
-        pathMap.put(EnumRailDirection.ASCENDING_WEST, new TrackPathStraight(east, west.add(up), from));
-        pathMap.put(EnumRailDirection.ASCENDING_NORTH, new TrackPathStraight(south, north.add(up), from));
-        pathMap.put(EnumRailDirection.ASCENDING_SOUTH, new TrackPathStraight(north, south.add(up), from));
-
-        pathMap.put(EnumRailDirection.SOUTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3d(1, trackHeight, 1), 0.5, 180, 270));
-        pathMap.put(EnumRailDirection.SOUTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3d(0, trackHeight, 1), 0.5, 270, 360));
-        pathMap.put(EnumRailDirection.NORTH_WEST, TrackPath2DArc.createDegrees(from, new Vec3d(0, trackHeight, 0), 0.5, 0, 90));
-        pathMap.put(EnumRailDirection.NORTH_EAST, TrackPath2DArc.createDegrees(from, new Vec3d(1, trackHeight, 0), 0.5, 90, 180));
+        pathMap.put(EnumRailDirection.SOUTH_EAST, TrackPath2DArc.createDegrees(new Vec3d(1, trackHeight, 1), 0.5, 180, 270));
+        pathMap.put(EnumRailDirection.SOUTH_WEST, TrackPath2DArc.createDegrees(new Vec3d(0, trackHeight, 1), 0.5, 270, 360));
+        pathMap.put(EnumRailDirection.NORTH_WEST, TrackPath2DArc.createDegrees(new Vec3d(0, trackHeight, 0), 0.5, 0, 90));
+        pathMap.put(EnumRailDirection.NORTH_EAST, TrackPath2DArc.createDegrees(new Vec3d(1, trackHeight, 0), 0.5, 90, 180));
     }
 
     protected final BlockRailBase rail;
@@ -73,17 +71,17 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
     @Override
     public ITrackPath getPath(World world, BlockPos pos, IBlockState state) {
         EnumRailDirection dir = state.getValue(rail.getShapeProperty());
-        return pathMap.get(dir).offset(pos);
+        return pathMap.get(dir);
     }
 
     @Override
     public TrackIdentifier getIdentifier(World world, BlockPos pos, IBlockState state) {
         EnumRailDirection dir = state.getValue(rail.getShapeProperty());
-        return new TrackIdentifier(world.provider.getDimensionId(), pos, "traincraft:vanilla_" + uniqueName + ":" + dir.getName());
+        return new TrackIdentifier(world.provider.getDimension(), pos, "traincraft:vanilla_" + uniqueName + ":" + dir.getName());
     }
 
     @Override
-    public void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {}
+    public void onMinecartPass(World world, BlockPos pos, IBlockState state, EntityMinecart cart) {}
 
     @Override
     public boolean canOverlap(TrackBehaviour otherTrack) {
@@ -106,7 +104,7 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         public static final Normal INSTANCE = new Normal();
 
         private Normal() {
-            super((BlockRailBase) Blocks.rail, "normal");
+            super((BlockRailBase) Blocks.RAIL, "normal");
         }
 
         @Override
@@ -122,7 +120,7 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         public static final Activator INSTANCE = new Activator();
 
         private Activator() {
-            super((BlockRailBase) Blocks.activator_rail, "activator");
+            super((BlockRailBase) Blocks.ACTIVATOR_RAIL, "activator");
         }
 
         @Override
@@ -138,7 +136,7 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         public static final Detector INSTANCE = new Detector();
 
         private Detector() {
-            super((BlockRailBase) Blocks.detector_rail, "detector");
+            super((BlockRailBase) Blocks.DETECTOR_RAIL, "detector");
         }
 
         @Override
@@ -154,7 +152,7 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         public static final Golden INSTANCE = new Golden();
 
         private Golden() {
-            super((BlockRailBase) Blocks.golden_rail, "golden");
+            super((BlockRailBase) Blocks.GOLDEN_RAIL, "golden");
         }
 
         @Override
@@ -166,14 +164,14 @@ public abstract class BehaviourVanillaNative extends TrackBehaviourNative {
         }
 
         @Override
-        public void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {
-            double momentum = stock.momentum();
-            if (momentum < 0) {
-                momentum -= 20;
-            } else if (momentum > 0) {
-                momentum += 20;
-            } else return;
-            stock.setSpeed(momentum / stock.weight());
+        public void onMinecartPass(World world, BlockPos pos, IBlockState state, EntityMinecart cart) {
+            // double momentum = cart.momentum();
+            // if (momentum < 0) {
+            // momentum -= 20;
+            // } else if (momentum > 0) {
+            // momentum += 20;
+            // } else return;
+            // cart.setSpeed(momentum / cart.weight());
         }
     }
 }

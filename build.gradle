@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    deobfCompile name: "buildcraft", version: "7.2.5"
+  //  deobfCompile name: "buildcraft", version: "7.2.5"
     testCompile "junit:junit:4.12"
 }
 

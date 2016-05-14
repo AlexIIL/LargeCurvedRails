@@ -14,10 +14,10 @@ public class VanillaAddon implements IAddon {
         TrackRegistry.INSTANCE.register(BehaviourVanillaState.Factory.DETECTOR);
         TrackRegistry.INSTANCE.register(BehaviourVanillaState.Factory.GOLDEN);
 
-        TrackPathProvider.INSTANCE.registerBlock(Blocks.rail, new VanillaTrackBlock(BehaviourVanillaNative.Normal.INSTANCE));
-        TrackPathProvider.INSTANCE.registerBlock(Blocks.detector_rail, new VanillaTrackBlock(BehaviourVanillaNative.Detector.INSTANCE));
-        TrackPathProvider.INSTANCE.registerBlock(Blocks.activator_rail, new VanillaTrackBlock(BehaviourVanillaNative.Activator.INSTANCE));
-        TrackPathProvider.INSTANCE.registerBlock(Blocks.golden_rail, new VanillaTrackBlock(BehaviourVanillaNative.Golden.INSTANCE));
+        TrackPathProvider.INSTANCE.registerBlock(Blocks.RAIL, new VanillaTrackBlock(BehaviourVanillaNative.Normal.INSTANCE));
+        TrackPathProvider.INSTANCE.registerBlock(Blocks.DETECTOR_RAIL, new VanillaTrackBlock(BehaviourVanillaNative.Detector.INSTANCE));
+        TrackPathProvider.INSTANCE.registerBlock(Blocks.ACTIVATOR_RAIL, new VanillaTrackBlock(BehaviourVanillaNative.Activator.INSTANCE));
+        TrackPathProvider.INSTANCE.registerBlock(Blocks.GOLDEN_RAIL, new VanillaTrackBlock(BehaviourVanillaNative.Golden.INSTANCE));
     }
 
     @Override

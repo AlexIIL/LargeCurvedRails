@@ -2,7 +2,6 @@ package alexiil.mc.mod.traincraft.block;
 
 import java.util.*;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -110,13 +109,15 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
                 BehaviourWrapper behaviour = seperated.singleBehaviour(world, master, masterState);
                 return behaviour;
             }
-            world.markBlockForUpdate(pos);
+            // FIXME: is this right?
+            world.notifyBlockUpdate(pos, state, state, 0);
             return null;
         } catch (IllegalPathException e) {
             // Only update it if it was an actual world
             if (world != null) {
                 List<BlockPos> illegalPositions = e.path;
-                illegalPositions.forEach(p -> world.markBlockForUpdate(p));
+                // FIXME: is this right?
+                illegalPositions.forEach(p -> world.notifyBlockUpdate(p, state, state, 0));
             }
             return null;
         }
@@ -131,11 +132,13 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
                 // BlockTrackSeperated seperated = (BlockTrackSeperated) masterState.getBlock();
                 // return seperated.paths(world, master, masterState);
             }
-            world.markBlockForUpdate(pos);
+            // FIXME: is this right?
+            world.notifyBlockUpdate(pos, state, state, 0);
             return new ITrackPath[0];
         } catch (IllegalPathException e) {
             List<BlockPos> illegalPositions = e.path;
-            illegalPositions.forEach(p -> world.markBlockForUpdate(p));
+            // FIXME: is this right?
+            illegalPositions.forEach(p -> world.notifyBlockUpdate(p, state, state, 0));
             return new ITrackPath[0];
         }
     }
@@ -177,21 +180,21 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
     }
 
     @Override
-    public boolean shouldSideBeRendered(IBlockAccess access, BlockPos pos, EnumFacing side) {
+    public boolean shouldSideBeRendered(IBlockState state, IBlockAccess access, BlockPos pos, EnumFacing side) {
         return true;
     }
 
-    @Override
-    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
-        if (world.isRemote) return;
-        try {
-            BlockPos master = findMaster(world, pos, state);
-            /* We might have just recieved a block break event- however we cannot use "onBlockBreak" as the block has
-             * already happened at that point */
-            world.notifyBlockOfStateChange(master, this);
-            return;
-        } catch (IllegalPathException e) {
-            world.setBlockToAir(pos);
-        }
-    }
+    // @Override
+    // public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+    // if (world.isRemote) return;
+    // try {
+    // BlockPos master = findMaster(world, pos, state);
+    // /* We might have just recieved a block break event- however we cannot use "onBlockBreak" as the block has
+    // * already happened at that point */
+    // world.notifyBlockOfStateChange(master, this);
+    // return;
+    // } catch (IllegalPathException e) {
+    // world.setBlockToAir(pos);
+    // }
+    // }
 }

@@ -7,11 +7,9 @@ import java.util.List;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Point3f;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.SimpleBakedModel;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -19,25 +17,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class ModelUtil {
-    public static List<BakedQuad> extractQuadList(IBakedModel baked) {
+    public static List<BakedQuad> extractQuadList(IBlockState state, IBakedModel baked) {
         List<BakedQuad> quads = new ArrayList<>();
-        quads.addAll(baked.getGeneralQuads());
+        quads.addAll(baked.getQuads(state, null, 0));
         for (EnumFacing face : EnumFacing.values()) {
-            quads.addAll(baked.getFaceQuads(face));
+            quads.addAll(baked.getQuads(state, face, 0));
         }
         return quads;
-    }
-
-    public static IBakedModel wrapInBakedModel(List<BakedQuad> quads, TextureAtlasSprite sprite) {
-        List<List<BakedQuad>> faceQuads = new ArrayList<>();
-        for (EnumFacing face : EnumFacing.values()) {
-            faceQuads.add(new ArrayList<>());
-        }
-        return new SimpleBakedModel(quads/* new ArrayList<>() */, faceQuads, false, false, sprite, ItemCameraTransforms.DEFAULT);
-    }
-
-    public static IBakedModel multiplyMatrix(IBakedModel baked, Matrix4f matrix) {
-        return wrapInBakedModel(multiplyMatrix(extractQuadList(baked), matrix), baked.getParticleTexture());
     }
 
     public static List<BakedQuad> multiplyMatrix(List<BakedQuad> quads, Matrix4f matrix) {
@@ -51,7 +37,6 @@ public class ModelUtil {
     public static BakedQuad multiplyMatrix(BakedQuad quad, Matrix4f matrix) {
         int[] data = quad.getVertexData();
         data = Arrays.copyOf(data, data.length);
-        boolean colour = quad instanceof IColoredBakedQuad;
         int step = data.length / 4;
         for (int i = 0; i < 4; i++) {
             Point3f vec = new Point3f();
@@ -65,7 +50,7 @@ public class ModelUtil {
             data[i * step + 1] = Float.floatToRawIntBits(vec.y);
             data[i * step + 2] = Float.floatToRawIntBits(vec.z);
         }
-        return colour ? new ColoredBakedQuad(data, quad.getTintIndex(), quad.getFace()) : new BakedQuad(data, quad.getTintIndex(), quad.getFace());
+        return new BakedQuad(data, quad.getTintIndex(), quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat());
     }
 
     public static void applyColourByNormal(List<MutableQuad> quads) {

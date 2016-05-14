@@ -10,7 +10,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.Constants;
 
@@ -24,7 +23,7 @@ import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 import alexiil.mc.mod.traincraft.block.BlockTrackMultiple;
 
-public class TileTrackMultiple extends TileAbstractTrack {
+public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
     protected final List<BehaviourWrapper> pointingTo = new ArrayList<>(), umPointingTo = Collections.unmodifiableList(pointingTo);
     protected final List<BehaviourWrapper> containing = new ArrayList<>(), umContaining = Collections.unmodifiableList(containing);
     protected final List<BehaviourWrapper> allWrapped = new ArrayList<>(), umAllWrapped = Collections.unmodifiableList(allWrapped);
@@ -49,11 +48,10 @@ public class TileTrackMultiple extends TileAbstractTrack {
     }
 
     @Override
-    public void setWorldObj(World world) {
-        super.setWorldObj(world);
-        if (world != null) {
+    public void update() {
+        if (worldObj != null) {
             if (postLoad == null) return;
-            readFromNBT(postLoad);
+            readFromNBTPost(postLoad);
             postLoad = null;
         }
     }
@@ -85,14 +83,7 @@ public class TileTrackMultiple extends TileAbstractTrack {
         nbt.setTag("pointers", list);
     }
 
-    @Override
-    public void readFromNBT(NBTTagCompound nbt) {
-        super.readFromNBT(nbt);
-        if (!hasWorldObj()) {
-            // Loading depends on having the world, so we will load later if we don't actually have the world right now
-            postLoad = nbt;
-            return;
-        }
+    private void readFromNBTPost(NBTTagCompound nbt) {
         if (nbt.hasKey("tracks", Constants.NBT.TAG_LIST)) {
             containing.clear();
             NBTTagList list = (NBTTagList) nbt.getTag("tracks");
@@ -114,7 +105,7 @@ public class TileTrackMultiple extends TileAbstractTrack {
             NBTTagList list = (NBTTagList) nbt.getTag("pointers");
             for (int i = 0; i < list.tagCount(); i++) {
                 NBTTagCompound comp = list.getCompoundTagAt(i);
-                TrackIdentifier ident = new TrackIdentifier(worldObj.provider.getDimensionId(), null, "");
+                TrackIdentifier ident = new TrackIdentifier(worldObj.provider.getDimension(), null, "");
                 ident.deserializeNBT(comp);
                 if (ident.pos() == null) continue;
                 if (worldObj.isBlockLoaded(ident.pos())) {
@@ -124,6 +115,14 @@ public class TileTrackMultiple extends TileAbstractTrack {
                 }
             }
         }
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt) {
+        super.readFromNBT(nbt);
+        // Loading depends on having the world, so we will load later if we don't actually have the world right now
+        postLoad = nbt;
+        return;
     }
 
     private void loadPointingIdentifier(TrackIdentifier ident) {
@@ -167,10 +166,9 @@ public class TileTrackMultiple extends TileAbstractTrack {
         containing.add(wrapped);
         allWrapped.add(wrapped);
 
-        boolean stateTickable = this instanceof ITickable || behaviour instanceof ITickable;
         boolean statePoints = this instanceof TileTrackMultiplePoints || hasPoints();
 
-        convert(forState(stateTickable, statePoints));
+        convert(forState(statePoints));
         return true;
     }
 
@@ -180,10 +178,9 @@ public class TileTrackMultiple extends TileAbstractTrack {
         if (!containing.remove(wrapped)) return;
         allWrapped.remove(wrapped);
 
-        boolean stateTickable = this instanceof ITickable && containing.stream().anyMatch(t -> t.behaviour() instanceof ITickable);
         boolean statePoints = this instanceof TileTrackMultiplePoints && hasPoints();
 
-        convert(forState(stateTickable, statePoints));
+        convert(forState(statePoints));
     }
 
     public boolean addPointerToTrack(BehaviourWrapper wrapped) {
@@ -205,14 +202,13 @@ public class TileTrackMultiple extends TileAbstractTrack {
         allWrapped.remove(wrapped);
     }
 
-    protected final TileTrackMultiple forState(boolean tickable, boolean points) {
-        if (tickable == this instanceof ITickable && points == this instanceof TileTrackMultiplePoints) return this;
-        TileTrackMultiple tile;
-        if (!tickable && !points) return new TileTrackMultiple();
-        else if (tickable && !points) tile = new Tickable();
-        else if (!tickable) tile = new TileTrackMultiplePoints();
-        else /* (tickable && points) */ tile = new TileTrackMultiplePoints.Tickable();
-        return tile;
+    protected final TileTrackMultiple forState(boolean points) {
+        if (points == this instanceof TileTrackMultiplePoints) return this;
+        if (points) {
+            return new TileTrackMultiplePoints();
+        } else {
+            return new TileTrackMultiple();
+        }
     }
 
     protected final void convert(TileTrackMultiple mult) {
@@ -226,20 +222,8 @@ public class TileTrackMultiple extends TileAbstractTrack {
         mult.allWrapped.addAll(allWrapped);
 
         IBlockState state = worldObj.getBlockState(getPos());
-        state = state.withProperty(BlockTrackMultiple.TICKABLE, mult instanceof ITickable);
         state = state.withProperty(BlockTrackMultiple.POINTS, mult instanceof TileTrackMultiplePoints);
         worldObj.setBlockState(getPos(), state);
         worldObj.setTileEntity(getPos(), mult);
-    }
-
-    public static class Tickable extends TileTrackMultiple implements ITickable {
-        @Override
-        public void update() {
-            for (BehaviourWrapper track : containing) {
-                if (track.behaviour() instanceof ITickable) {
-                    ((ITickable) track.behaviour()).update();
-                }
-            }
-        }
     }
 }

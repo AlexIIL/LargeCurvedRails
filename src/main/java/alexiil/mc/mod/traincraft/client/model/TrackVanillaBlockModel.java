@@ -12,17 +12,17 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 
+import alexiil.mc.mod.traincraft.api.track.model.RailGeneneratorParams;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
-import alexiil.mc.mod.traincraft.client.model.CommonModelSpriteCache.GenerateRailsArguments;
 import alexiil.mc.mod.traincraft.compat.vanilla.BehaviourVanillaNative;
 
 public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
     public static final int CURVED_RAIL_GAP = 16;
 
     public static TrackVanillaBlockModel create(Block block) {
-        if (block == Blocks.activator_rail) return new ActivatorModel();
-        else if (block == Blocks.detector_rail) return new DetectorModel();
-        else if (block == Blocks.golden_rail) return new GoldenModel();
+        if (block == Blocks.ACTIVATOR_RAIL) return new ActivatorModel();
+        else if (block == Blocks.DETECTOR_RAIL) return new DetectorModel();
+        else if (block == Blocks.GOLDEN_RAIL) return new GoldenModel();
         else return new NormalModel();
     }
 
@@ -39,9 +39,10 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
             EnumRailDirection dir = state.getValue(BlockRail.SHAPE);
             TextureAtlasSprite sprite = CommonModelSpriteCache.INSTANCE.spriteVanillaRails(false);
             if (dir.isAscending() || dir.getMetadata() < 3) {
-                return CommonModelSpriteCache.generateRails(path, sprite);
+                RailGeneneratorParams args = new RailGeneneratorParams(sprite);
+                return CommonModelSpriteCache.generateRails(path, args);
             }
-            GenerateRailsArguments args = new GenerateRailsArguments(path, sprite);
+            RailGeneneratorParams args = new RailGeneneratorParams(sprite);
             return CommonModelSpriteCache.generateRails(path, args.railGap(CURVED_RAIL_GAP));
         }
     }
@@ -60,7 +61,8 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
             TextureAtlasSprite sprite = CommonModelSpriteCache.INSTANCE.spriteVanillaExtras();
 
             // Redstone Block
-            GenerateRailsArguments args = new GenerateRailsArguments(path, sprite).width(2 / 16.0).radius(0).yOffset(-0.5 / 16.0).left(false);
+            RailGeneneratorParams args = new RailGeneneratorParams(sprite);
+            args.width(2 / 16.0).radius(0).yOffset(-0.5 / 16.0).left(false);
             if (powered) args.uMin(6).uMax(8);
             else args.uMin(4).uMax(6);
             quads.addAll(CommonModelSpriteCache.generateRails(path, args));
@@ -84,19 +86,19 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
             TextureAtlasSprite sprite = CommonModelSpriteCache.INSTANCE.spriteVanillaExtras();
 
             // Left rail
-            GenerateRailsArguments args = new GenerateRailsArguments(path, sprite).width(1 / 16.0).radius(3.5 / 16.0).right(false);
+            RailGeneneratorParams args = new RailGeneneratorParams(sprite).width(1 / 16.0).radius(3.5 / 16.0).right(false);
             if (powered) args.uMin(6).uMax(7);
             else args.uMin(4).uMax(5);
             quads.addAll(CommonModelSpriteCache.generateRails(path, args));
 
             // Right rail
-            args = new GenerateRailsArguments(path, sprite).width(1 / 16.0).radius(3.5 / 16.0).left(false);
+            args = new RailGeneneratorParams(sprite).width(1 / 16.0).radius(3.5 / 16.0).left(false);
             if (powered) args.uMin(7).uMax(8);
             else args.uMin(5).uMax(6);
             quads.addAll(CommonModelSpriteCache.generateRails(path, args));
 
             // Redstone Block
-            args = new GenerateRailsArguments(path, sprite).width(2 / 16.0).radius(0).yOffset(-0.5 / 16.0).left(false);
+            args = new RailGeneneratorParams(sprite).width(2 / 16.0).radius(0).yOffset(-0.5 / 16.0).left(false);
             if (powered) args.uMin(6).uMax(8);
             else args.uMin(4).uMax(6);
             quads.addAll(CommonModelSpriteCache.generateRails(path, args));
@@ -117,18 +119,18 @@ public abstract class TrackVanillaBlockModel extends TrackGenericBlockModel {
             boolean powered = state.getValue(BlockRailPowered.POWERED);
             TextureAtlasSprite sprite = CommonModelSpriteCache.INSTANCE.spriteVanillaExtras();
 
-            GenerateRailsArguments args = new GenerateRailsArguments(path, sprite).left(false).width(1 / 16.0).radius(3.5 / 16.0);
+            RailGeneneratorParams args = new RailGeneneratorParams(sprite).left(false).width(1 / 16.0).radius(3.5 / 16.0);
             if (powered) args.uMin(2).uMax(3);
             else args.uMin(0).uMax(1);
             quads.addAll(CommonModelSpriteCache.generateRails(path, args));
 
-            args = new GenerateRailsArguments(path, sprite).right(false).width(1 / 16.0).radius(3.5 / 16.0);
+            args = new RailGeneneratorParams(sprite).right(false).width(1 / 16.0).radius(3.5 / 16.0);
             if (powered) args.uMin(3).uMax(4);
             else args.uMin(1).uMax(2);
             quads.addAll(CommonModelSpriteCache.generateRails(path, args));
 
             // Redstone Block
-            args = new GenerateRailsArguments(path, sprite).width(2 / 16.0).radius(0).yOffset(-0.5 / 16.0).left(false);
+            args = new RailGeneneratorParams(sprite).width(2 / 16.0).radius(0).yOffset(-0.5 / 16.0).left(false);
             if (powered) args.uMin(6).uMax(8);
             else args.uMin(4).uMax(6);
             quads.addAll(CommonModelSpriteCache.generateRails(path, args));

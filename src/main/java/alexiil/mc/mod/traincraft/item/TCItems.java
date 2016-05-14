@@ -29,13 +29,7 @@ public enum TCItems {
     TRACK_CURVED_HALF_5(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_5_RADIUS), () -> TCTabs.TRAINCRAFT),
     TRACK_CURVED_HALF_7(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_7_RADIUS), () -> TCTabs.TRAINCRAFT),
     TRACK_CURVED_HALF_9(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_9_RADIUS), () -> TCTabs.TRAINCRAFT),
-    TRACK_CURVED_HALF_11(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_11_RADIUS), () -> TCTabs.TRAINCRAFT),
-    /* Trains */
-    TRAIN_SMALL_STEAM_LOCOMOTIVE(() -> new ItemTrainLocomotiveSteamSmall(), () -> TCTabs.TRAINCRAFT),
-    /* Rolling stock */
-    STOCK_SMALL_CART(() -> new ItemTrainCartSmall(), () -> TCTabs.TRAINCRAFT),
-    /* Misc */
-    MISC_STAKE(() -> null, () -> TCTabs.TRAINCRAFT);
+    TRACK_CURVED_HALF_11(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_11_RADIUS), () -> TCTabs.TRAINCRAFT);
 
     private final Supplier<Item> supplier;
     private final Supplier<TCTabs> tabSupplier;

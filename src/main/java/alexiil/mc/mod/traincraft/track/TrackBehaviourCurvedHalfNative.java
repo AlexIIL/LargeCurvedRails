@@ -3,6 +3,7 @@ package alexiil.mc.mod.traincraft.track;
 import java.util.Set;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -17,7 +18,6 @@ import alexiil.mc.mod.traincraft.api.track.behaviour.TrackIdentifier;
 import alexiil.mc.mod.traincraft.api.track.model.DefaultTrackModel;
 import alexiil.mc.mod.traincraft.api.track.model.ITrackModel;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
-import alexiil.mc.mod.traincraft.api.train.IRollingStock;
 import alexiil.mc.mod.traincraft.block.BlockTrackCurvedHalf;
 
 public class TrackBehaviourCurvedHalfNative extends TrackBehaviourNative {
@@ -46,7 +46,7 @@ public class TrackBehaviourCurvedHalfNative extends TrackBehaviourNative {
         }
         EnumFacing face = state.getValue(BlockTrackCurvedHalf.PROPERTY_FACING);
         boolean positive = state.getValue(BlockTrackCurvedHalf.PROPERTY_DIRECTION);
-        return curve.halfFactory.getPath(face, positive).offset(pos);
+        return curve.halfFactory.getPath(face, positive);
     }
 
     @Override
@@ -68,11 +68,11 @@ public class TrackBehaviourCurvedHalfNative extends TrackBehaviourNative {
 
     @Override
     public TrackIdentifier getIdentifier(World world, BlockPos pos, IBlockState state) {
-        return new TrackIdentifier(world.provider.getDimensionId(), pos, curve.halfIdentifier + "native");// FIXME!
+        return new TrackIdentifier(world.provider.getDimension(), pos, curve.halfIdentifier + "native");// FIXME!
     }
 
     @Override
-    public void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {}
+    public void onMinecartPass(World world, BlockPos pos, IBlockState state, EntityMinecart cart) {}
 
     @Override
     @SideOnly(Side.CLIENT)

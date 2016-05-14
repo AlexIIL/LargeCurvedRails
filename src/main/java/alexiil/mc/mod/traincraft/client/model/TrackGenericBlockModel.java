@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.util.EnumFacing;
 
+import alexiil.mc.mod.traincraft.api.track.model.RailGeneneratorParams;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 import alexiil.mc.mod.traincraft.lib.BlockStateKeyWrapper;
 
@@ -30,6 +31,11 @@ public abstract class TrackGenericBlockModel extends PerspAwareModelBase {
     public long maxCacheSize() {
         // 16 is the maximum number of meta values so it should be enough
         return 16;
+    }
+
+    @Override
+    public boolean isAmbientOcclusion() {
+        return false;
     }
 
     @Override
@@ -62,7 +68,8 @@ public abstract class TrackGenericBlockModel extends PerspAwareModelBase {
 
     @SuppressWarnings("static-method")
     protected List<BakedQuad> generateRails(IBlockState state, ITrackPath path) {
-        return CommonModelSpriteCache.generateRails(path, CommonModelSpriteCache.INSTANCE.spriteVanillaRails(false));
+        RailGeneneratorParams args = new RailGeneneratorParams(CommonModelSpriteCache.INSTANCE.spriteVanillaRails(false));
+        return CommonModelSpriteCache.generateRails(path, args);
     }
 
     public List<BakedQuad> getOrCreate(IBlockState state) {

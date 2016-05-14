@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -35,9 +36,9 @@ public class SmoothFaceRenderer {
 
     public static void renderModelMultColour(IBakedModel model, Matrix4f transform, float red, float green, float blue) {
         List<BakedQuad> quads = new ArrayList<>();
-        quads.addAll(model.getGeneralQuads());
+        quads.addAll(model.getQuads(null, null, 0));
         for (EnumFacing face : EnumFacing.values())
-            quads.addAll(model.getFaceQuads(face));
+            quads.addAll(model.getQuads(null, face, 0));
         renderModelMultColour(quads, transform, red, green, blue);
     }
 
@@ -46,9 +47,9 @@ public class SmoothFaceRenderer {
     }
 
     public static void renderModelMultColour(List<BakedQuad> quads, Matrix4f transform, float red, float green, float blue) {
-        WorldRenderer wr = Tessellator.getInstance().getWorldRenderer();
-        wr.setTranslation(0, 0, 0);
-        wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+        VertexBuffer vb = Tessellator.getInstance().getBuffer();
+        vb.setTranslation(0, 0, 0);
+        vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
         for (BakedQuad quad : quads) {
             if (quad == null) continue;
             Point3f[] points = transform(points(quad), transform);
@@ -58,17 +59,17 @@ public class SmoothFaceRenderer {
 
             for (int i = 0; i < 4; i++) {
                 Point3f pos = points[i];
-                wr.pos(pos.x, pos.y, pos.z);
+                vb.pos(pos.x, pos.y, pos.z);
 
                 Point2f uv = uv(quad, i);
-                wr.tex(uv.x, uv.y);
+                vb.tex(uv.x, uv.y);
 
                 Point4i colour = colour(quad, i);
-                wr.color((int) (diffuse * colour.x * red), (int) (diffuse * colour.y * green), (int) (diffuse * colour.z * blue), colour.w);
+                vb.color((int) (diffuse * colour.x * red), (int) (diffuse * colour.y * green), (int) (diffuse * colour.z * blue), colour.w);
 
-                wr.normal(normal.x, normal.y, normal.z);
+                vb.normal(normal.x, normal.y, normal.z);
 
-                wr.endVertex();
+                vb.endVertex();
             }
         }
         Tessellator.getInstance().draw();

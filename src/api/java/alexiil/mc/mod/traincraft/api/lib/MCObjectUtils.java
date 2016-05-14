@@ -2,7 +2,6 @@ package alexiil.mc.mod.traincraft.api.lib;
 
 import java.util.Objects;
 
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public class MCObjectUtils {
@@ -38,15 +37,6 @@ public class MCObjectUtils {
 
     public static boolean equals(Vec3d a, Vec3d b) {
         return MathUtil.roughlyEquals(a.xCoord, b.xCoord) && MathUtil.roughlyEquals(a.yCoord, b.yCoord) && MathUtil.roughlyEquals(a.zCoord, b.zCoord);
-    }
-
-    public static BlockPos getWatchableObjectBlockPos(DataWatcher watcher, int id) {
-        for (WatchableObject watchable : watcher.getAllWatched()) {
-            if (watchable.getDataValueId() == id) {
-                return (BlockPos) watchable.getObject();
-            }
-        }
-        throw new IllegalStateException("Did not find a block position!");
     }
 
     public static final class Vec3dKey {

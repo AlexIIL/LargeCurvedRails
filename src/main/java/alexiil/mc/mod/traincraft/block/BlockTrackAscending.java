@@ -10,7 +10,9 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Table;
 
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -18,6 +20,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
@@ -39,10 +42,8 @@ public class BlockTrackAscending extends BlockTrackSeperated {
     private final Map<ITrackPath, Set<BlockPos>> slaveOffsets = new HashMap<>();
 
     public BlockTrackAscending(int blocksLong) {
-        super(TRACK_DIRECTION, ASCEND_DIRECTION, MATERIAL_TYPE);
         this.length = blocksLong;
         if (blocksLong <= 2) throw new IllegalArgumentException("Must be at least 3 long!");
-        BlockPos creator = BlockPos.ORIGIN;
         for (EnumDirection dir : EnumDirection.values()) {
             if (dir != EnumDirection.NORTH_SOUTH && dir != EnumDirection.EAST_WEST) {
                 // Its a bit more complex
@@ -51,34 +52,48 @@ public class BlockTrackAscending extends BlockTrackSeperated {
         }
 
         // NORTH_SOUTH
-        TrackPathStraight straight = new TrackPathStraight(new Vec3d(0.5, TRACK_HEIGHT, 0), new Vec3d(0.5, TRACK_HEIGHT + 1, length), creator);
+        TrackPathStraight straight = new TrackPathStraight(new Vec3d(0.5, TRACK_HEIGHT, 0), new Vec3d(0.5, TRACK_HEIGHT + 1, length));
         pathTable.put(EnumDirection.NORTH_SOUTH, true, straight);
         Set<BlockPos> positions = IntStream.range(0, length).mapToObj((i) -> new BlockPos(0, 0, i)).collect(Collectors.toSet());
         slaveOffsets.put(straight, positions);
 
-        straight = new TrackPathStraight(new Vec3d(0.5, TRACK_HEIGHT, 1), new Vec3d(0.5, TRACK_HEIGHT + 1, 1 - length), creator);
+        straight = new TrackPathStraight(new Vec3d(0.5, TRACK_HEIGHT, 1), new Vec3d(0.5, TRACK_HEIGHT + 1, 1 - length));
         pathTable.put(EnumDirection.NORTH_SOUTH, false, straight);
         positions = IntStream.range(0, length).mapToObj((i) -> new BlockPos(0, 0, -i)).collect(Collectors.toSet());
         slaveOffsets.put(straight, positions);
 
         // EAST_WEST
-        straight = new TrackPathStraight(new Vec3d(0, TRACK_HEIGHT, 0.5), new Vec3d(length, TRACK_HEIGHT + 1, 0.5), creator);
+        straight = new TrackPathStraight(new Vec3d(0, TRACK_HEIGHT, 0.5), new Vec3d(length, TRACK_HEIGHT + 1, 0.5));
         pathTable.put(EnumDirection.EAST_WEST, true, straight);
         positions = IntStream.range(0, length).mapToObj((i) -> new BlockPos(i, 0, 0)).collect(Collectors.toSet());
         slaveOffsets.put(straight, positions);
 
-        straight = new TrackPathStraight(new Vec3d(1, TRACK_HEIGHT, 0.5), new Vec3d(1 - length, TRACK_HEIGHT + 1, 0.5), creator);
+        straight = new TrackPathStraight(new Vec3d(1, TRACK_HEIGHT, 0.5), new Vec3d(1 - length, TRACK_HEIGHT + 1, 0.5));
         pathTable.put(EnumDirection.EAST_WEST, false, straight);
         positions = IntStream.range(0, length).mapToObj((i) -> new BlockPos(-i, 0, 0)).collect(Collectors.toSet());
         slaveOffsets.put(straight, positions);
     }
 
-    // @Override
-    // public ITrackPath[] paths(World world, BlockPos pos, IBlockState state) {
-    // ITrackPath path = path(state);
-    // if (path == null) return new ITrackPath[0];
-    // return new ITrackPath[] { path.offset(pos) };
-    // }
+    @Override
+    protected BlockStateContainer createBlockState() {
+        IProperty<?>[] props = { TRACK_DIRECTION, ASCEND_DIRECTION };
+        IUnlistedProperty<?>[] unlisted = { MATERIAL_TYPE };
+        return new ExtendedBlockState(this, props, unlisted);
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        boolean ascending = (meta & 8) == 8;
+        EnumDirection direction = EnumDirection.fromMeta(meta & 7);
+        return getDefaultState().withProperty(ASCEND_DIRECTION, ascending).withProperty(TRACK_DIRECTION, direction);
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        int meta = state.getValue(TRACK_DIRECTION).ordinal();
+        if (state.getValue(ASCEND_DIRECTION)) meta |= 8;
+        return meta;
+    }
 
     @Override
     public BehaviourWrapper singleBehaviour(World world, BlockPos pos, IBlockState state) {

@@ -4,7 +4,6 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -40,11 +39,6 @@ public interface ITrackPath {
      *         {@link #end()}. Curved sections will be longer. */
     double length();
 
-    /** Offsets this track path by the given amount. Useful for caching a single path object (that works out the length)
-     * and offsetting it for every block position that exists. */
-    @Deprecated
-    ITrackPath offset(BlockPos pos);
-
     public static Vec3d interpolate(Vec3d start, Vec3d end, double position) {
         double x = start.xCoord * (1 - position) + end.xCoord * position;
         double y = start.yCoord * (1 - position) + end.yCoord * position;
@@ -55,10 +49,6 @@ public interface ITrackPath {
     default TrackBehaviour creatingBehaviour() {
         return null;
     }
-
-    /** @return The block position that created this path */
-    @Deprecated
-    BlockPos creatingBlock();
 
     /** Will attempt to find the best progress value that, when fed to {@link #interpolate(double)} returns the vector
      * that is closest to lastPlace */

@@ -6,6 +6,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
@@ -22,7 +23,6 @@ import alexiil.mc.mod.traincraft.api.lib.MathUtil;
 import alexiil.mc.mod.traincraft.api.track.model.DefaultTrackModel;
 import alexiil.mc.mod.traincraft.api.track.model.ITrackModel;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
-import alexiil.mc.mod.traincraft.api.train.IRollingStock;
 
 import io.netty.buffer.ByteBuf;
 
@@ -79,7 +79,7 @@ public abstract class TrackBehaviour {
     }
 
     /** Called once per tick by a stock to let the track intract with the stock. */
-    public abstract void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock);
+    public abstract void onMinecartPass(World world, BlockPos pos, IBlockState state, EntityMinecart minecart);
 
     @SideOnly(Side.CLIENT)
     @SuppressWarnings("static-method")
@@ -131,11 +131,11 @@ public abstract class TrackBehaviour {
         public abstract Set<BlockPos> getSlaveOffsets();
 
         @Override
-        public final void onStockPass(World world, BlockPos pos, IBlockState state, IRollingStock stock) {
-            onStockPass(stock);
+        public final void onMinecartPass(World world, BlockPos pos, IBlockState state, EntityMinecart cart) {
+            onMinecartPass(cart);
         }
 
-        public abstract void onStockPass(IRollingStock stock);
+        public abstract void onMinecartPass(EntityMinecart cart);
 
         // Block related methods
         public void onNeighbourChange(TileEntity owner) {}
