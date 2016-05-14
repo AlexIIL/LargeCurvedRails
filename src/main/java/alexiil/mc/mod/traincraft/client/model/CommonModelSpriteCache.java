@@ -93,11 +93,14 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
                     IBakedModel baked = model.bake(ModelRotation.X0_Y0, DefaultVertexFormats.BLOCK, getSpriteFunction());
                     List<BakedQuad> sleeper = new ArrayList<>();
                     for (BakedQuad q : ModelUtil.extractQuadList(Blocks.AIR.getDefaultState(), baked)) {
+                        MutableQuad mutable = MutableQuad.create(q);
+
                         int[] data = q.getVertexData();
                         data = Arrays.copyOf(data, data.length);
                         TrainCraft.trainCraftLog.info("quad[" + q.getTintIndex() + ", " + q.getFace() + "]");
                         BakedQuad copy = new BakedQuad(data, q.getTintIndex(), q.getFace(), q.getSprite(), q.shouldApplyDiffuseLighting(), q.getFormat());
-                        sleeper.add(copy);
+
+                        sleeper.add(mutable.toUnpacked(MutableQuad.ITEM_LMAP));
                     }
                     sleepers.add(sleeper);
                     i++;

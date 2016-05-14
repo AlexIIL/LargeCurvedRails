@@ -100,7 +100,7 @@ public class Polygon {
     }
 
     public static class BisectedPolygon {
-        /** One might be null, but at least one is guarenteed to be non-null */
+        /** One might be null, but at least one is guaranteed to be non-null */
         public final Polygon away, towards;
 
         public BisectedPolygon(Polygon away, Polygon towards) {
