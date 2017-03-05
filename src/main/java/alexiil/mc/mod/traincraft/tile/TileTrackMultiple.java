@@ -6,10 +6,15 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
 
 import net.minecraftforge.common.util.Constants;
 
@@ -125,6 +130,26 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
         return;
     }
 
+    @Override
+    public Packet<?> getDescriptionPacket() {
+        NBTTagCompound nbt;
+        if (postLoad == null) {
+            nbt = new NBTTagCompound();
+            this.writeToNBT(nbt);
+        } else {
+            nbt = postLoad;
+        }
+        System.out.println("getDescPacket() " + nbt);
+        new Throwable().printStackTrace();
+        return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+        System.out.println("onDataPacket " + pkt.getNbtCompound());
+        readFromNBT(pkt.getNbtCompound());
+    }
+
     private void loadPointingIdentifier(TrackIdentifier ident) {
         IBlockState state = worldObj.getBlockState(ident.pos());
         List<BehaviourWrapper> wrappers = TrackPathProvider.INSTANCE.getTracksAsList(worldObj, ident.pos(), state);
@@ -165,6 +190,7 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
 
         containing.add(wrapped);
         allWrapped.add(wrapped);
+        System.out.println("Added " + wrapped);
 
         boolean statePoints = this instanceof TileTrackMultiplePoints || hasPoints();
 
@@ -177,6 +203,7 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
         // No point in doing anything if the behaviour given didn't actually exist
         if (!containing.remove(wrapped)) return;
         allWrapped.remove(wrapped);
+        System.out.println("Removed " + wrapped);
 
         boolean statePoints = this instanceof TileTrackMultiplePoints && hasPoints();
 
@@ -203,16 +230,21 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
     }
 
     protected final TileTrackMultiple forState(boolean points) {
-        if (points == this instanceof TileTrackMultiplePoints) return this;
-        if (points) {
-            return new TileTrackMultiplePoints();
-        } else {
-            return new TileTrackMultiple();
-        }
+        return this;/* if (points == this instanceof TileTrackMultiplePoints) return this; if (points) { return new
+                     * TileTrackMultiplePoints(); } else { return new TileTrackMultiple(); } */
     }
 
     protected final void convert(TileTrackMultiple mult) {
-        if (mult == this || mult.getClass() == this.getClass()) return;
+        if (mult == this || mult.getClass() == this.getClass() || true) {
+            // if (!worldObj.isRemote) {
+            // // send a desc packet for all tile entities
+            // // HARDCODED FOR NOW
+            // EntityPlayerMP player = (EntityPlayerMP) ((WorldServer) worldObj).playerEntities.get(0);
+            // player.playerNetServerHandler.sendPacket(getDescriptionPacket());
+            // System.out.println("Send packet to player " + containing);
+            // }
+            return;
+        }
         mult.containing.clear();
         mult.pointingTo.clear();
         mult.allWrapped.clear();
@@ -225,5 +257,9 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
         state = state.withProperty(BlockTrackMultiple.POINTS, mult instanceof TileTrackMultiplePoints);
         worldObj.setBlockState(getPos(), state);
         worldObj.setTileEntity(getPos(), mult);
+        // HARDCODED FOR NOW
+        EntityPlayerMP player = (EntityPlayerMP) ((WorldServer) worldObj).playerEntities.get(0);
+        player.playerNetServerHandler.sendPacket(mult.getDescriptionPacket());
+        System.out.println("Send packet to player " + mult.containing);
     }
 }

@@ -118,10 +118,10 @@ public abstract class BehaviourVanillaState extends TrackBehaviourStateful {
     }
 
     public enum Factory implements StatefulFactory {
-        NORMAL("normal", (ident, world, pos) -> new Normal(ident, world, pos)),
-        ACTIVATOR("activator", (ident, world, pos) -> new Activator(ident, world, pos)),
-        DETECTOR("detector", (ident, world, pos) -> new Detector(ident, world, pos)),
-        GOLDEN("golden", (ident, world, pos) -> new Golden(ident, world, pos));
+        NORMAL("normal", Normal::new),
+        ACTIVATOR("activator", Activator::new),
+        DETECTOR("detector", Detector::new),
+        GOLDEN("golden", Golden::new);
 
         private final String ident;
         private final TriFunction<String, World, BlockPos, BehaviourVanillaState> factory;

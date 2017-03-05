@@ -31,7 +31,6 @@ import alexiil.mc.mod.traincraft.client.model.test.ModelSplitter;
 public enum CommonModelSpriteCache implements IModelSpriteGetter {
     INSTANCE;
 
-    // 4.3 is the lowest number that makes diagonal straight tracks use 3 sleepers rather than 2
     public static final double SLEEPER_COUNT_PER_METER = RailGeneneratorParams.SLEEPER_COUNT_PER_METER;
     public static final double RAIL_COUNT_PER_METER = RailGeneneratorParams.RAIL_COUNT_PER_METER;
 
@@ -94,7 +93,6 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
                     for (BakedQuad q : ModelUtil.extractQuadList(Blocks.AIR.getDefaultState(), baked)) {
                         MutableQuad mutable = MutableQuad.create(q);
                         mutable.diffuse = false;
-                        // Convert it to ITEM_LMAP
                         sleeper.add(mutable.toUnpacked(MutableQuad.ITEM_LMAP));
                     }
                     sleepers.add(sleeper);

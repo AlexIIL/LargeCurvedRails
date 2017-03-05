@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.common.property.IExtendedBlockState;
 
@@ -47,6 +48,7 @@ public class TrackGenericBlockModel_NEW_ extends PerspAwareModelBase {
         List<BakedQuad> allQuads = new ArrayList<>();
 
         double yOffset = 0;
+        RailGeneneratorParams r = new RailGeneneratorParams(null);
         for (TrackModelWrapper wrap : wrappers) {
             ITrackPath path = wrap.path;
             ITrackModel model = wrap.model;
@@ -56,10 +58,21 @@ public class TrackGenericBlockModel_NEW_ extends PerspAwareModelBase {
 
             // Add rails
             for (RailGeneneratorParams rail : model.getRailGen()) {
-                rail = rail.yOffset(rail.yOffset() + yOffset);
-                allQuads.addAll(CommonModelSpriteCache.generateRails(path, rail));
+                r.railSprite(rail.railSprite());
+                r.railGap(rail.railGap());
+                r.uMin(rail.uMin());
+                r.uMax(rail.uMax());
+                r.left(rail.left());
+                r.right(rail.right());
+                r.width(rail.width());
+                r.radius(rail.radius());
+                r.yOffset(rail.yOffset() + yOffset);
+                allQuads.addAll(CommonModelSpriteCache.generateRails(path, r));
             }
-
+            List<BakedQuad> sleepers = CommonModelSpriteCache.generateSleepers(path, CommonModelSpriteCache.INSTANCE.loadSleepers(), false);
+            for (BakedQuad q : sleepers) {
+                allQuads.add(ModelUtil.multiplyMatrix(q, MatrixUtil.translation(new Vec3d(0, yOffset, 0))));
+            }
             for (ISleeperGen sleeper : model.getSleeperGen()) {
 
             }
@@ -67,7 +80,7 @@ public class TrackGenericBlockModel_NEW_ extends PerspAwareModelBase {
             for (IModelComponent extra : model.getExtraComponents()) {
                 allQuads.addAll(extra.generate(path));
             }
-            yOffset += 0.01;
+            yOffset += 0.001;
         }
         return allQuads;
     }

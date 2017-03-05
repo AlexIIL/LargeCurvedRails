@@ -110,14 +110,14 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
                 return behaviour;
             }
             // FIXME: is this right?
-            world.notifyBlockUpdate(pos, state, state, 0);
+//            world.notifyBlockUpdate(pos, state, state, 0);
             return null;
         } catch (IllegalPathException e) {
             // Only update it if it was an actual world
             if (world != null) {
                 List<BlockPos> illegalPositions = e.path;
                 // FIXME: is this right?
-                illegalPositions.forEach(p -> world.notifyBlockUpdate(p, state, state, 0));
+//                illegalPositions.forEach(p -> world.notifyBlockUpdate(p, state, state, 0));
             }
             return null;
         }
@@ -133,12 +133,12 @@ public class BlockTrackPointer extends BlockAbstractTrackSingle {
                 // return seperated.paths(world, master, masterState);
             }
             // FIXME: is this right?
-            world.notifyBlockUpdate(pos, state, state, 0);
+//            world.notifyBlockUpdate(pos, state, state, 0);
             return new ITrackPath[0];
         } catch (IllegalPathException e) {
             List<BlockPos> illegalPositions = e.path;
             // FIXME: is this right?
-            illegalPositions.forEach(p -> world.notifyBlockUpdate(p, state, state, 0));
+//            illegalPositions.forEach(p -> world.notifyBlockUpdate(p, state, state, 0));
             return new ITrackPath[0];
         }
     }
