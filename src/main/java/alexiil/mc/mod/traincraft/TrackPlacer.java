@@ -94,7 +94,7 @@ public enum TrackPlacer implements ITrackPlacer {
 
     private static TileTrackMultiple createMultiTile(World world, BlockPos pos) {
         TileTrackMultiple multi = new TileTrackMultiple();
-        multi.setWorldObj(world);
+        multi.setWorld(world);
         multi.setPos(pos);
         world.setBlockState(pos, TCBlocks.TRACK_MULTIPLE.getBlock().getDefaultState(), 2);
         world.setTileEntity(pos, multi);

@@ -25,7 +25,7 @@ public class ItemTrackStraight extends ItemBlockTrack {
     @Override
     protected IBlockState targetState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
         EnumFacing entFacing = player.getHorizontalFacing();
-        IBlockState state = TCBlocks.TRACK_STRAIGHT.getBlock().getDefaultState();
+        IBlockState state = TCBlocks.TRACK_STRAIGHT_AXIS.getBlock().getDefaultState();
         if (entFacing.getAxis() == Axis.X) return state.withProperty(BlockTrackStraight.TRACK_DIRECTION, EnumDirection.EAST_WEST);
         else return state.withProperty(BlockTrackStraight.TRACK_DIRECTION, EnumDirection.NORTH_SOUTH);
     }

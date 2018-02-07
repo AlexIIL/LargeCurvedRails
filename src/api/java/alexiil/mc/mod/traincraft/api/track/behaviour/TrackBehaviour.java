@@ -5,6 +5,8 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
+import io.netty.buffer.ByteBuf;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.nbt.NBTTagCompound;
@@ -24,8 +26,6 @@ import alexiil.mc.mod.traincraft.api.track.model.DefaultTrackModel;
 import alexiil.mc.mod.traincraft.api.track.model.ITrackModel;
 import alexiil.mc.mod.traincraft.api.track.path.ITrackPath;
 
-import io.netty.buffer.ByteBuf;
-
 /** This controls how a train interacts with a tracks and can get a path that a train can use to follow this track. */
 public abstract class TrackBehaviour {
     /** An immutable set of just the origin point to be used for all tracks that have paths which are completly
@@ -35,8 +35,7 @@ public abstract class TrackBehaviour {
     /** Private constructor to force either of the below types to be used as they are specially coded for. */
     private TrackBehaviour() {}
 
-    /** @return A path that will traverse over this behaviour. So long as a rolling stock is traversing this path
-     *         {@link #onStockPass(IRollingStock)} will be called. */
+    /** @return A path that will traverse over this behaviour. */
     public abstract ITrackPath getPath(World world, BlockPos pos, IBlockState state);
 
     /** @return An identifier that can identify this behaviour verses any other. */
@@ -97,7 +96,8 @@ public abstract class TrackBehaviour {
     /** A behaviour that can save and load itself from inside a tile entity. If a subclass implements {@link ITickable}
      * then the wrapping tile used will call {@link ITickable#update()} every tick. getPath, getIdentifier and isValid
      * will ignore all of the arguments you give them. */
-    public static abstract class TrackBehaviourStateful extends TrackBehaviour implements INBTSerializable<NBTTagCompound>, INetSerialisable {
+    public static abstract class TrackBehaviourStateful extends TrackBehaviour
+        implements INBTSerializable<NBTTagCompound>, INetSerialisable {
         /** @return A factory that will create new instances of this behaviour for client->server or world->disk->world
          *         transfer */
         public abstract StatefulFactory factory();
@@ -105,7 +105,6 @@ public abstract class TrackBehaviour {
         /** Attempts to convert this track (in position) to its native version (if one exists)
          * 
          * @param owner The tile entity that currently owns this state.
-         * 
          * @return True if this was converted into block-only format in the world, false. */
         public abstract boolean convertToNative(TileEntity owner);
 

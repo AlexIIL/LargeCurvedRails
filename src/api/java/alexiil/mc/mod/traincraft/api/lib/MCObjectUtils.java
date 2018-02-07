@@ -4,12 +4,14 @@ import java.util.Objects;
 
 import net.minecraft.util.math.Vec3d;
 
+@Deprecated
 public class MCObjectUtils {
+    @Deprecated
     public static int hash(Vec3d vec) {
-        if (vec == null) return 0;
-        return Objects.hash(vec.xCoord, vec.yCoord, vec.zCoord);
+        return vec == null ? 0 : vec.hashCode();
     }
 
+    @Deprecated
     public static int hash(Vec3d[] array) {
         if (array == null) return 0;
 
@@ -21,6 +23,7 @@ public class MCObjectUtils {
         return result;
     }
 
+    @Deprecated
     public static int hash(Object... array) {
         if (array == null) return 0;
 
@@ -35,10 +38,12 @@ public class MCObjectUtils {
         return result;
     }
 
+    @Deprecated
     public static boolean equals(Vec3d a, Vec3d b) {
-        return MathUtil.roughlyEquals(a.xCoord, b.xCoord) && MathUtil.roughlyEquals(a.yCoord, b.yCoord) && MathUtil.roughlyEquals(a.zCoord, b.zCoord);
+        return MathUtil.roughlyEquals(a.x, b.x) && MathUtil.roughlyEquals(a.y, b.y) && MathUtil.roughlyEquals(a.z, b.z);
     }
 
+    @Deprecated
     public static final class Vec3dKey {
         private final Vec3d key;
 

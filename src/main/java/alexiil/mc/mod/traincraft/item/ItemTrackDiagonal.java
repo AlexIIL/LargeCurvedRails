@@ -57,7 +57,7 @@ public class ItemTrackDiagonal extends ItemBlockTrainCraft {
             return false;
         }
 
-        IBlockState actualState = TCBlocks.TRACK_STRAIGHT.getBlock().getDefaultState();
+        IBlockState actualState = TCBlocks.TRACK_STRAIGHT_AXIS.getBlock().getDefaultState();
         actualState = actualState.withProperty(BlockTrackStraight.TRACK_DIRECTION, direction);
         world.setBlockState(pos, actualState);
         return true;

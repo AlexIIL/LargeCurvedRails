@@ -2,7 +2,7 @@ package alexiil.mc.mod.traincraft.api.track.path;
 
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.Vec3d;
 
@@ -40,9 +40,9 @@ public interface ITrackPath {
     double length();
 
     public static Vec3d interpolate(Vec3d start, Vec3d end, double position) {
-        double x = start.xCoord * (1 - position) + end.xCoord * position;
-        double y = start.yCoord * (1 - position) + end.yCoord * position;
-        double z = start.zCoord * (1 - position) + end.zCoord * position;
+        double x = start.x * (1 - position) + end.x * position;
+        double y = start.y * (1 - position) + end.y * position;
+        double z = start.z * (1 - position) + end.z * position;
         return new Vec3d(x, y, z);
     }
 
@@ -66,10 +66,10 @@ public interface ITrackPath {
 
     /** Renderers information to inform the debug screen of what makes this path a path.
      * 
-     * @param wr The world renderer that has been set up to render with {@link DefaultVertexFormats#POSITION_COLOR} and
+     * @param bb The world renderer that has been set up to render with {@link DefaultVertexFormats#POSITION_COLOR} and
      *            {@link GL11#GL_LINES} */
     @SideOnly(Side.CLIENT)
-    default void renderInfo(VertexBuffer vb) {}
+    default void renderInfo(BufferBuilder bb) {}
 
     default RayTraceTrackPath rayTrace(Vec3d start, Vec3d direction) {
         double ia = 0, ib = 1;

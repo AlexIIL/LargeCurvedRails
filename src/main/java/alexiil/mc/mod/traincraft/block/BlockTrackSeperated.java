@@ -56,7 +56,7 @@ public abstract class BlockTrackSeperated extends BlockAbstractTrackSingle {
     public abstract Set<BlockPos> getSlaveOffsets(IBlockState state);
 
     @Override
-    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos) {
         if (world.isRemote) return;
         for (BlockPos slave : getSlaveOffsets(state)) {
             if (!isSlave(world, pos, state, pos.add(slave), world.getBlockState(pos.add(slave)))) {

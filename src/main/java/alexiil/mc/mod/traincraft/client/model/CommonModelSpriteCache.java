@@ -235,7 +235,7 @@ public enum CommonModelSpriteCache implements IModelSpriteGetter {
     }
 
     private static Vec3d replaceY(int y, Vec3d v) {
-        return new Vec3d(v.xCoord, y, v.zCoord);
+        return new Vec3d(v.x, y, v.z);
     }
 
     private static Vec3d down(Vec3d vec) {

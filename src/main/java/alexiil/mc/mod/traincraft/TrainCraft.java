@@ -61,7 +61,6 @@ public class TrainCraft {
     public void init(FMLInitializationEvent event) {
         TCBlocks.init();
         TCItems.init();
-        TCRecipies.init();
         TCCompat.init();
         AddonManager.INSTANCE.init();
 

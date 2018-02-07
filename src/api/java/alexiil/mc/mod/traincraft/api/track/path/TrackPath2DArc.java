@@ -1,13 +1,13 @@
 package alexiil.mc.mod.traincraft.api.track.path;
 
-import net.minecraft.client.renderer.VertexBuffer;
+import java.util.Objects;
+
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import alexiil.mc.mod.traincraft.api.lib.MCObjectUtils;
 
 public class TrackPath2DArc implements ITrackPath {
     private final Vec3d center;
@@ -72,24 +72,24 @@ public class TrackPath2DArc implements ITrackPath {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void renderInfo(VertexBuffer vb) {
+    public void renderInfo(BufferBuilder bb) {
         Vec3d c = center;
 
         Vec3d s = start();
-        vb.pos(c.xCoord, c.yCoord, c.zCoord).color(0, 0, 255, 255).endVertex();
-        vb.pos(s.xCoord, s.yCoord, s.zCoord).color(0, 0, 255, 255).endVertex();
+        bb.pos(c.x, c.y, c.z).color(0, 0, 255, 255).endVertex();
+        bb.pos(s.x, s.y, s.z).color(0, 0, 255, 255).endVertex();
 
         Vec3d e = end();
-        vb.pos(c.xCoord, c.yCoord, c.zCoord).color(0, 0, 255, 255).endVertex();
-        vb.pos(e.xCoord, e.yCoord, e.zCoord).color(0, 0, 255, 255).endVertex();
+        bb.pos(c.x, c.y, c.z).color(0, 0, 255, 255).endVertex();
+        bb.pos(e.x, e.y, e.z).color(0, 0, 255, 255).endVertex();
 
-        vb.pos(c.xCoord, c.yCoord, c.zCoord).color(255, 255, 0, 255).endVertex();
-        vb.pos(c.xCoord, c.yCoord + 0.3, c.zCoord).color(255, 255, 0, 255).endVertex();
+        bb.pos(c.x, c.y, c.z).color(255, 255, 0, 255).endVertex();
+        bb.pos(c.x, c.y + 0.3, c.z).color(255, 255, 0, 255).endVertex();
     }
 
     @Override
     public int hashCode() {
-        return MCObjectUtils.hash(center, radius, angleStart, angleEnd);
+        return Objects.hash(center, radius, angleStart, angleEnd);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class TrackPath2DArc implements ITrackPath {
         if (obj == this) return true;
         TrackPath2DArc arc = (TrackPath2DArc) obj;
         // @formatter:off
-        return MCObjectUtils.equals(center, arc.center) &&
+        return Objects.equals(center, arc.center) &&
                 radius == arc.radius &&
                 angleStart == arc.angleStart &&
                 angleEnd == arc.angleEnd &&

@@ -20,10 +20,10 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.TRSRTransformation;
 
-public class PerspAwareModelBase implements IPerspectiveAwareModel {
+public class PerspAwareModelBase implements IBakedModel {
     private final ImmutableList<BakedQuad> quads;
     private final TextureAtlasSprite particle;
     private final ImmutableMap<TransformType, TRSRTransformation> transforms;
@@ -78,6 +78,6 @@ public class PerspAwareModelBase implements IPerspectiveAwareModel {
 
     @Override
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
-        return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, transforms, cameraTransformType);
+        return PerspectiveMapWrapper.handlePerspective(this, transforms, cameraTransformType);
     }
 }

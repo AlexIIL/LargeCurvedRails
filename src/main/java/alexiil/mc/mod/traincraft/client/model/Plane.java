@@ -30,7 +30,7 @@ public class Plane {
     }
 
     private static Vector3d convertToMutable(Vec3d p) {
-        return new Vector3d(p.xCoord, p.yCoord, p.zCoord);
+        return new Vector3d(p.x, p.y, p.z);
     }
 
     /** Gets a point that is contained by the line, but only if the line returns {@link Split#PASSES_THROUGH_PLANE} from
@@ -71,7 +71,7 @@ public class Plane {
     }
 
     private static Vec3d scale(Vec3d vec, double by) {
-        return new Vec3d(vec.xCoord * by, vec.yCoord * by, vec.zCoord * by);
+        return new Vec3d(vec.x * by, vec.y * by, vec.z * by);
     }
 
     public static class Interpolation {

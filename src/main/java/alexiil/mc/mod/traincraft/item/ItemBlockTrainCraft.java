@@ -28,7 +28,7 @@ public abstract class ItemBlockTrainCraft extends ItemBlock {
     @Override
     public ItemBlock setUnlocalizedName(String unlocalizedName) {
         this.unlocalizedName = unlocalizedName;
-        return super.setUnlocalizedName(unlocalizedName);
+        return (ItemBlock) super.setUnlocalizedName(unlocalizedName);
     }
 
     @Override

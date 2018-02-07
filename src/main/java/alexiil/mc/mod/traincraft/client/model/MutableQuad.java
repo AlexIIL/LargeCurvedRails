@@ -270,7 +270,7 @@ public class MutableQuad {
         }
 
         public Vertex positionvd(Vec3d vec) {
-            return positiond(vec.xCoord, vec.yCoord, vec.zCoord);
+            return positiond(vec.x, vec.y, vec.z);
         }
 
         public Vertex positiond(double x, double y, double z) {
@@ -302,7 +302,7 @@ public class MutableQuad {
         }
 
         public Vertex normalvd(Vec3d vec) {
-            return normalf((float) vec.xCoord, (float) vec.yCoord, (float) vec.zCoord);
+            return normalf((float) vec.x, (float) vec.y, (float) vec.z);
         }
 
         /** Sets the current normal given the x, y, and z coordinates. These are NOT normalised or checked. */

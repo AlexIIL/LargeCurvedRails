@@ -1,7 +1,7 @@
 package alexiil.mc.mod.traincraft.api.track.behaviour;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -122,9 +122,9 @@ public final class BehaviourWrapper implements ITrackPath {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void renderInfo(VertexBuffer vb) {
-        vb.setTranslation(pos.getX(), pos.getY(), pos.getZ());
-        path.renderInfo(vb);
-        vb.setTranslation(0, 0, 0);
+    public void renderInfo(BufferBuilder bb) {
+        bb.setTranslation(pos.getX(), pos.getY(), pos.getZ());
+        path.renderInfo(bb);
+        bb.setTranslation(0, 0, 0);
     }
 }

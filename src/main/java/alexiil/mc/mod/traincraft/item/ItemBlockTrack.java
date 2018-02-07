@@ -31,33 +31,38 @@ public abstract class ItemBlockTrack extends ItemBlockTrainCraft {
     /* Same as the one in ItemBlock, but has an additional check to not modify the block position if we are looking at a
      * track */
     @Override
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-        IBlockState iblockstate = world.getBlockState(pos);
-        Block block = iblockstate.getBlock();
-
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand,
+        EnumFacing side, float hitX, float hitY, float hitZ) {
         // Our addition, we don't care what the defaults are as we know if we are allowed to do this or not.
         boolean replacingTrack = TrackPlacer.INSTANCE.isUpgradableTrack(world, pos);
 
-        if (!block.isReplaceable(world, pos) && !replacingTrack) {
+        if (!block.isReplaceable(world, pos) && !replacingTrack)
+        {
             pos = pos.offset(side);
         }
 
-        if (stack.stackSize == 0) {
-            return EnumActionResult.FAIL;
-        } else if (!player.canPlayerEdit(pos, side, stack)) {
-            return EnumActionResult.FAIL;
-        } else if (replacingTrack || world.canBlockBePlaced(this.block, pos, false, side, (Entity) null, stack)) {
-            int i = this.getMetadata(stack.getMetadata());
-            IBlockState iblockstate1 = this.block.onBlockPlaced(world, pos, side, hitX, hitY, hitZ, i, player);
+        ItemStack itemstack = player.getHeldItem(hand);
 
-            if (placeBlockAt(stack, player, world, pos, side, hitX, hitY, hitZ, iblockstate1)) {
-                SoundType soundtype = this.block.getSoundType();
+        if (!itemstack.isEmpty() && player.canPlayerEdit(pos, side, itemstack) && world.mayPlace(this.block, pos, false, side, (Entity)null))
+        {
+            int i = this.getMetadata(itemstack.getMetadata());
+            IBlockState iblockstate1 = this.block.getStateForPlacement(world, pos, side, hitX, hitY, hitZ, i, player, hand);
+
+            if (placeBlockAt(itemstack, player, world, pos, side, hitX, hitY, hitZ, iblockstate1))
+            {
+                iblockstate1 = world.getBlockState(pos);
+                SoundType soundtype = iblockstate1.getBlock().getSoundType(iblockstate1, world, pos, player);
                 world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-                --stack.stackSize;
+                itemstack.shrink(1);
             }
 
             return EnumActionResult.SUCCESS;
-        } else return EnumActionResult.FAIL;
+        }
+        else
+        {
+            return EnumActionResult.FAIL;
+        }
+    
     }
 
     public static EnumOffset calculateOffsetTo(BlockPos from, Collection<BlockPos> via, BlockPos to) {
@@ -96,11 +101,11 @@ public abstract class ItemBlockTrack extends ItemBlockTrainCraft {
         Block block = currentState.getBlock();
         if (!block.isReplaceable(world, pos)) {
             return EnumTrackRequirement.OTHER;
-        } else if (stack.stackSize == 0) {
+        } else if (stack.isEmpty()) {
             return EnumTrackRequirement.OTHER;
         } else if (!player.canPlayerEdit(pos, side, stack)) {
             return EnumTrackRequirement.OTHER;
-        } else if (!world.canBlockBePlaced(this.block, pos, false, side, (Entity) null, stack)) {
+        } else if (!world.mayPlace(this.block, pos, false, side, (Entity) null)) {
             return EnumTrackRequirement.OTHER;
         }
         return canPlaceTrackInternal(world, pos, player, side, stack);

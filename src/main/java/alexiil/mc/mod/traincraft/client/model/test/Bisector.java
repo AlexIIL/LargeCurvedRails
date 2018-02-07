@@ -125,13 +125,13 @@ import alexiil.mc.mod.traincraft.client.model.Polygon.LinkedVertex;
     }
 
     private static boolean isValid(LinkedVertex lastButOne, LinkedVertex last, LinkedVertex toCheck, Plane p, Face face) {
-        // Vector3d normal = new Vector3d(p.normal.xCoord, p.normal.yCoord, p.normal.zCoord);
+        // Vector3d normal = new Vector3d(p.normal.x, p.normal.y, p.normal.z);
         // Vector3d wantedNormal = new Vector3d(0, 1, 0);
         // Matrix3d matrix = MatrixUtil.rotate(normal, wantedNormal);
         //
-        Point3d lastButOneP = new Point3d(lastButOne.pos.xCoord, lastButOne.pos.yCoord, lastButOne.pos.zCoord);
-        Point3d lastP = new Point3d(last.pos.xCoord, last.pos.yCoord, last.pos.zCoord);
-        Point3d toCheckP = new Point3d(toCheck.pos.xCoord, toCheck.pos.yCoord, toCheck.pos.zCoord);
+        Point3d lastButOneP = new Point3d(lastButOne.pos.x, lastButOne.pos.y, lastButOne.pos.z);
+        Point3d lastP = new Point3d(last.pos.x, last.pos.y, last.pos.z);
+        Point3d toCheckP = new Point3d(toCheck.pos.x, toCheck.pos.y, toCheck.pos.z);
         //
         // matrix.transform(lastButOneP);
         // matrix.transform(lastP);

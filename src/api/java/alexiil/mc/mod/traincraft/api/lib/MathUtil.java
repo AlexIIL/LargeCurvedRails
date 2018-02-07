@@ -6,7 +6,7 @@ public class MathUtil {
     public static final double DEFAULT_MATH_LIMIT = 1e-5;
 
     public static double[] toArray(Vec3d v) {
-        return new double[] { v.xCoord, v.yCoord, v.zCoord };
+        return new double[] { v.x, v.y, v.z };
     }
 
     public static Vec3d cross(Vec3d vecA, Vec3d vecB) {
@@ -19,15 +19,15 @@ public class MathUtil {
     }
 
     public static Vec3d perp(Vec3d vec) {
-        return new Vec3d(-vec.zCoord, vec.yCoord, vec.xCoord);
+        return new Vec3d(-vec.z, vec.y, vec.x);
     }
 
     public static Vec3d scale(Vec3d vec, double by) {
-        return new Vec3d(vec.xCoord * by, vec.yCoord * by, vec.zCoord * by);
+        return new Vec3d(vec.x * by, vec.y * by, vec.z * by);
     }
 
     public static double dot(Vec3d a, Vec3d b) {
-        return a.xCoord * b.xCoord + a.yCoord * b.yCoord + a.zCoord * b.zCoord;
+        return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
     public static boolean roughlyEquals(double a, double b) {
@@ -45,7 +45,7 @@ public class MathUtil {
     }
 
     public static Vec3d roundToClosest(Vec3d vec) {
-        return new Vec3d(roundToClosest(vec.xCoord), roundToClosest(vec.yCoord), roundToClosest(vec.zCoord));
+        return new Vec3d(roundToClosest(vec.x), roundToClosest(vec.y), roundToClosest(vec.z));
     }
 
     public static Vec3d findCommonPoint(Vec3d r1, Vec3d e1, Vec3d r2, Vec3d e2) {

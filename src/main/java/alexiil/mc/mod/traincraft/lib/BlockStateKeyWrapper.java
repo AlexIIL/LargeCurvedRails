@@ -2,6 +2,7 @@ package alexiil.mc.mod.traincraft.lib;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -24,14 +25,12 @@ public class BlockStateKeyWrapper {
 
     private int computeHashCode() {
         HashCodeBuilder builder = new HashCodeBuilder();
-        for (IProperty prop : state.getPropertyNames()) {
-            Comparable val = state.getValue(prop);
-            builder.append(val);
+        for (Comparable<?> value : state.getProperties().values()) {
+            builder.append(value);
         }
 
         if (extended != null) {
-            for (IUnlistedProperty prop : extended.getUnlistedNames()) {
-                Object val = extended.getValue(prop);
+            for (Optional<?> val : extended.getUnlistedProperties().values()) {
                 builder.append(val);
             }
         }
@@ -47,11 +46,11 @@ public class BlockStateKeyWrapper {
         if (o.extended == null && extended != null || extended == null && o.extended != null) return false;
 
         List<IProperty> props = new ArrayList<>();
-        props.addAll(state.getPropertyNames());
+        props.addAll(state.getProperties().keySet());
         for (IProperty prop : props) {
-            if (!o.state.getPropertyNames().contains(prop)) return false;
+            if (!o.state.getProperties().containsKey(prop)) return false;
         }
-        for (IProperty prop : o.state.getPropertyNames()) {
+        for (IProperty prop : o.state.getProperties().keySet()) {
             if (!props.contains(prop)) return false;
 
             Comparable val = state.getValue(prop);
@@ -63,7 +62,7 @@ public class BlockStateKeyWrapper {
             List<IUnlistedProperty> unlistedProps = new ArrayList<>();
             unlistedProps.addAll(extended.getUnlistedNames());
             for (IUnlistedProperty prop : unlistedProps) {
-                if (!o.state.getPropertyNames().contains(prop)) return false;
+                if (!o.state.getProperties().containsKey(prop)) return false;
             }
             for (IUnlistedProperty prop : o.extended.getUnlistedNames()) {
                 if (!unlistedProps.contains(prop)) return false;

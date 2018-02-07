@@ -68,7 +68,7 @@ public class TrackBehaviourStraightState extends TrackBehaviourStateful {
     @Override
     public boolean convertToNative(TileEntity owner) {
         World world = owner.getWorld();
-        IBlockState state = TCBlocks.TRACK_STRAIGHT.getBlock().getDefaultState();
+        IBlockState state = TCBlocks.TRACK_STRAIGHT_AXIS.getBlock().getDefaultState();
         state = state.withProperty(BlockAbstractTrack.TRACK_DIRECTION, dir);
         return world.setBlockState(owner.getPos(), state);
     }

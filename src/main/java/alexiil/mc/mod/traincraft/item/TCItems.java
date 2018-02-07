@@ -6,15 +6,18 @@ import java.util.function.Supplier;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import alexiil.mc.mod.traincraft.TCTabs;
 import alexiil.mc.mod.traincraft.block.TCBlocks;
 
+import buildcraft.lib.registry.RegistrationHelper;
+
 public enum TCItems {
     /* Tracks */
-    TRACK_STRAIGHT_AXIS(() -> new ItemTrackStraight(TCBlocks.TRACK_STRAIGHT.getBlock()), () -> TCTabs.TRAINCRAFT),
-    TRACK_STRAIGHT_DIAG(() -> new ItemTrackDiagonal(TCBlocks.TRACK_STRAIGHT.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_STRAIGHT_AXIS(() -> new ItemTrackStraight(TCBlocks.TRACK_STRAIGHT_AXIS.getBlock()), () -> TCTabs.TRAINCRAFT),
+    TRACK_STRAIGHT_DIAG(() -> new ItemTrackDiagonal(TCBlocks.TRACK_STRAIGHT_DIAG.getBlock()), () -> TCTabs.TRAINCRAFT),
     TRACK_ASCENDING_AXIS_3(() -> new ItemTrackAscendingAxis(TCBlocks.TRACK_ASCENDING_3_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
     TRACK_ASCENDING_AXIS_4(() -> new ItemTrackAscendingAxis(TCBlocks.TRACK_ASCENDING_4_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
     TRACK_ASCENDING_AXIS_6(() -> new ItemTrackAscendingAxis(TCBlocks.TRACK_ASCENDING_6_LONG.getBlock()), () -> TCTabs.TRAINCRAFT),
@@ -30,6 +33,8 @@ public enum TCItems {
     TRACK_CURVED_HALF_7(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_7_RADIUS), () -> TCTabs.TRAINCRAFT),
     TRACK_CURVED_HALF_9(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_9_RADIUS), () -> TCTabs.TRAINCRAFT),
     TRACK_CURVED_HALF_11(() -> new ItemTrackCurved(TCBlocks.TRACK_CURVED_HALF_11_RADIUS), () -> TCTabs.TRAINCRAFT);
+
+    private static final RegistrationHelper HELPER = new RegistrationHelper();
 
     private final Supplier<Item> supplier;
     private final Supplier<TCTabs> tabSupplier;
@@ -48,7 +53,7 @@ public enum TCItems {
             String name = enumItem.name().toLowerCase(Locale.ROOT);
             enumItem.item.setUnlocalizedName("traincraft." + name);
             enumItem.item.setRegistryName(new ResourceLocation("traincraft", name));
-            GameRegistry.registerItem(enumItem.item);
+            HELPER.addForcedItem(enumItem.item);
         }
     }
 

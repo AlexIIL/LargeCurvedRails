@@ -68,11 +68,11 @@ public class ModelSplitter {
 
     private static Vec3d squish(Vec3d vec, Plane plane) {
         // v* is the vector that we want (we are given x and z, we want y)
-        double vx = vec.xCoord, vz = vec.zCoord;
+        double vx = vec.x, vz = vec.z;
         // p* is the plane point
-        double px = plane.point.xCoord, py = plane.point.yCoord, pz = plane.point.zCoord;
+        double px = plane.point.x, py = plane.point.y, pz = plane.point.z;
         // n* is the planes normal
-        double nx = plane.normal.xCoord, ny = plane.normal.yCoord, nz = plane.normal.zCoord;
+        double nx = plane.normal.x, ny = plane.normal.y, nz = plane.normal.z;
         // eqn for plane: (v)
         // (v - p) . n = 0
         /** Expanding the dot product */
@@ -83,7 +83,7 @@ public class ModelSplitter {
         // vy = py - ([vx-px]*nx+[vz-pz]*nz)/ny
         /** Computing */
         double vy = py - ((vx - px) * nx + (vz - pz) * nz) / ny;
-        return new Vec3d(vec.xCoord, vy, vec.zCoord);
+        return new Vec3d(vec.x, vy, vec.z);
     }
 
     public static List<MutableQuad>[] bisect(List<MutableQuad> quads, Plane p) {

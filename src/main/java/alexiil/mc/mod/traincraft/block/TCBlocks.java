@@ -13,8 +13,11 @@ import alexiil.mc.mod.traincraft.tile.TileTrackMultiple;
 import alexiil.mc.mod.traincraft.tile.TileTrackMultiplePoints;
 import alexiil.mc.mod.traincraft.track.Curve;
 
+import buildcraft.lib.registry.RegistrationHelper;
+
 public enum TCBlocks {
-    TRACK_STRAIGHT(() -> new BlockTrackStraight()),
+    TRACK_STRAIGHT_AXIS(() -> new BlockTrackStraight()),
+    TRACK_STRAIGHT_DIAG(() -> new BlockTrackStraight()),
     /* 45 degree turns */
     TRACK_CURVED_HALF_3_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_3)),
     TRACK_CURVED_HALF_5_RADIUS(() -> new BlockTrackCurvedHalf(Curve.RADIUS_5)),
@@ -38,6 +41,8 @@ public enum TCBlocks {
     TRACK_POINTER_ASCENDING(() -> new BlockTrackPointerAscending()),
     TRACK_MULTIPLE(() -> new BlockTrackMultiple()),;
 
+    private static final RegistrationHelper HELPER = new RegistrationHelper();
+
     private final Supplier<Block> supplier;
     private final Class<? extends ItemBlock> itemBlock;
 
@@ -60,7 +65,7 @@ public enum TCBlocks {
             String name = tcBlock.name().toLowerCase(Locale.ROOT);
             tcBlock.block.setUnlocalizedName(name + ".name");
             tcBlock.block.setRegistryName(new ResourceLocation("traincraft", name));
-            GameRegistry.registerBlock(tcBlock.getBlock(), tcBlock.itemBlock);
+            HELPER.addForcedBlock(tcBlock.block);
         }
     }
 

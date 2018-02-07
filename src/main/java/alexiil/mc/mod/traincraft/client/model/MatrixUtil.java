@@ -12,13 +12,13 @@ public class MatrixUtil {
     public static Matrix4f rotateTo(Vec3d direction) {
         direction = direction.normalize();
 
-        float xRot = (float) Math.asin(direction.yCoord);
+        float xRot = (float) Math.asin(direction.y);
         Matrix4f matrixRotX = new Matrix4f();
         matrixRotX.rotX(-xRot);
 
         // DO STUFF
 
-        float yRot = (float) Math.atan2(direction.xCoord, direction.zCoord);
+        float yRot = (float) Math.atan2(direction.x, direction.z);
         Matrix4f matrixRotY = new Matrix4f();
         matrixRotY.rotY(yRot);
 
@@ -33,7 +33,7 @@ public class MatrixUtil {
     public static Matrix4f translation(Vec3d pos) {
         Matrix4f matrix = new Matrix4f();
         matrix.setIdentity();
-        matrix.setTranslation(new Vector3f((float) pos.xCoord, (float) pos.yCoord, (float) pos.zCoord));
+        matrix.setTranslation(new Vector3f((float) pos.x, (float) pos.y, (float) pos.z));
         return matrix;
     }
 

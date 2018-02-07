@@ -3,13 +3,17 @@ package alexiil.mc.mod.traincraft.client.render;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.vecmath.*;
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Point2f;
+import javax.vecmath.Point3f;
+import javax.vecmath.Point4i;
+import javax.vecmath.Vector3f;
 
 import org.lwjgl.opengl.GL11;
 
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -47,9 +51,9 @@ public class SmoothFaceRenderer {
     }
 
     public static void renderModelMultColour(List<BakedQuad> quads, Matrix4f transform, float red, float green, float blue) {
-        VertexBuffer vb = Tessellator.getInstance().getBuffer();
-        vb.setTranslation(0, 0, 0);
-        vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+        BufferBuilder bb = Tessellator.getInstance().getBuffer();
+        bb.setTranslation(0, 0, 0);
+        bb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
         for (BakedQuad quad : quads) {
             if (quad == null) continue;
             Point3f[] points = transform(points(quad), transform);
@@ -59,17 +63,17 @@ public class SmoothFaceRenderer {
 
             for (int i = 0; i < 4; i++) {
                 Point3f pos = points[i];
-                vb.pos(pos.x, pos.y, pos.z);
+                bb.pos(pos.x, pos.y, pos.z);
 
                 Point2f uv = uv(quad, i);
-                vb.tex(uv.x, uv.y);
+                bb.tex(uv.x, uv.y);
 
                 Point4i colour = colour(quad, i);
-                vb.color((int) (diffuse * colour.x * red), (int) (diffuse * colour.y * green), (int) (diffuse * colour.z * blue), colour.w);
+                bb.color((int) (diffuse * colour.x * red), (int) (diffuse * colour.y * green), (int) (diffuse * colour.z * blue), colour.w);
 
-                vb.normal(normal.x, normal.y, normal.z);
+                bb.normal(normal.x, normal.y, normal.z);
 
-                vb.endVertex();
+                bb.endVertex();
             }
         }
         Tessellator.getInstance().draw();

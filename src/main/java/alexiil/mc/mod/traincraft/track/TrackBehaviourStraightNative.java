@@ -24,7 +24,7 @@ public class TrackBehaviourStraightNative extends TrackBehaviourNative {
 
     @Override
     public TrackBehaviourStateful convertToStateful(World world, BlockPos pos, IBlockState state) {
-        if (state.getBlock() != TCBlocks.TRACK_STRAIGHT.getBlock()) return null;
+        if (state.getBlock() != TCBlocks.TRACK_STRAIGHT_AXIS.getBlock()) return null;
         TrackBehaviourStraightState track = new TrackBehaviourStraightState(world, pos);
         track.setDir(state.getValue(BlockAbstractTrack.TRACK_DIRECTION));
         return track;
@@ -32,7 +32,7 @@ public class TrackBehaviourStraightNative extends TrackBehaviourNative {
 
     @Override
     public ITrackPath getPath(World world, BlockPos pos, IBlockState state) {
-        if (state.getBlock() != TCBlocks.TRACK_STRAIGHT.getBlock()) return null;
+        if (state.getBlock() != TCBlocks.TRACK_STRAIGHT_AXIS.getBlock()) return null;
         return state.getValue(BlockAbstractTrack.TRACK_DIRECTION).path;
     }
 

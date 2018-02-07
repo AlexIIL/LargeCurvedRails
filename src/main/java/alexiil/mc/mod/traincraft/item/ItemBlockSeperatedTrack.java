@@ -66,7 +66,7 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
             }
             TrackPlacer.INSTANCE.placeSlaves(wrapper.behaviour(), world, pos);
             for (BlockPos p : allSetters) {
-                world.notifyBlockOfStateChange(pos.add(p), Blocks.AIR);
+                world.neighborChanged(pos.add(p), Blocks.AIR, pos);
             }
             return true;
         } else {
@@ -74,7 +74,7 @@ public abstract class ItemBlockSeperatedTrack<T extends BlockTrackSeperated> ext
             if (stateful == null) return false;
             if (!TrackPlacer.INSTANCE.tryPlaceTrackAndSlaves(stateful, world, pos)) return false;
             for (BlockPos p : allSetters) {
-                world.notifyBlockOfStateChange(pos.add(p), Blocks.AIR);
+                world.neighborChanged(pos.add(p), Blocks.AIR, pos);
             }
             return true;
         }

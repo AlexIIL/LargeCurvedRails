@@ -1,6 +1,10 @@
 package alexiil.mc.mod.traincraft.tile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -10,7 +14,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.Vec3d;
@@ -54,7 +57,7 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
 
     @Override
     public void update() {
-        if (worldObj != null) {
+        if (world != null) {
             if (postLoad == null) return;
             readFromNBTPost(postLoad);
             postLoad = null;
@@ -69,7 +72,7 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         NBTTagList list = new NBTTagList();
         for (BehaviourWrapper wrapped : containing) {
@@ -86,6 +89,7 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
             list.appendTag(wrapped.getIdentifier().serializeNBT());
         }
         nbt.setTag("pointers", list);
+        return nbt;
     }
 
     private void readFromNBTPost(NBTTagCompound nbt) {
@@ -110,10 +114,10 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
             NBTTagList list = (NBTTagList) nbt.getTag("pointers");
             for (int i = 0; i < list.tagCount(); i++) {
                 NBTTagCompound comp = list.getCompoundTagAt(i);
-                TrackIdentifier ident = new TrackIdentifier(worldObj.provider.getDimension(), null, "");
+                TrackIdentifier ident = new TrackIdentifier(world.provider.getDimension(), null, "");
                 ident.deserializeNBT(comp);
                 if (ident.pos() == null) continue;
-                if (worldObj.isBlockLoaded(ident.pos())) {
+                if (world.isBlockLoaded(ident.pos())) {
                     loadPointingIdentifier(ident);
                 } else {
                     postLoadIdents.add(ident);
@@ -131,7 +135,7 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
     }
 
     @Override
-    public Packet<?> getDescriptionPacket() {
+    public SPacketUpdateTileEntity getUpdatePacket() {
         NBTTagCompound nbt;
         if (postLoad == null) {
             nbt = new NBTTagCompound();
@@ -139,7 +143,7 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
         } else {
             nbt = postLoad;
         }
-        System.out.println("getDescPacket() " + nbt);
+        System.out.println("getUpdatePacket() " + nbt);
         new Throwable().printStackTrace();
         return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), nbt);
     }
@@ -151,8 +155,8 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
     }
 
     private void loadPointingIdentifier(TrackIdentifier ident) {
-        IBlockState state = worldObj.getBlockState(ident.pos());
-        List<BehaviourWrapper> wrappers = TrackPathProvider.INSTANCE.getTracksAsList(worldObj, ident.pos(), state);
+        IBlockState state = world.getBlockState(ident.pos());
+        List<BehaviourWrapper> wrappers = TrackPathProvider.INSTANCE.getTracksAsList(world, ident.pos(), state);
 
         for (BehaviourWrapper wrapper : wrappers) {
             if (wrapper.getIdentifier().equals(ident)) {
@@ -253,13 +257,13 @@ public class TileTrackMultiple extends TileAbstractTrack implements ITickable {
         mult.pointingTo.addAll(pointingTo);
         mult.allWrapped.addAll(allWrapped);
 
-        IBlockState state = worldObj.getBlockState(getPos());
+        IBlockState state = world.getBlockState(getPos());
         state = state.withProperty(BlockTrackMultiple.POINTS, mult instanceof TileTrackMultiplePoints);
-        worldObj.setBlockState(getPos(), state);
-        worldObj.setTileEntity(getPos(), mult);
+        world.setBlockState(getPos(), state);
+        world.setTileEntity(getPos(), mult);
         // HARDCODED FOR NOW
-        EntityPlayerMP player = (EntityPlayerMP) ((WorldServer) worldObj).playerEntities.get(0);
-        player.playerNetServerHandler.sendPacket(mult.getDescriptionPacket());
+        EntityPlayerMP player = (EntityPlayerMP) ((WorldServer) world).playerEntities.get(0);
+        player.connection.sendPacket(mult.getUpdatePacket());
         System.out.println("Send packet to player " + mult.containing);
     }
 }

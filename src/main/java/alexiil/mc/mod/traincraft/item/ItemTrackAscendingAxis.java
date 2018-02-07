@@ -1,21 +1,15 @@
 package alexiil.mc.mod.traincraft.item;
 
-import java.util.List;
 import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import alexiil.mc.mod.traincraft.api.track.ITrackPlacer.EnumTrackRequirement;
 import alexiil.mc.mod.traincraft.api.track.behaviour.TrackBehaviour.TrackBehaviourStateful;
@@ -31,14 +25,8 @@ public class ItemTrackAscendingAxis extends ItemBlockSeperatedTrack<BlockTrackAs
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems) {
-        // TODO Auto-generated method stub
-        super.getSubItems(itemIn, tab, subItems);
-    }
-
-    @Override
-    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState) {
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side,
+        float hitX, float hitY, float hitZ, IBlockState newState) {
         IBlockState targetState = targetState(world, pos, player, stack, side, hitX, hitY, hitZ);
 
         Map<BlockPos, IBlockSetter> setters = getTrackBlockSetters(targetState, stack);
@@ -76,7 +64,8 @@ public class ItemTrackAscendingAxis extends ItemBlockSeperatedTrack<BlockTrackAs
     }
 
     @Override
-    protected IBlockState targetState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
+    protected IBlockState targetState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side,
+        float hitX, float hitY, float hitZ) {
         EnumFacing face = player.getHorizontalFacing();
         IBlockState state = seperated.getDefaultState();
         if (face == EnumFacing.EAST) {
@@ -94,17 +83,20 @@ public class ItemTrackAscendingAxis extends ItemBlockSeperatedTrack<BlockTrackAs
     }
 
     @Override
-    public TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
+    public TrackBehaviourStateful statefulState(World world, BlockPos pos, EntityPlayer player, ItemStack stack,
+        EnumFacing side, float hitX, float hitY, float hitZ) {
         return null; // No state for this (it cannot overlap so there is no point)
     }
 
     @Override
-    public ITrackPath getPreviewPath(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
+    public ITrackPath getPreviewPath(World world, BlockPos pos, EntityPlayer player, ItemStack stack, EnumFacing side,
+        float hitX, float hitY, float hitZ) {
         return seperated.path(targetState(world, pos, player, stack, side, hitX, hitY, hitZ));
     }
 
     @Override
-    protected EnumTrackRequirement canPlaceTrackInternal(World world, BlockPos pos, EntityPlayer player, EnumFacing side, ItemStack stack) {
+    protected EnumTrackRequirement canPlaceTrackInternal(World world, BlockPos pos, EntityPlayer player,
+        EnumFacing side, ItemStack stack) {
         double length = seperated.length;
         EnumFacing playerDir = player.getHorizontalFacing();
         for (int i = 1; i < length; i++) {

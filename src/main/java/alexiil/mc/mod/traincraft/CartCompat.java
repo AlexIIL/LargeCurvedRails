@@ -38,8 +38,8 @@ public enum CartCompat {
 
         List<BehaviourWrapper[]> wrappers = new ArrayList<>();
         for (BlockPos pos : BlockPos.getAllInBox(new BlockPos(cartPoint).add(-2, -2, -2), new BlockPos(cartPoint).add(2, 2, 2))) {
-            IBlockState state = minecart.worldObj.getBlockState(pos);
-            wrappers.add(TrackPathProvider.INSTANCE.getTracksAsArray(minecart.worldObj, pos, state));
+            IBlockState state = minecart.world.getBlockState(pos);
+            wrappers.add(TrackPathProvider.INSTANCE.getTracksAsArray(minecart.world, pos, state));
         }
         double angDiff = Integer.MAX_VALUE;
         double posDiff = 2;
@@ -76,14 +76,14 @@ public enum CartCompat {
             Vec3d cartAngle = new Vec3d(minecart.motionX, minecart.motionY, minecart.motionZ);
             double speed = cartAngle.lengthVector();
             speed = Math.min(speed, 0.2);
-            minecart.motionX = pathDir.xCoord * speed;
-            minecart.motionY = pathDir.yCoord * speed;
-            minecart.motionZ = pathDir.zCoord * speed;
+            minecart.motionX = pathDir.x * speed;
+            minecart.motionY = pathDir.y * speed;
+            minecart.motionZ = pathDir.z * speed;
 
             Vec3d pathPos = bestTrace.closestPoint;
-            minecart.posX = pathPos.xCoord + minecart.motionX;
-            minecart.posY = pathPos.yCoord + minecart.motionY;
-            minecart.posZ = pathPos.zCoord + minecart.motionZ;
+            minecart.posX = pathPos.x + minecart.motionX;
+            minecart.posY = pathPos.y + minecart.motionY;
+            minecart.posZ = pathPos.z + minecart.motionZ;
         }
     }
 }

@@ -2,6 +2,8 @@ package alexiil.mc.mod.traincraft.api.track.behaviour;
 
 import java.util.Objects;
 
+import io.netty.buffer.ByteBuf;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
@@ -9,8 +11,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import alexiil.mc.mod.traincraft.api.INetSerialisable;
-
-import io.netty.buffer.ByteBuf;
 
 public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, INetSerialisable {
     private int worldDimension;
@@ -58,7 +58,7 @@ public final class TrackIdentifier implements INBTSerializable<NBTTagCompound>, 
         worldDimension = buffer.readInt();
         pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
         int l = buffer.readUnsignedByte();
-        trackIdentifier = new PacketBuffer(buffer).readStringFromBuffer(l);
+        trackIdentifier = new PacketBuffer(buffer).readString(l);
         reversed = buffer.readBoolean();
     }
 

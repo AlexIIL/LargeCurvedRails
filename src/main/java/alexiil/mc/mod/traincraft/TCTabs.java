@@ -4,23 +4,23 @@ import java.util.function.Supplier;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 public enum TCTabs {
-    TRAINCRAFT("traincraft", () -> Items.MINECART);
+    TRAINCRAFT("traincraft", () -> new ItemStack(Items.MINECART));
 
     public final TCTab tab;
-    private final Supplier<Item> itemSupplier;
-    private Item shownItem = Items.MINECART;
+    private final Supplier<ItemStack> itemSupplier;
+    private ItemStack shownItem = new ItemStack(Items.MINECART);
 
-    private TCTabs(String name, Supplier<Item> itemSupplier) {
+    private TCTabs(String name, Supplier<ItemStack> itemSupplier) {
         this.tab = new TCTab(name);
         this.itemSupplier = itemSupplier;
     }
 
     public static void preInit() {
         for (TCTabs tcTab : values()) {
-            Item shown = tcTab.itemSupplier.get();
+            ItemStack shown = tcTab.itemSupplier.get();
             if (shown != null) tcTab.shownItem = shown;
         }
     }
@@ -31,7 +31,7 @@ public enum TCTabs {
         }
 
         @Override
-        public Item getTabIconItem() {
+        public ItemStack getTabIconItem() {
             return TCTabs.this.shownItem;
         }
     }

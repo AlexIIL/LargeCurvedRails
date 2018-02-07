@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.math.Vec3d;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -59,9 +59,9 @@ public abstract class TrackPathCompositeBase implements ITrackPath {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void renderInfo(VertexBuffer vb) {
+    public void renderInfo(BufferBuilder bb) {
         for (ITrackPath p : paths) {
-            p.renderInfo(vb);
+            p.renderInfo(bb);
         }
     }
 
